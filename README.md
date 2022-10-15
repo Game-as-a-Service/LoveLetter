@@ -1,13 +1,17 @@
-( * : 為團隊需自行修改部分 )
-# *Gaas-repo-template ( 換成自己遊戲名稱 )
+# 情書（Love Letter）
+![image](https://b.ecimg.tw/items/DEAM6UA9007S972/000001_1483519203.jpg)
 
-# Intro your game
+# 程式語言與框架
+- 前端(代定): Vue、React
+- 後端: Python(FastAPI)
+- MongoDB
 
+# Practice Stack
+- 三層式架構 (MVC）
+- Behavior-Driven Development: BDD(Example Mapping）
+- Test-Driven Development: ATDD
+- DevOps: CI/CD Pipeline
+- OOA
 
-# My Practice Stack
-- 描述一下你們使用的軟體方法論 :
-   1. *...
-
-### Tech Stack
-- 描述一下你們使用的技術、框架、語言 :
-   1. *...
+# 期望推進的方向
+- 因為我對上面的一些Practice stack也不太熟悉，所以希望會是大家一起討論出自己覺得對的方式，藉此來一起踩雷、學習XD
