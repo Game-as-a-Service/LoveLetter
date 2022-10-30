@@ -12,7 +12,7 @@
 - 用 example mapping，確定需求的具體內容
 - Test-Driven Development: ATDD
 - DevOps: CI/CD Pipeline
-- OOA
+- OOAD
 
 # Other
 - Github flow(Issue、Pull requests、Projects)
