@@ -41,3 +41,11 @@ def player_out(context, player):
 def player_not_out(context, player):
     p: Player = getattr(context, player)
     assert p.am_i_out is False
+
+
+@given('{player} 被侍女保護中')
+def player_is_protected(context, player):
+    p = Player()
+    p.name = player
+    p.protected = True
+    setattr(context, player, p)
