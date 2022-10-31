@@ -22,7 +22,7 @@ class GuardCard(Card):
 
 
 class PriestCard(Card):
-    name = '牧師'
+    name = '神父'
 
 
 class BaronCard(Card):
