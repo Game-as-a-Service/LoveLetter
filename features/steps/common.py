@@ -1,4 +1,4 @@
-from behave import *
+from behave import given, when, then
 
 from love_letter.models import Player
 from love_letter.models.cards import find_card_by_name
