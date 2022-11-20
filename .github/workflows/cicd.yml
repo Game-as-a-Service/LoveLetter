@@ -22,3 +22,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - run: echo "test ci success"
+      - name: Test with pytest
+        run: |
+          Makefile hello
