@@ -17,8 +17,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: build application
-        run: make build
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
@@ -26,4 +24,4 @@ jobs:
       - run: echo "test ci success"
       - name: Test with pytest
         run: |
-          Makefile hello
+          make hello
