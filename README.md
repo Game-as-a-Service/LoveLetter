@@ -21,3 +21,5 @@
 - 因為我對上面的一些Practice stack也不太熟悉，所以希望會是大家一起討論出自己覺得對的方式，藉此來一起踩雷、學習XD
 - 大家一起做code review
 
+# 教學文
+- [Poetry](https://blog.kyomind.tw/python-poetry/)
