@@ -20,6 +20,21 @@ def player_hold_one_card(context, player, card):
     setattr(context, player, p)
 
 
+@given('{player} 被侍女保護中')
+def player_is_protected(context, player):
+    p = Player()
+    p.name = player
+    p.protected = True
+    setattr(context, player, p)
+
+
+@when('系統發牌給 {player} {card1}')
+def system_draw_card(context, player: str, card1: str):
+    active_player: Player = getattr(context, player)
+    draw_card = find_card_by_name(card1)
+    active_player.cards.append(draw_card)
+
+
 @when('{player_a} 對 {player_b} 出牌 {card1} 指定 {card2}')
 def player_hold_one_card(context, player_a, player_b, card1, card2):
     active_player: Player = getattr(context, player_a)
@@ -43,9 +58,22 @@ def player_not_out(context, player):
     assert p.am_i_out is False
 
 
-@given('{player} 被侍女保護中')
-def player_is_protected(context, player):
-    p = Player()
-    p.name = player
-    p.protected = True
-    setattr(context, player, p)
+@then('{player} 成功打出 {card}')
+def player_success_play_this_card(context, player: str, card: str):
+    active_player: Player = getattr(context, player)
+    card_will_be_played = find_card_by_name(card)
+    result = active_player.play_opponent_two_cards(card_will_be_played=card_will_be_played)
+
+    assert result is True
+    assert active_player.total_value_of_card == card_will_be_played.level
+
+
+@then('{player} 無法打出 {card}')
+def player_error_play_this_card(context, player: str, card: str):
+    active_player: Player = getattr(context, player)
+    card_will_be_played = find_card_by_name(card)
+    result = active_player.play_opponent_two_cards(card_will_be_played=card_will_be_played)
+
+    assert result is False
+    assert active_player.total_value_of_card == 0
+
