@@ -54,6 +54,9 @@ class CountessCard(Card):
     name = '伯爵夫人'
     level = 7
 
+    def execute_with_card(self, player: "Player", card: "Card"):
+        pass
+
 
 class PrincessCard(Card):
     name = '公主'
