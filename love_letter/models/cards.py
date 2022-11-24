@@ -28,6 +28,9 @@ class PriestCard(Card):
     name = '神父'
     level = 2
 
+    def __eq__(self, other):
+        return PriestCard.name == other.name
+
 
 class BaronCard(Card):
     name = '男爵'
@@ -72,3 +75,10 @@ def find_card_by_name(name):
 
 ALL_CARD_TYPES = [GuardCard(), PriestCard(), BaronCard(), PrinceCard(), KingCard(), CountessCard(), PrincessCard(), ]
 COUNTESS_CARD = find_card_by_name("伯爵夫人")
+
+
+def find_card_by_level(level):
+    matched = [x for x in ALL_CARD_TYPES if x.level == level]
+    if matched:
+        return matched[0]
+    raise ValueError(f'Cannot find the card with level: {level}')

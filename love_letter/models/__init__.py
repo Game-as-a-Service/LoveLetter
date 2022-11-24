@@ -1,4 +1,51 @@
+from copy import deepcopy
 from typing import List
+
+from love_letter.models.cards import find_card_by_level
+
+
+class Round:
+
+    def __init__(self, players: List["Player"]):
+        self.players: List["Player"] = players
+        self.winner = None
+
+    def to_json(self):
+        return dict(players=[x.to_json() for x in self.players], winner=self.winner)
+
+
+class Game:
+
+    def __init__(self):
+        self.id: str = None
+        self.players: List["Player"] = []
+        self.rounds: List["Round"] = []
+
+    def add_player(self, player: "Player"):
+        self.players.append(player)
+
+    def next_round(self):
+        # TODO 如果沒有下一局，丟 exception
+        self.rounds.append(Round(deepcopy(self.players)))
+
+    def to_json(self):
+        return dict(game_id=self.id, players=[x.to_json() for x in self.players],
+                    rounds=[x.to_json() for x in self.rounds])
+
+    def play(self, card_action):
+        players = self.rounds[-1].players
+
+        turn_player: "Player" = [x for x in players if x.name == card_action.turn_player][0]
+        opponent: "Player" = [x for x in players if x.name == card_action.opponent][0]
+        turn_player.play_opponent_two_cards(opponent,
+                                            find_card_by_level(card_action.card_action[0]),
+                                            find_card_by_level(card_action.card_action[1]))
+
+        # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
+        might_has_winner = [x for x in players if not x.am_i_out]
+        if len(might_has_winner) == 1:
+            self.rounds[-1].winner = might_has_winner[0].name
+            self.next_round()
 
 
 class Player:
@@ -40,3 +87,6 @@ class Player:
 
     def out(self):
         self.am_i_out = True
+
+    def to_json(self):
+        return dict(name=self.name, out=self.am_i_out)
