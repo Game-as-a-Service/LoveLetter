@@ -21,3 +21,19 @@
 - 因為我對上面的一些Practice stack也不太熟悉，所以希望會是大家一起討論出自己覺得對的方式，藉此來一起踩雷、學習XD
 - 大家一起做code review
 
+# 教學文
+- [Poetry](https://blog.kyomind.tw/python-poetry/)
+  - ```
+    poetry init  # 初始化，建立pyproject.toml
+    poetry env use python  # 建立專案虛擬環境並使用
+    poetry shell  # 啟用虛擬環境，若沒有虛擬環境自動幫你建立並使用
+    poetry install  # 依poetry.lock記載的套件版本安裝到虛擬環境中，類似npm install \
+    poetry add xxx  # == pip install xxx
+    poetry remove xxx  # == pip uninstall xxx
+    
+    # 將現有的requirements.txt轉成poetry
+    cat requirements.txt | xargs poetry add
+    
+    # 輸出 Poetry 虛擬環境的 requirements.txt
+    poetry export -f requirements.txt -o requirements.txt --without-hashes 
+    ```
