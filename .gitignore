@@ -311,3 +311,5 @@ cython_debug/
 .idea/
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,pycharm+all,python,direnv
+requirements.txt
+.DS_Store
