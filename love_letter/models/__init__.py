@@ -10,8 +10,8 @@ class Round:
         self.players: List["Player"] = players
         self.winner = None
 
-    def to_json(self):
-        return dict(players=[x.to_json() for x in self.players], winner=self.winner)
+    def to_dict(self):
+        return dict(players=[x.to_dict() for x in self.players], winner=self.winner)
 
 
 class Game:
@@ -28,9 +28,9 @@ class Game:
         # TODO 如果沒有下一局，丟 exception
         self.rounds.append(Round(deepcopy(self.players)))
 
-    def to_json(self):
-        return dict(game_id=self.id, players=[x.to_json() for x in self.players],
-                    rounds=[x.to_json() for x in self.rounds])
+    def to_dict(self):
+        return dict(game_id=self.id, players=[x.to_dict() for x in self.players],
+                    rounds=[x.to_dict() for x in self.rounds])
 
     def play(self, card_action):
         players = self.rounds[-1].players
@@ -88,5 +88,5 @@ class Player:
     def out(self):
         self.am_i_out = True
 
-    def to_json(self):
+    def to_dict(self):
         return dict(name=self.name, out=self.am_i_out)

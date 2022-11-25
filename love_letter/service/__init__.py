@@ -1,3 +1,5 @@
+from typing import Dict
+
 from love_letter.models import Game, Player
 from love_letter.models.cards import find_card_by_name
 
@@ -27,16 +29,16 @@ build_fake_data()
 
 class GameService:
 
-    def start_game(self, game_id: str):
+    def start_game(self, game_id: str) -> Dict:
         if game_id not in database:
             return
         game: Game = database.get(game_id)
         game.next_round()
-        return game.to_json()
+        return game.to_dict()
 
-    def play_card(self, game_id, card_action):
+    def play_card(self, game_id, card_action) -> Dict:
         if game_id in database:
             game: Game = database.get(game_id)
             game.play(card_action)
-            return game.to_json()
+            return game.to_dict()
         return None
