@@ -13,6 +13,9 @@ class Card(metaclass=abc.ABCMeta):
         """
         return NotImplemented
 
+    def __eq__(self, other):
+        return self.name == other.name
+
 
 class GuardCard(Card):
     name = '衛兵'
