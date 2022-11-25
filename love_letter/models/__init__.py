@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import List
 
-from love_letter.models.cards import find_card_by_level
+from love_letter.models.cards import find_card_by_name
 
 
 class Round:
@@ -38,8 +38,8 @@ class Game:
         turn_player: "Player" = [x for x in players if x.name == card_action.turn_player][0]
         opponent: "Player" = [x for x in players if x.name == card_action.opponent][0]
         turn_player.play_opponent_two_cards(opponent,
-                                            find_card_by_level(card_action.card_action[0]),
-                                            find_card_by_level(card_action.card_action[1]))
+                                            find_card_by_name(card_action.card_action[0]),
+                                            find_card_by_name(card_action.card_action[1]))
 
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
         might_has_winner = [x for x in players if not x.am_i_out]
