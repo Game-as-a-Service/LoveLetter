@@ -13,6 +13,9 @@ class Card(metaclass=abc.ABCMeta):
         """
         return NotImplemented
 
+    def __eq__(self, other):
+        return self.name == other.name
+
 
 class GuardCard(Card):
     name = '衛兵'
@@ -27,9 +30,6 @@ class GuardCard(Card):
 class PriestCard(Card):
     name = '神父'
     level = 2
-
-    def __eq__(self, other):
-        return PriestCard.name == other.name
 
 
 class BaronCard(Card):
