@@ -1,9 +1,7 @@
-from typing import List
-
 from fastapi import FastAPI
-from pydantic import BaseModel, EmailStr
 
 from love_letter.service import GameService
+from love_letter.web.dto import CardAction
 
 app = FastAPI()
 service = GameService()
@@ -12,12 +10,6 @@ service = GameService()
 @app.post("/games/{game_id}/start")
 async def start_game(game_id: str):
     return service.start_game(game_id)
-
-
-class CardAction(BaseModel):
-    turn_player: str
-    opponent: str
-    card_action: List[int]
 
 
 @app.post("/games/{game_id}/play")

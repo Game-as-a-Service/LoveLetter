@@ -56,5 +56,3 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                 )
             ]
         ), response)
-
-        print(json.dumps(response))
