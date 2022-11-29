@@ -46,6 +46,13 @@ def player_hold_one_card(context, player_a, player_b, card1, card2):
                                           )
 
 
+@when('{player} 出牌 {card1}')
+def player_play_princess_card(context, player: str, card1: str):
+    active_player: Player = getattr(context, player)
+    card_will_be_played = find_card_by_name(card1)
+    result = active_player.play_opponent_two_cards(card_will_be_played=card_will_be_played)
+
+
 @then('{player} 出局')
 def player_out(context, player):
     p: Player = getattr(context, player)

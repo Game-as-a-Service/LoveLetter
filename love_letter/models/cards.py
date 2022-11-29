@@ -65,6 +65,9 @@ class PrincessCard(Card):
     name = '公主'
     level = 8
 
+    def execute_with_card(self, player: "Player", card: "Card"):
+        player.out()
+
 
 def find_card_by_name(name):
     for card in ALL_CARD_TYPES:

@@ -75,7 +75,10 @@ class Player:
             # TODO send completed event for player
             return
 
-        card_will_be_played.execute_with_card(opponent, with_card)
+        if card_will_be_played.name == "公主":
+            card_will_be_played.execute_with_card(self, with_card)
+        else:
+            card_will_be_played.execute_with_card(opponent, with_card)
 
         # TODO postcondition: the player holds 1 card after played
         self.cards = list(filter(lambda x: x.name == card_will_be_played.name, self.cards))
