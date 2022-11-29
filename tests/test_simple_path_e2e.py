@@ -34,14 +34,10 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
 
         # 玩家出牌
         request_body = {
-            "turn_player": "player-a",
             "opponent": "player-b",
-            "card_action": [
-                "衛兵",
-                "神父"
-            ]
+            "guess_card": "神父"
         }
-        response = self.t.post(f"/games/{game_id}/play", json=request_body).json()
+        response = self.t.post(f"/games/{game_id}/player/player-a/card/衛兵/play", json=request_body).json()
         self.assertEqual(dict(
             game_id="g-5566",
             players=[dict(name="player-a", out=False), dict(name="player-b", out=False)],
