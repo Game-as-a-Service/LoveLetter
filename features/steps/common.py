@@ -46,6 +46,23 @@ def player_hold_one_card(context, player_a, player_b, card1, card2):
                                           )
 
 
+@when('{player_a} 對 {player_b} 出牌 {card}')
+def player_hold_one_card(context, player_a, player_b, card):
+    active_player: Player = getattr(context, player_a)
+    inactive_player: Player = getattr(context, player_b)
+
+    active_player.play_opponent_two_cards(opponent=inactive_player,
+                                          card_will_be_played=find_card_by_name(card),
+                                          )
+
+
+@when('{player} 出牌 {card1}')
+def player_play_card(context, player: str, card1: str):
+    active_player: Player = getattr(context, player)
+    card_will_be_played = find_card_by_name(card1)
+    result = active_player.play_opponent_two_cards(opponent=active_player, card_will_be_played=card_will_be_played)
+
+
 @then('{player} 出局')
 def player_out(context, player):
     p: Player = getattr(context, player)
@@ -66,6 +83,12 @@ def player_success_play_this_card(context, player: str, card: str):
 
     assert result is True
     assert active_player.total_value_of_card == card_will_be_played.level
+
+
+@then('{player} 丟棄手牌')
+def player_discard_card(context, player: str):
+    active_player: Player = getattr(context, player)
+    assert len(active_player.cards) == 0
 
 
 @then('{player} 無法打出 {card}')
