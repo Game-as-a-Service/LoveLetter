@@ -44,6 +44,12 @@ class PrinceCard(Card):
     def can_not_play(self, player: "Player"):
         return COUNTESS_CARD in player.cards
 
+    def execute_with_card(self, player: "Player", card: "Card"):
+        for card in player.cards:
+            if "公主" == card.name:
+                player.out()
+        player.cards = []
+
 
 class KingCard(Card):
     name = '國王'
