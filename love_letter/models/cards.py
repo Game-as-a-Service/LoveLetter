@@ -37,6 +37,11 @@ class BaronCard(Card):
     level = 3
 
 
+class HandmaidCard(Card):
+    name = '侍女'
+    level = 4
+
+
 class PrinceCard(Card):
     name = '王子'
     level = 5
