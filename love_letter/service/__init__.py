@@ -1,7 +1,8 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from love_letter.models import Game, Player
 from love_letter.models.cards import find_card_by_name
+from love_letter.web.dto import GuessCard, ToSomeoneCard
 
 database = dict()
 
@@ -36,9 +37,10 @@ class GameService:
         game.next_round()
         return game.to_dict()
 
-    def play_card(self, game_id, card_action) -> Optional[Dict]:
+    def play_card(self, game_id, player_id: str, card_name: str,
+                  card_action: Union[GuessCard, ToSomeoneCard, None]) -> Optional[Dict]:
         if game_id in database:
             game: Game = database.get(game_id)
-            game.play(card_action)
+            game.play(player_id, card_name, card_action)
             return game.to_dict()
         return

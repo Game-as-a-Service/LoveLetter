@@ -1,7 +1,8 @@
 from copy import deepcopy
-from typing import List
+from typing import List, Union
 
 from love_letter.models.cards import find_card_by_name
+from love_letter.web.dto import GuessCard, ToSomeoneCard
 
 
 class Round:
@@ -32,20 +33,51 @@ class Game:
         return dict(game_id=self.id, players=[x.to_dict() for x in self.players],
                     rounds=[x.to_dict() for x in self.rounds])
 
-    def play(self, card_action):
-        players = self.rounds[-1].players
+    def play(self, player_id: str, card_name: str, card_action: Union[GuessCard, ToSomeoneCard, None]):
+        players = self.this_round_players()
 
-        turn_player: "Player" = [x for x in players if x.name == card_action.turn_player][0]
-        opponent: "Player" = [x for x in players if x.name == card_action.opponent][0]
-        turn_player.play_opponent_two_cards(opponent,
-                                            find_card_by_name(card_action.card_action[0]),
-                                            find_card_by_name(card_action.card_action[1]))
+        # TODO rewrite handles to chain of rules and catching lost cases
+        self.handle_when_guess_card_action(player_id, card_name, card_action)
+        self.handle_when_to_someone_action(player_id, card_name, card_action)
+        self.handle_when_to_nothing_action(player_id, card_name, card_action)
 
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
         might_has_winner = [x for x in players if not x.am_i_out]
         if len(might_has_winner) == 1:
             self.rounds[-1].winner = might_has_winner[0].name
-            self.next_round()
+        self.next_round()
+
+    def handle_when_guess_card_action(self, player_id: str, card_name: str, action: GuessCard):
+        if not isinstance(action, GuessCard):
+            return
+
+        turn_player: "Player" = self.find_player_by_id(player_id)
+        opponent: "Player" = self.find_player_by_id(action.opponent)
+
+        turn_player.play_opponent_two_cards(opponent,
+                                            find_card_by_name(card_name),
+                                            find_card_by_name(action.guess_card))
+
+    def find_player_by_id(self, player_id):
+        players = self.this_round_players()
+        for x in players:
+            if x.name == player_id:
+                return x
+        raise ValueError(f"Cannot find the player with id: {player_id}")
+
+    def this_round_players(self):
+        return self.rounds[-1].players
+
+    def handle_when_to_someone_action(self, player_id: str, card_name: str, action: ToSomeoneCard):
+        if not isinstance(action, ToSomeoneCard):
+            return
+        raise NotImplemented
+
+    def handle_when_to_nothing_action(self, player_id: str, card_name: str, action):
+        if action is not None:
+            return
+
+        raise NotImplemented
 
 
 class Player:
