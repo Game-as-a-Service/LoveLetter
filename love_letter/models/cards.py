@@ -20,6 +20,7 @@ class Card(metaclass=abc.ABCMeta):
 class GuardCard(Card):
     name = '衛兵'
     level = 1
+    number = 5
 
     def execute_with_card(self, player: "Player", guessing_card: "Card"):
         for card in player.cards:
@@ -30,21 +31,25 @@ class GuardCard(Card):
 class PriestCard(Card):
     name = '神父'
     level = 2
+    number = 2
 
 
 class BaronCard(Card):
     name = '男爵'
     level = 3
+    number = 2
 
 
 class HandmaidCard(Card):
     name = '侍女'
     level = 4
+    number = 2
 
 
 class PrinceCard(Card):
     name = '王子'
     level = 5
+    number = 2
 
     def can_not_play(self, player: "Player"):
         return COUNTESS_CARD in player.cards
@@ -59,6 +64,7 @@ class PrinceCard(Card):
 class KingCard(Card):
     name = '國王'
     level = 6
+    number = 1
 
     def can_not_play(self, player: "Player"):
         return COUNTESS_CARD in player.cards
@@ -67,6 +73,7 @@ class KingCard(Card):
 class CountessCard(Card):
     name = '伯爵夫人'
     level = 7
+    number = 1
 
     def execute_with_card(self, player: "Player", card: "Card"):
         pass
@@ -75,6 +82,7 @@ class CountessCard(Card):
 class PrincessCard(Card):
     name = '公主'
     level = 8
+    number = 1
 
     def execute_with_card(self, player: "Player", card: "Card"):
         player.out()
@@ -87,5 +95,9 @@ def find_card_by_name(name):
     raise ValueError(f'Cannot find the card with name: {name}')
 
 
-ALL_CARD_TYPES = [GuardCard(), PriestCard(), BaronCard(), PrinceCard(), KingCard(), CountessCard(), PrincessCard(), ]
+ALL_CARD_TYPES = [
+    GuardCard(), PriestCard(), BaronCard(),
+    HandmaidCard(), PrinceCard(), KingCard(),
+    CountessCard(), PrincessCard(),
+]
 COUNTESS_CARD = find_card_by_name("伯爵夫人")

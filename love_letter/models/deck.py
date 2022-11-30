@@ -1,8 +1,7 @@
 import random
 from typing import List
 
-from love_letter.models.cards import PrincessCard, GuardCard, PriestCard, BaronCard, HandmaidCard, PrinceCard, \
-    KingCard, CountessCard
+from love_letter.models.cards import ALL_CARD_TYPES
 
 
 class Deck:
@@ -26,8 +25,8 @@ class Deck:
         else:
             raise ValueError("player number is not support")
 
-        for card, num in CARDS_OF_NUM.items():
-            self.cards.extend([card() for _ in range(num)])
+        for card in ALL_CARD_TYPES:
+            self.cards.extend([card for _ in range(card.number)])
 
         random.shuffle(self.cards)
         random.shuffle(self.cards)
@@ -42,40 +41,3 @@ class Deck:
         :return:
         """
         player.cards.append(self.cards.pop(0))
-
-
-CARDS_OF_NUM = [
-    dict(
-        card=GuardCard,
-        num=5
-    ),
-    dict(
-        card=PriestCard,
-        num=2
-    ),
-    dict(
-        card=BaronCard,
-        num=2
-    ),
-    dict(
-        card=HandmaidCard,
-        num=2
-    ),
-    dict(
-        card=PrinceCard,
-        num=2
-    ),
-    dict(
-        card=KingCard,
-        num=1
-    ),
-    dict(
-        card=CountessCard,
-        num=1
-    ),
-    dict(
-        card=PrincessCard,
-        num=1
-    ),
-]
-CARDS_OF_NUM = {card_info["card"]: card_info["num"] for card_info in CARDS_OF_NUM}
