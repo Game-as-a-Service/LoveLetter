@@ -2,6 +2,26 @@ import abc
 
 
 class Card(metaclass=abc.ABCMeta):
+    """
+    There are some properties in a card
+
+    +---------+----------+
+    | Level   | Name     |
+    +---------+----------+
+    | Picture            | * Quantity
+    +--------------------+
+    | Effect Description |
+    +--------------------+
+
+
+    * level: how intimate is this card with the princess
+    * name: the name of this card
+    * (not yet planned) picture:
+    * (not yet planned) description: the effect of this card
+    * quantity: how many copies of this card
+
+    """
+
     def can_not_play(self, player: "Player"):
         return False
 
