@@ -141,7 +141,6 @@ class Deck:
             self.cards.extend([card for _ in range(card.quantity)])
 
         random.shuffle(self.cards)
-        random.shuffle(self.cards)
 
         for num in range(remove_cards_num):
             self.remove_by_rule_cards.append(self.cards.pop(0))
@@ -156,8 +155,13 @@ class Deck:
 
 
 ALL_CARD_TYPES = [
-    GuardCard(), PriestCard(), BaronCard(),
-    HandmaidCard(), PrinceCard(), KingCard(),
-    CountessCard(), PrincessCard(),
+    GuardCard(),
+    PriestCard(),
+    BaronCard(),
+    HandmaidCard(),
+    PrinceCard(),
+    KingCard(),
+    CountessCard(),
+    PrincessCard(),
 ]
 COUNTESS_CARD = find_card_by_name("伯爵夫人")
