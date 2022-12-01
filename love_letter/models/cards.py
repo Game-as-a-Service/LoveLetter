@@ -5,7 +5,12 @@ from typing import List
 
 class Card(metaclass=abc.ABCMeta):
     """
-    There are some properties in a card
+    A card could be discarded by the turn-player or a chosen player who was assigned by the turn player.
+    Either turn player or chosen player would take effect when the card is discarded.
+    Sometimes, nothing happen, it just a discarded card by the turn player.
+
+
+    There are some properties in a card:
 
     +---------+----------+
     | Value   | Name     |
@@ -26,7 +31,8 @@ class Card(metaclass=abc.ABCMeta):
     def can_not_play(self, player: "Player"):
         return False
 
-    def execute_with_card(self, player: "Player", card: "Card"):
+    @abc.abstractmethod
+    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         """
         play the card to player with a card by rules
 
@@ -48,10 +54,10 @@ class GuardCard(Card):
     value = 1
     quantity = 5
 
-    def execute_with_card(self, player: "Player", guessing_card: "Card"):
-        for card in player.cards:
-            if guessing_card == card:
-                player.out()
+    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+        for card in chosen_player.cards:
+            if with_card == card:
+                chosen_player.out()
 
 
 class PriestCard(Card):
@@ -59,10 +65,8 @@ class PriestCard(Card):
     value = 2
     quantity = 2
 
-    # purely play priest_card to one player(here is opponent) without using card(guess) function
-    # just return player.cards
-    def execute_with_card(self, player: "Player", card: "Card"):
-        return player.cards[0]
+    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+        raise NotImplemented
 
 
 class BaronCard(Card):
@@ -70,11 +74,17 @@ class BaronCard(Card):
     value = 3
     quantity = 2
 
+    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+        raise NotImplemented
+
 
 class HandmaidCard(Card):
     name = '侍女'
     value = 4
     quantity = 2
+
+    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+        raise NotImplemented
 
 
 class PrinceCard(Card):
@@ -82,14 +92,24 @@ class PrinceCard(Card):
     value = 5
     quantity = 2
 
-    def can_not_play(self, player: "Player"):
-        return COUNTESS_CARD in player.cards
+    """
+    When you discard Prince Arnaud, choose one player still in the round (including yourself). 
+    That player discards his or her hand (do not apply its effect) and draws a new card. 
+    If the deck is empty, that player draws the card that was removed at the start of the round
+    """
 
-    def execute_with_card(self, player: "Player", card: "Card"):
-        for card in player.cards:
+    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+        # choose self to discard the card in the hand
+        for c in card_holder.cards:
+            if c.name == "伯爵夫人":
+                raise ValueError("You can not discard by the rule")
+
+        for card in chosen_player.cards:
             if "公主" == card.name:
-                player.out()
-        player.cards = []
+                chosen_player.out()
+
+        # TODO the game system should send a new card to the player who did discard
+        chosen_player.cards = []
 
 
 class KingCard(Card):
@@ -97,8 +117,10 @@ class KingCard(Card):
     value = 6
     quantity = 1
 
-    def can_not_play(self, player: "Player"):
-        return COUNTESS_CARD in player.cards
+    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+        for c in card_holder.cards:
+            if c.name == "伯爵夫人":
+                raise ValueError("You can not discard by the rule")
 
 
 class CountessCard(Card):
@@ -106,7 +128,18 @@ class CountessCard(Card):
     value = 7
     quantity = 1
 
-    def execute_with_card(self, player: "Player", card: "Card"):
+    """
+    Unlike other cards, which take effect when discarded, the text on the Countess applies while she is in your hand. 
+    In fact, she has no effect when you discard her.
+
+    If you ever have the Countess and either the King or Prince in your hand, 
+    you must discard the Countess. You do not have to reveal the other card in your hand. 
+    Of course, you can also discard the Countess even if you do not have a royal family member in your hand. 
+    She likes to play mind games....
+    """
+
+    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+        # nothing happen by the rule
         pass
 
 
@@ -115,8 +148,8 @@ class PrincessCard(Card):
     value = 8
     quantity = 1
 
-    def execute_with_card(self, player: "Player", card: "Card"):
-        player.out()
+    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+        card_holder.out()
 
 
 def find_card_by_name(name):
@@ -174,4 +207,3 @@ ALL_CARD_TYPES = [
     CountessCard(),
     PrincessCard(),
 ]
-COUNTESS_CARD = find_card_by_name("伯爵夫人")
