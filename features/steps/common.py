@@ -48,14 +48,14 @@ def player_hold_one_card(context, player_a, player_b, card):
     turn_player: Player = getattr(context, player_a)
     chosen_player: Player = getattr(context, player_b)
 
-    turn_player.discard_card(opponent=chosen_player, discarded_card=find_card_by_name(card))
+    turn_player.discard_card(chosen_player=chosen_player, discarded_card=find_card_by_name(card))
 
 
 @when('{player} 出牌 {card1}')
 def player_play_card(context, player: str, card1: str):
     turn_player: Player = getattr(context, player)
     discarded_card = find_card_by_name(card1)
-    turn_player.discard_card(opponent=turn_player, discarded_card=discarded_card)
+    turn_player.discard_card(chosen_player=turn_player, discarded_card=discarded_card)
 
 
 @then('{player} 出局')
@@ -113,5 +113,5 @@ def player_saw_opponent_hand(context, player_a, player_b, card):
     assert (active_player.seen_cards[-1].card == card_will_be_checked) is True
 
 
-def _do_play(turn_player: Player, opponent: "Player", discarded_card: "Card", with_card: "Card"):
-    turn_player.discard_card(opponent=opponent, discarded_card=discarded_card, with_card=with_card)
+def _do_play(turn_player: Player, chosen_player: "Player", discarded_card: "Card", with_card: "Card"):
+    turn_player.discard_card(chosen_player=chosen_player, discarded_card=discarded_card, with_card=with_card)

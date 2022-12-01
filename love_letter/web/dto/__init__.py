@@ -4,9 +4,9 @@ from pydantic import BaseModel
 
 
 class GuessCard(BaseModel):
-    opponent: str
+    chosen_player: str
     guess_card: str
 
 
 class ToSomeoneCard(BaseModel):
-    opponent: str
+    chosen_player: str

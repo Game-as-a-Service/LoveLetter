@@ -53,9 +53,9 @@ class Game:
             return
 
         turn_player: "Player" = self.find_player_by_id(player_id)
-        opponent: "Player" = self.find_player_by_id(action.opponent)
+        chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
 
-        turn_player.discard_card(opponent=opponent, discarded_card=find_card_by_name(card_name),
+        turn_player.discard_card(chosen_player=chosen_player, discarded_card=find_card_by_name(card_name),
                                  with_card=find_card_by_name(action.guess_card))
 
     def find_player_by_id(self, player_id):
@@ -96,7 +96,7 @@ class Player:
         self.total_value_of_card: int = 0
         self.seen_cards: List[Seen] = []
 
-    def discard_card(self, opponent: "Player" = None, discarded_card: Card = None, with_card: "Card" = None):
+    def discard_card(self, chosen_player: "Player" = None, discarded_card: Card = None, with_card: "Card" = None):
         # TODO precondition: the player must hold 2 cards
         if len(self.cards) != 2:
             return False
@@ -105,11 +105,11 @@ class Player:
         if not any([True for c in self.cards if c.name == discarded_card.name]):
             return False
 
-        if opponent and opponent.protected:
+        if chosen_player and chosen_player.protected:
             # TODO send completed event for player
             return
 
-        discarded_card.discard(self, chosen_player=opponent, with_card=with_card)
+        discarded_card.discard(self, chosen_player=chosen_player, with_card=with_card)
 
         # TODO postcondition: the player holds 1 card after played
         self.cards = list(filter(lambda x: x.name == discarded_card.name, self.cards))
