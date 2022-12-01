@@ -113,7 +113,7 @@ class Player:
         self.cards = list(filter(lambda x: x.name == card_will_be_played.name, self.cards))
         if len(self.cards) != 1:
             return False
-        self.total_value_of_card += card_will_be_played.level
+        self.total_value_of_card += card_will_be_played.value
 
         return True
 

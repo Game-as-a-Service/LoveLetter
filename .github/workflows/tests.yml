@@ -27,5 +27,5 @@ jobs:
           poetry update
 
           export PYTHONPATH=$(pwd)
-          poetry run py.test --cov=love_letter --cov-report html tests
+          poetry run py.test --cov=love_letter --cov-report term tests
           poetry run behave
