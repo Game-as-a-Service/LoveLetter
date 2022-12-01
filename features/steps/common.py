@@ -100,3 +100,11 @@ def player_error_play_this_card(context, player: str, card: str):
     assert result is False
     assert active_player.total_value_of_card == 0
 
+
+@then('{player_a} 看到了玩家B的公主')
+def player_get_opponent_hand(context, player_a):
+    player_a: Player = getattr(context, player_a)
+    assert player_a.seen_opponent is not None
+    assert player_a.seen_cards is not None
+
+
