@@ -1,7 +1,8 @@
 from copy import deepcopy
+from dataclasses import dataclass
 from typing import List, Union
 
-from love_letter.models.cards import find_card_by_name, PriestCard
+from love_letter.models.cards import find_card_by_name, PriestCard, Card
 from love_letter.web.dto import GuessCard, ToSomeoneCard
 
 
@@ -80,6 +81,12 @@ class Game:
         raise NotImplemented
 
 
+@dataclass
+class Seen:
+    opponent: str
+    card: Card
+
+
 class Player:
 
     def __init__(self):
@@ -88,8 +95,7 @@ class Player:
         self.am_i_out: bool = False
         self.protected = False
         self.total_value_of_card: int = 0
-        self.seen_opponent: List[str] = []
-        self.seen_cards: List["Card"] = []
+        self.seen_cards: List[Seen] = []
 
     def play_opponent_two_cards(
             self, opponent: "Player" = None, card_will_be_played: "Card" = None, with_card: "Card" = None
@@ -109,11 +115,12 @@ class Player:
             # TODO send completed event for player
             return
 
+        # play_result return opponent's hand_card in PRIEST case
         play_result = card_will_be_played.execute_with_card(opponent, with_card)
         if card_will_be_played.name == PriestCard.name:
             # todo: send opponent card information to player
-            self.seen_opponent.append(opponent.name)
-            self.seen_cards.append(play_result)
+            seen_card = Seen(opponent.name, play_result)
+            self.seen_cards.append(seen_card)
 
         # TODO postcondition: the player holds 1 card after played
         self.cards = list(filter(lambda x: x.name == card_will_be_played.name, self.cards))
@@ -122,6 +129,12 @@ class Player:
         self.total_value_of_card += card_will_be_played.level
 
         return True
+
+    def is_seen_opponent_card(self, opponent: "Player", card_will_be_checked: "Card"):
+        # opponent and card should be the same
+        if self.seen_cards[-1].opponent == opponent.name and self.seen_cards[-1].card == card_will_be_checked:
+            return True
+        return False
 
     def out(self):
         self.am_i_out = True
