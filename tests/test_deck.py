@@ -1,8 +1,7 @@
 import unittest
 
 from love_letter.models import Player
-from love_letter.models.deck import Deck
-
+from love_letter.models.cards import Deck
 
 TOTAL_CARDS_NUMBER = 16
 PLAYER_NUM_OF_CARD_NUM = [
