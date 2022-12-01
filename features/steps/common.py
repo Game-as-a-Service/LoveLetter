@@ -82,7 +82,7 @@ def player_success_play_this_card(context, player: str, card: str):
     result = active_player.play_opponent_two_cards(card_will_be_played=card_will_be_played)
 
     assert result is True
-    assert active_player.total_value_of_card == card_will_be_played.level
+    assert active_player.total_value_of_card == card_will_be_played.value
 
 
 @then('{player} 丟棄手牌')
