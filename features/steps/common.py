@@ -101,16 +101,12 @@ def player_error_play_this_card(context, player: str, card: str):
     assert active_player.total_value_of_card == 0
 
 
-# @then('{player_a} 看到了玩家B的公主')
-# def player_get_opponent_hand(context, player_a):
-#     player_a: Player = getattr(context, player_a)
-#     assert player_a.seen_opponent is not None
-#     assert player_a.seen_cards is not None
-
-
 @then('{player_a} 看到了 {player_b} 的 {card}')
-def player_get_opponent_hand(context, player_a, player_b, card):
+def player_saw_opponent_hand(context, player_a, player_b, card):
     active_player: Player = getattr(context, player_a)
     inactive_player: Player = getattr(context, player_b)
     card_will_be_checked = find_card_by_name(card)
-    assert active_player.is_seen_opponent_card(inactive_player, card_will_be_checked) is True
+    # check last seen_cards opponent name and card equal
+    assert (active_player.seen_cards[-1].opponent_name == inactive_player.name) is True
+    assert (active_player.seen_cards[-1].card == card_will_be_checked) is True
+

@@ -83,7 +83,7 @@ class Game:
 
 @dataclass
 class Seen:
-    opponent: str
+    opponent_name: str
     card: Card
 
 
@@ -129,12 +129,6 @@ class Player:
         self.total_value_of_card += card_will_be_played.level
 
         return True
-
-    def is_seen_opponent_card(self, opponent: "Player", card_will_be_checked: "Card"):
-        # opponent and card should be the same
-        if self.seen_cards[-1].opponent == opponent.name and self.seen_cards[-1].card == card_will_be_checked:
-            return True
-        return False
 
     def out(self):
         self.am_i_out = True
