@@ -34,7 +34,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
 
         # 玩家出牌
         request_body = {
-            "opponent": "player-b",
+            "chosen_player": "player-b",
             "guess_card": "神父"
         }
         response = self.t.post(f"/games/{game_id}/player/player-a/card/衛兵/play", json=request_body).json()

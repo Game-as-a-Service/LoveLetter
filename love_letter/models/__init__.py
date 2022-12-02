@@ -53,11 +53,10 @@ class Game:
             return
 
         turn_player: "Player" = self.find_player_by_id(player_id)
-        opponent: "Player" = self.find_player_by_id(action.opponent)
+        chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
 
-        turn_player.play_opponent_two_cards(opponent,
-                                            find_card_by_name(card_name),
-                                            find_card_by_name(action.guess_card))
+        turn_player.discard_card(chosen_player=chosen_player, discarded_card=find_card_by_name(card_name),
+                                 with_card=find_card_by_name(action.guess_card))
 
     def find_player_by_id(self, player_id):
         players = self.this_round_players()
@@ -97,36 +96,26 @@ class Player:
         self.total_value_of_card: int = 0
         self.seen_cards: List[Seen] = []
 
-    def play_opponent_two_cards(
-            self, opponent: "Player" = None, card_will_be_played: "Card" = None, with_card: "Card" = None
-    ):
+    def discard_card(self, chosen_player: "Player" = None, discarded_card: Card = None, with_card: "Card" = None):
         # TODO precondition: the player must hold 2 cards
         if len(self.cards) != 2:
             return False
 
         # Check will_be_played_card is in the hands
-        if not any([True for c in self.cards if c.name == card_will_be_played.name]):
+        if not any([True for c in self.cards if c.name == discarded_card.name]):
             return False
 
-        if card_will_be_played.can_not_play(self):
-            return False
-
-        if opponent and opponent.protected:
+        if chosen_player and chosen_player.protected:
             # TODO send completed event for player
             return
 
-        # play_result return opponent's hand_card in PRIEST case
-        play_result = card_will_be_played.execute_with_card(opponent, with_card)
-        if card_will_be_played.name == PriestCard.name:
-            # todo: send opponent card information to player
-            seen_card = Seen(opponent.name, play_result)
-            self.seen_cards.append(seen_card)
+        discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
 
         # TODO postcondition: the player holds 1 card after played
-        self.cards = list(filter(lambda x: x.name == card_will_be_played.name, self.cards))
+        self.cards = list(filter(lambda x: x.name == discarded_card.name, self.cards))
         if len(self.cards) != 1:
             return False
-        self.total_value_of_card += card_will_be_played.value
+        self.total_value_of_card += discarded_card.value
 
         return True
 
