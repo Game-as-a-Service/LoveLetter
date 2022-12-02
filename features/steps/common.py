@@ -40,7 +40,9 @@ def player_hold_one_card(context, player_a, player_b, card1, card2):
     turn_player: Player = getattr(context, player_a)
     chosen_player: Player = getattr(context, player_b)
 
-    _do_play(turn_player, chosen_player, find_card_by_name(card1), find_card_by_name(card2))
+    turn_player.discard_card(chosen_player=chosen_player,
+                             discarded_card=find_card_by_name(card1),
+                             with_card=find_card_by_name(card2))
 
 
 @when('{player_a} 對 {player_b} 出牌 {card}')
@@ -94,7 +96,9 @@ def player_error_play_this_card(context, player: str, card: str):
     found_exception = False
     try:
         i_dont_care_who_is_the_player = Player()
-        _do_play(turn_player, i_dont_care_who_is_the_player, discarded_card, None)
+        turn_player.discard_card(chosen_player=i_dont_care_who_is_the_player,
+                                 discarded_card=discarded_card,
+                                 with_card=None)
     except ValueError as e:
         found_exception = True
         assert e.args[0] == "You can not discard by the rule"
@@ -124,4 +128,3 @@ def player_saw_opponent_hand(context, player_a, player_b, card):
     # check last seen_cards opponent name and card equal
     assert (active_player.seen_cards[-1].opponent_name == inactive_player.name) is True
     assert (active_player.seen_cards[-1].card == card_will_be_checked) is True
-
