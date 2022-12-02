@@ -2,6 +2,8 @@ import abc
 import random
 from typing import List
 
+REJECT_BY_RULE = ValueError("You can not discard by the rule")
+
 
 class Card(metaclass=abc.ABCMeta):
     """
@@ -101,7 +103,7 @@ class PrinceCard(Card):
         # choose self to discard the card in the hand
         for c in card_holder.cards:
             if c.name == "伯爵夫人":
-                raise ValueError("You can not discard by the rule")
+                raise REJECT_BY_RULE
 
         for card in chosen_player.cards:
             if "公主" == card.name:
@@ -119,7 +121,7 @@ class KingCard(Card):
     def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         for c in card_holder.cards:
             if c.name == "伯爵夫人":
-                raise ValueError("You can not discard by the rule")
+                raise REJECT_BY_RULE
 
 
 class CountessCard(Card):
