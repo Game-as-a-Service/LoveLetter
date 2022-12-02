@@ -1,7 +1,7 @@
 from behave import given, when, then
 
 from love_letter.models import Player
-from love_letter.models.cards import find_card_by_name
+from love_letter.models.cards import find_card_by_name, Deck
 
 
 @given('{player} 持有 {card1} {card2}')
@@ -85,6 +85,7 @@ def player_success_play_this_card(context, player: str, card: str):
 @then('{player} 丟棄手牌')
 def player_discard_card(context, player: str):
     turn_player: Player = getattr(context, player)
+    turn_player.drop_cards()
     assert len(turn_player.cards) == 0
 
 
@@ -115,3 +116,12 @@ def player_saw_opponent_hand(context, player_a, player_b, card):
     # check last seen_cards opponent name and card equal
     assert (turn_player.seen_cards[-1].opponent_name == chosen_player.name) is True
     assert (turn_player.seen_cards[-1].card == card_will_be_checked) is True
+
+
+@then('{player} 從牌庫拿一張牌')
+def player_draw_card(context, player: str):
+    turn_player: Player = getattr(context, player)
+    deck = Deck()
+    deck.shuffle(4)
+    deck.draw(turn_player)
+    assert len(turn_player.cards) == 1
