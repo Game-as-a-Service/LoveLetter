@@ -10,9 +10,9 @@ Feature: 王子 出牌規則
 
   Scenario: 玩家出王子 指定自己後出牌
     Given 玩家A 持有 王子
-    When 玩家A 對 自己 出牌 王子
+    When 玩家A 對 玩家A 出牌 王子
     Then 玩家A 丟棄手牌
-    Then 玩家B 從牌庫拿一張牌
+    Then 玩家A 從牌庫拿一張牌
 
 # TODO: 牌庫沒有牌的function，從移除牌拿牌的function
 #  Scenario: 玩家出王子 指定沒有手牌的玩家後出牌
