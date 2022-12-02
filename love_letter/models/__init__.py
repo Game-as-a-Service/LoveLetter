@@ -1,7 +1,8 @@
 from copy import deepcopy
+from dataclasses import dataclass
 from typing import List, Union
 
-from love_letter.models.cards import find_card_by_name
+from love_letter.models.cards import find_card_by_name, PriestCard, Card
 from love_letter.web.dto import GuessCard, ToSomeoneCard
 
 
@@ -80,6 +81,12 @@ class Game:
         raise NotImplemented
 
 
+@dataclass
+class Seen:
+    opponent_name: str
+    card: Card
+
+
 class Player:
 
     def __init__(self):
@@ -88,6 +95,7 @@ class Player:
         self.am_i_out: bool = False
         self.protected = False
         self.total_value_of_card: int = 0
+        self.seen_cards: List[Seen] = []
 
     def play_opponent_two_cards(
             self, opponent: "Player" = None, card_will_be_played: "Card" = None, with_card: "Card" = None
@@ -107,7 +115,12 @@ class Player:
             # TODO send completed event for player
             return
 
-        card_will_be_played.execute_with_card(opponent, with_card)
+        # play_result return opponent's hand_card in PRIEST case
+        play_result = card_will_be_played.execute_with_card(opponent, with_card)
+        if card_will_be_played.name == PriestCard.name:
+            # todo: send opponent card information to player
+            seen_card = Seen(opponent.name, play_result)
+            self.seen_cards.append(seen_card)
 
         # TODO postcondition: the player holds 1 card after played
         self.cards = list(filter(lambda x: x.name == card_will_be_played.name, self.cards))

@@ -31,6 +31,11 @@ class Card(metaclass=abc.ABCMeta):
         play the card to player with a card by rules
 
         Ex. the GuardCard needs to play with a card for guessing.
+
+        purely play the card to player(can be opponent or myself)
+        Ex. play priest_card to the other opponent.
+        Ex. play handmaid_card to myself.
+        Ex. play king_card to the other opponent.
         """
         return NotImplemented
 
@@ -53,6 +58,11 @@ class PriestCard(Card):
     name = '神父'
     value = 2
     quantity = 2
+
+    # purely play priest_card to one player(here is opponent) without using card(guess) function
+    # just return player.cards
+    def execute_with_card(self, player: "Player", card: "Card"):
+        return player.cards[0]
 
 
 class BaronCard(Card):
