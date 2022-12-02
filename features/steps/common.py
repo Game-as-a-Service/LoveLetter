@@ -115,3 +115,13 @@ def player_saw_opponent_hand(context, player_a, player_b, card):
 
 def _do_play(turn_player: Player, chosen_player: "Player", discarded_card: "Card", with_card: "Card"):
     turn_player.discard_card(chosen_player=chosen_player, discarded_card=discarded_card, with_card=with_card)
+
+@then('{player_a} 看到了 {player_b} 的 {card}')
+def player_saw_opponent_hand(context, player_a, player_b, card):
+    active_player: Player = getattr(context, player_a)
+    inactive_player: Player = getattr(context, player_b)
+    card_will_be_checked = find_card_by_name(card)
+    # check last seen_cards opponent name and card equal
+    assert (active_player.seen_cards[-1].opponent_name == inactive_player.name) is True
+    assert (active_player.seen_cards[-1].card == card_will_be_checked) is True
+

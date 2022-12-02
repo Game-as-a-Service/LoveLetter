@@ -63,7 +63,9 @@ class PriestCard(Card):
     quantity = 2
 
     def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
-        raise NotImplemented
+        from love_letter.models import Seen
+        seen_card = Seen(chosen_player.name, chosen_player.cards[-1])
+        card_holder.seen_cards.append(seen_card)
 
 
 class BaronCard(Card):
