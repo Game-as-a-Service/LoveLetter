@@ -28,11 +28,8 @@ class Card(metaclass=abc.ABCMeta):
 
     """
 
-    def can_not_play(self, player: "Player"):
-        return False
-
     @abc.abstractmethod
-    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         """
         play the card to player with a card by rules
 
@@ -54,7 +51,7 @@ class GuardCard(Card):
     value = 1
     quantity = 5
 
-    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         for card in chosen_player.cards:
             if with_card == card:
                 chosen_player.out()
@@ -65,7 +62,7 @@ class PriestCard(Card):
     value = 2
     quantity = 2
 
-    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         raise NotImplemented
 
 
@@ -74,7 +71,7 @@ class BaronCard(Card):
     value = 3
     quantity = 2
 
-    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         raise NotImplemented
 
 
@@ -83,7 +80,7 @@ class HandmaidCard(Card):
     value = 4
     quantity = 2
 
-    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         raise NotImplemented
 
 
@@ -98,7 +95,7 @@ class PrinceCard(Card):
     If the deck is empty, that player draws the card that was removed at the start of the round
     """
 
-    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         # choose self to discard the card in the hand
         for c in card_holder.cards:
             if c.name == "伯爵夫人":
@@ -117,7 +114,7 @@ class KingCard(Card):
     value = 6
     quantity = 1
 
-    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         for c in card_holder.cards:
             if c.name == "伯爵夫人":
                 raise ValueError("You can not discard by the rule")
@@ -138,7 +135,7 @@ class CountessCard(Card):
     She likes to play mind games....
     """
 
-    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         # nothing happen by the rule
         pass
 
@@ -148,7 +145,7 @@ class PrincessCard(Card):
     value = 8
     quantity = 1
 
-    def discard(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         card_holder.out()
 
 
