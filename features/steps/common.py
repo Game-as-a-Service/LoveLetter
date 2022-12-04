@@ -115,3 +115,9 @@ def player_saw_opponent_hand(context, player_a, player_b, card):
     # check last seen_cards opponent name and card equal
     assert (turn_player.seen_cards[-1].opponent_name == chosen_player.name) is True
     assert (turn_player.seen_cards[-1].card == card_will_be_checked) is True
+
+
+@then('{player_a} 擁有保護效果')
+def player_get_protected(context, player_a):
+    turn_player: Player = getattr(context, player_a)
+    assert turn_player.protected is True
