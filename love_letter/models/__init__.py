@@ -23,8 +23,17 @@ class Game:
         self.players: List["Player"] = []
         self.rounds: List["Round"] = []
 
-    def add_player(self, player: "Player"):
+    def join(self, player: "Player"):
+        if self.has_started():
+            raise ValueError("Game Has Started")
+
         self.players.append(player)
+
+    def start(self):
+        if len(self.players) < 2:
+            raise ValueError("Too Few Players")
+
+        self.next_round()
 
     def next_round(self):
         # TODO 如果沒有下一局，丟 exception
@@ -78,6 +87,15 @@ class Game:
             return
 
         raise NotImplemented
+
+    @classmethod
+    def create(cls, player: "Player") -> "Game":
+        game = Game()
+        game.join(player)
+        return game
+
+    def has_started(self):
+        return len(self.rounds) > 0
 
 
 @dataclass
