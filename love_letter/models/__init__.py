@@ -112,7 +112,8 @@ class Player:
         discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
 
         # TODO postcondition: the player holds 1 card after played
-        self.cards = list(filter(lambda x: x.name == discarded_card.name, self.cards))
+        self.cards = list(filter(lambda x: x.name != discarded_card.name, self.cards))
+
         if len(self.cards) != 1:
             return False
         self.total_value_of_card += discarded_card.value
