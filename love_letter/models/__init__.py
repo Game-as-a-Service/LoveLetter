@@ -31,12 +31,19 @@ class Round:
             deck.draw(p)
         return deck
 
-    def next_turn_player(self):
-        self._shift_to_next_player()
+    def next_turn_player(self, last_winner: str = None):
+        self._shift_to_next_player(last_winner)
         self.deck.draw(self.turn_player)
         # TODO tell the game from return-value if the round has ended
 
-    def _shift_to_next_player(self):
+    def _shift_to_next_player(self, last_winner: str = None):
+        # assign the turn player from the last winner
+        if last_winner is not None:
+            for player in self.players:
+                if player.name == last_winner:
+                    self.turn_player = player
+                    return
+
         # TODO only shift to players who is not out
         if self.turn_player is None:
             # TODO pick a turn player randomly if no one is turn player *FOR NOW*
@@ -83,10 +90,10 @@ class Game:
 
         self.next_round()
 
-    def next_round(self):
+    def next_round(self, last_winner: str = None):
         # TODO 如果沒有下一局，丟 exception
         round = Round(deepcopy(self.players))
-        round.next_turn_player()
+        round.next_turn_player(last_winner)
         self.rounds.append(round)
 
     def to_dict(self):
@@ -107,8 +114,10 @@ class Game:
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
         might_has_winner = [x for x in players if not x.am_i_out]
         if len(might_has_winner) == 1:
-            self.rounds[-1].winner = might_has_winner[0].name
-            self.next_round()
+            winner_name = might_has_winner[0].name
+            self.rounds[-1].winner = winner_name
+            self.next_round(winner_name)
+            return
         self.next_turn_player()
 
     def handle_when_guess_card_action(self, player_id: str, card_name: str, action: GuessCard):

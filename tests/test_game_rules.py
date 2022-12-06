@@ -1,7 +1,7 @@
 from typing import Callable, List
 from unittest import TestCase
 
-from love_letter.models import Deck, Game, GameException, Player
+from love_letter.models import Deck, Game, Player
 from love_letter.web.dto import GuessCard
 
 
@@ -92,7 +92,7 @@ class GetGameStartedTests(TestCase):
         self.assertEqual("Game Has No Capacity For New Players", self.exception_message)
 
 
-class PlayingGameInRoundTests(TestCase):
+class PlayingGameRoundByRoundTests(TestCase):
 
     def setUp(self):
         # make a game with 3 players
@@ -162,12 +162,29 @@ class PlayingGameInRoundTests(TestCase):
         """
         當只剩下 1 名玩家存活時，此玩家為 winner，讓此局結束開始新的一局
         """
-        # TODO
-        raise NotImplemented
+
+        # given the arranged deck
+        reset_deck(['伯爵夫人', '國王', '王子'] + list(['衛兵' for x in range(10)]))
+
+        # given a started game
+        self.game.start()
+
+        # when the game has only 1 player alive
+        self.game.play('1', '衛兵',  # player-1 kill player-2
+                       GuessCard(chosen_player='2', guess_card='國王'))
+        self.game.play('3', '衛兵',  # player-3 kill player-1
+                       GuessCard(chosen_player='1', guess_card='伯爵夫人'))
+
+        # then the player-3 will be
+        #   1. the winner of the last round
+        #   2. the turn player at the new round
+        self.assertEqual(2, len(self.game.rounds))  # there are two rounds
+        self.assertEqual('3', self.game.rounds[-2].winner)  # the last round winner
+        self.assertEqual('3', self.game.rounds[-1].turn_player.name)  # turn player of this round
 
     def test_move_to_next_round_by_empty_deck(self):
         """
         當牌庫已空時，決定最後的 winner。讓此局結束開始新的一局
         """
-        # TODO 
+        # TODO
         raise NotImplemented
