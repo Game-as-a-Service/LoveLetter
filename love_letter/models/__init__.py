@@ -170,25 +170,26 @@ class Player:
         self.seen_cards: List[Seen] = []
 
     def discard_card(self, chosen_player: "Player" = None, discarded_card: Card = None, with_card: "Card" = None):
-        # TODO precondition: the player must hold 2 cards
+        # Precondition: the player must hold 2 cards
         if len(self.cards) != 2:
             return False
 
-        # Check will_be_played_card is in the hands
+        # Precondition: Check will_be_played_card is in the hands
         if not any([True for c in self.cards if c.name == discarded_card.name]):
             return False
 
         if chosen_player and chosen_player.protected:
             # TODO send completed event for player
-            return
+            # Ignore all effects from other player's card
+            pass
+        else:
+            discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
 
-        discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
-
-        # TODO postcondition: the player holds 1 card after played
+        # postcondition: the player holds 1 card after played
         self.cards = list(filter(lambda x: x.name != discarded_card.name, self.cards))
-
         if len(self.cards) != 1:
             return False
+
         self.total_value_of_card += discarded_card.value
 
         return True
