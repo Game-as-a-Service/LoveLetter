@@ -122,13 +122,13 @@ class KingCard(Card):
         for c in card_holder.cards:
             if c.name == "伯爵夫人":
                 raise REJECT_BY_RULE
-        # King's function: change card_holder and chosen_player's card
-        chosen_player_hand_card = chosen_player.cards[0]  # card type
-        card_holder_left_hand_card = list(filter(lambda x: x.name != self.name, card_holder.cards))
-        chosen_player.cards = card_holder_left_hand_card  # list type
-        # card holder need to keep two hand card, so that can discard what you play at the round
-        card_holder.cards.remove(card_holder_left_hand_card[0])
-        card_holder.cards.append(chosen_player_hand_card)
+
+        # 出牌者剩下的牌(型別為list)
+        card_holder_left_card = list(filter(lambda x: x.name != self.name, card_holder.cards))
+        # 因為出牌者剩下的牌list只有一個元素，故直接寫[0]
+        card_holder_swap_card_index = card_holder.cards.index(card_holder_left_card[0])
+        chosen_player.cards[0], card_holder.cards[card_holder_swap_card_index] =\
+            card_holder.cards[card_holder_swap_card_index], chosen_player.cards[0]
 
 
 
