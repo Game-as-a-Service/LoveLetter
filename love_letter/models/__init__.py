@@ -90,7 +90,6 @@ class Player:
 
     def __init__(self):
         self.name: str = None
-        self.test: List[Card]
         self.cards: List["Card"] = []
         self.am_i_out: bool = False
         self.protected = False
