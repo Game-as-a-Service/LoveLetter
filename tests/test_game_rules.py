@@ -16,9 +16,9 @@ class GetGameStartedTests(TestCase):
         self.exception = ex.exception
         self.exception_message = str(ex.exception)
 
-    def test_game_can_start_at_least_two_players(self):
+    def test_game_can_not_start_less_than_two_players(self):
         """
-        遊戲至少需要 2 名玩家才可以開始
+        遊戲不滿 2 名玩家無法開始
         """
 
         # given a new game
@@ -30,9 +30,17 @@ class GetGameStartedTests(TestCase):
         # then get exception
         self.assertEqual("Too Few Players", self.exception_message)
 
-        # when we add two players and start it
+    def test_game_can_start_at_least_two_players(self):
+        """
+        遊戲至少需要 2 名玩家才可以開始
+        """
+
+        # given a new game with two players
+        game: Game = Game()
         game.join(Player.create('1'))
         game.join(Player.create('2'))
+
+        # when starting the game
         game.start()
 
         # then the game has started
