@@ -45,11 +45,16 @@ class Round:
             return
 
         from_index = self.players.index(self.turn_player)
-        for next_index in range(from_index + 1, len(self.players)):
-            next_index = next_index % len(self.players)
-            if not self.players[next_index].am_i_out:
-                self.turn_player = self.players[next_index]
-                return
+        for x in range(1, len(self.players)):
+            from_index = from_index + 1
+            if from_index >= len(self.players):
+                selected = self.players[from_index - len(self.players)]
+            else:
+                selected = self.players[from_index]
+
+            if not selected.am_i_out:
+                self.turn_player = selected
+                break
 
     def to_dict(self):
         return dict(players=[x.to_dict() for x in self.players], winner=self.winner)
@@ -163,7 +168,7 @@ class Player:
 
     def __init__(self):
         self.name: str = None
-        self.cards: List["Card"] = []
+        self.cards: List[Card] = []
         self.am_i_out: bool = False
         self.protected = False
         self.total_value_of_card: int = 0
@@ -185,7 +190,7 @@ class Player:
         discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
 
         # TODO postcondition: the player holds 1 card after played
-        self.cards = list(filter(lambda x: x.name != discarded_card.name, self.cards))
+        self.drop_card(discarded_card)
 
         if len(self.cards) != 1:
             return False
@@ -202,8 +207,18 @@ class Player:
     def __eq__(self, other):
         return self.name == other.name
 
+    def __repr__(self):
+        return f"Player({self.name},{self.cards})"
+
     @classmethod
     def create(cls, name):
         p = Player()
         p.name = name
         return p
+
+    def drop_card(self, discarded_card: Card):
+        # only drop 1 card
+        for index, card in enumerate(self.cards):
+            if card.name == discarded_card.name:
+                self.cards.pop(index)
+                break
