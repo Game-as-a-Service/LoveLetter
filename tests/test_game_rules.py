@@ -92,7 +92,7 @@ class GetGameStartedTests(TestCase):
         self.assertEqual("Game Has No Capacity For New Players", self.exception_message)
 
 
-class PlayingGameTests(TestCase):
+class PlayingGameInRoundTests(TestCase):
 
     def setUp(self):
         # make a game with 3 players
@@ -157,3 +157,17 @@ class PlayingGameTests(TestCase):
 
         # then the turn player earns 2 points by discarding 衛兵 twice
         self.assertEqual(2, self.game.rounds[-1].turn_player.total_value_of_card)
+
+    def test_move_to_next_round_by_only_one_player_alive(self):
+        """
+        當只剩下 1 名玩家存活時，此玩家為 winner，讓此局結束開始新的一局
+        """
+        # TODO
+        raise NotImplemented
+
+    def test_move_to_next_round_by_empty_deck(self):
+        """
+        當牌庫已空時，決定最後的 winner。讓此局結束開始新的一局
+        """
+        # TODO 
+        raise NotImplemented
