@@ -121,3 +121,10 @@ def player_saw_opponent_hand(context, player_a, player_b, card):
 def player_get_protected(context, player_a):
     turn_player: Player = getattr(context, player_a)
     assert turn_player.protected is True
+
+
+@then('{player} 手牌為 {card}')
+def player_error_play_this_card(context, player, card):
+    turn_player: Player = getattr(context, player)
+    card_result = find_card_by_name(card)
+    assert (turn_player.cards[0] == card_result) is True
