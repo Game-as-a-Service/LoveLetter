@@ -33,6 +33,10 @@ class Round:
 
     def next_turn_player(self):
         self._shift_to_next_player()
+
+        # Remove player protected after one round
+        self.turn_player.protected = False
+
         self.deck.draw(self.turn_player)
         # TODO tell the game from return-value if the round has ended
 
@@ -45,8 +49,8 @@ class Round:
             return
 
         from_index = self.players.index(self.turn_player)
-        for next_index in range(from_index + 1, len(self.players)):
-            next_index = next_index % len(self.players)
+        for next_index in range(from_index, len(self.players)):
+            next_index = (next_index + 1) % len(self.players)
             if not self.players[next_index].am_i_out:
                 self.turn_player = self.players[next_index]
                 return
@@ -95,9 +99,11 @@ class Game:
         players = self.this_round_players()
 
         # TODO rewrite handles to chain of rules and catching lost cases
-        self.handle_when_guess_card_action(player_id, card_name, card_action)
-        self.handle_when_to_someone_action(player_id, card_name, card_action)
-        self.handle_when_to_nothing_action(player_id, card_name, card_action)
+        turn_player: "Player" = self.find_player_by_id(player_id)
+        discarded_card: "Card" = find_card_by_name(card_name)
+        self.handle_when_guess_card_action(turn_player, discarded_card, card_action)
+        self.handle_when_to_someone_action(turn_player, discarded_card, card_action)
+        self.handle_when_to_nothing_action(turn_player, discarded_card, card_action)
 
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
         might_has_winner = [x for x in players if not x.am_i_out]
@@ -106,14 +112,13 @@ class Game:
             self.next_round()
         self.next_turn_player()
 
-    def handle_when_guess_card_action(self, player_id: str, card_name: str, action: GuessCard):
+    def handle_when_guess_card_action(self, turn_player: "Player", discarded_card: "Card", action: GuessCard):
         if not isinstance(action, GuessCard):
             return
 
-        turn_player: "Player" = self.find_player_by_id(player_id)
         chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
 
-        turn_player.discard_card(chosen_player=chosen_player, discarded_card=find_card_by_name(card_name),
+        turn_player.discard_card(chosen_player=chosen_player, discarded_card=discarded_card,
                                  with_card=find_card_by_name(action.guess_card))
 
     def find_player_by_id(self, player_id):
@@ -126,16 +131,17 @@ class Game:
     def this_round_players(self):
         return self.rounds[-1].players
 
-    def handle_when_to_someone_action(self, player_id: str, card_name: str, action: ToSomeoneCard):
+    def handle_when_to_someone_action(self, turn_player: "Player", discarded_card: "Card", action: ToSomeoneCard):
         if not isinstance(action, ToSomeoneCard):
             return
         raise NotImplemented
 
-    def handle_when_to_nothing_action(self, player_id: str, card_name: str, action):
+    def handle_when_to_nothing_action(self, turn_player: "Player", discarded_card: "Card", action: None):
         if action is not None:
+            # Don't go there
             return
 
-        raise NotImplemented
+        turn_player.discard_card(turn_player, discarded_card)
 
     @classmethod
     def create(cls, player: "Player") -> "Game":
@@ -178,11 +184,7 @@ class Player:
         if not any([True for c in self.cards if c.name == discarded_card.name]):
             return False
 
-        if chosen_player and chosen_player.protected:
-            # TODO send completed event for player
-            # Ignore all effects from other player's card
-            pass
-        else:
+        if not (chosen_player and chosen_player.protected):
             discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
 
         # postcondition: the player holds 1 card after played

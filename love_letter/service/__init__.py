@@ -29,7 +29,6 @@ build_fake_data()
 
 
 class GameService:
-
     def start_game(self, game_id: str) -> Optional[Dict]:
         if game_id not in database:
             return
