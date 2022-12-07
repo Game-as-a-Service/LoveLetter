@@ -1,3 +1,4 @@
+import secrets
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import List, Union
@@ -51,11 +52,9 @@ class Round:
                     self.turn_player = player
                     return
 
-        # TODO only shift to players who is not out
+        # pick up a player for the first round
         if self.turn_player is None:
-            # TODO pick a turn player randomly if no one is turn player *FOR NOW*
-            # TODO fix it by rules 1. first round => randomly, 2. non-first round, pick last winner as the turn player
-            self.turn_player = self.players[0]
+            self.turn_player = Round.choose_one_randomly(self.players)
             return
 
         from_index = self.players.index(self.turn_player)
@@ -69,6 +68,10 @@ class Round:
             if not selected.am_i_out:
                 self.turn_player = selected
                 break
+
+    @classmethod
+    def choose_one_randomly(cls, players: List["Player"]):
+        return players[secrets.randbelow(len(players))]
 
     def to_dict(self):
         return dict(players=[x.to_dict() for x in self.players], winner=self.winner)

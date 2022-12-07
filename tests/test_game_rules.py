@@ -1,7 +1,8 @@
+import math
 from typing import Callable, List
 from unittest import TestCase
 
-from love_letter.models import Deck, Game, Player
+from love_letter.models import Deck, Game, Player, Round
 from love_letter.web.dto import GuessCard
 
 
@@ -101,6 +102,14 @@ class PlayingGameRoundByRoundTests(TestCase):
         game.join(Player.create('2'))
         game.join(Player.create('3'))
         self.game: Game = game
+
+        # disable random-picker for the first round
+        # it always returns the first player
+        self.origin_choose_one_randomly = Round.choose_one_randomly
+        Round.choose_one_randomly = lambda x: x[0]
+
+    def tearDown(self) -> None:
+        Round.choose_one_randomly = self.origin_choose_one_randomly
 
     def test_after_game_start_every_player_get_1_card_and_turn_player_get_extra_1(self):
         """
@@ -203,3 +212,32 @@ class PlayingGameRoundByRoundTests(TestCase):
         self.assertEqual(2, len(self.game.rounds))  # there are two rounds
         self.assertEqual('2', self.game.rounds[-2].winner)  # the last round winner
         self.assertEqual('2', self.game.rounds[-1].turn_player.name)  # turn player of this round
+
+
+class FirstRoundRandomPickerTests(TestCase):
+
+    def create_game(self):
+        # make a game with 4 players
+        game: Game = Game()
+        game.join(Player.create('1'))
+        game.join(Player.create('2'))
+        game.join(Player.create('3'))
+        game.join(Player.create('4'))
+        return game
+
+    def test_uniform_random_picker(self):
+        runs = 512
+        name_list = []
+        for x in range(runs):
+            game = self.create_game()
+            game.start()
+            name_list.append(game.get_turn_player().name)
+
+        # divide to 4 groups
+        count_for_each_group = runs / 4
+        # tolerance for 30% (the random generator is not real fair)
+        tolerance = 0.3
+        for x in range(1, 5):
+            distance = math.fabs(1 - (name_list.count(str(x)) / count_for_each_group))
+            print(f"distance for player({x}) between 1 and real value was: {distance}")
+            self.assertLess(distance, tolerance)
