@@ -57,6 +57,8 @@ class GuardCard(Card):
     quantity = 5
 
     def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+        if with_card == GuardCard:
+            return False
         for card in chosen_player.cards:
             if with_card == card:
                 chosen_player.out()
