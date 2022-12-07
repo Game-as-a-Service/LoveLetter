@@ -141,7 +141,7 @@ class PlayingGameRoundByRoundTests(TestCase):
         # given a started game
         self.game.start()
 
-        # when 3 player discarded twice but nothing happened
+        # when 3 players discarded twice but nothing happened
         self.game.play('1', '衛兵', GuessCard(chosen_player='2', guess_card='公主'))
         self.game.play('2', '衛兵', GuessCard(chosen_player='3', guess_card='公主'))
         self.game.play('3', '衛兵', GuessCard(chosen_player='1', guess_card='公主'))

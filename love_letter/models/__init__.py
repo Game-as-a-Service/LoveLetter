@@ -39,6 +39,7 @@ class Round:
         1. the deck is empty will cause the round ended
         1. only one player alive will cause the round ended
         """
+        # TODO should fix the side effect (when empty deck, it should not be moved) before making player-context
         self._shift_to_next_player(last_winner)
         return self.deck.draw(self.turn_player)
 
@@ -127,6 +128,7 @@ class Game:
 
         has_next_player = self.next_turn_player()
         if not has_next_player:
+            # TODO it doesn't cover the case: two players own same card but different total values (score)
             # find the winner from the alive players
             winner = max(might_has_winner)
             self.rounds[-1].winner = winner.name
