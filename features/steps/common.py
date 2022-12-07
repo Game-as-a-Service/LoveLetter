@@ -4,26 +4,32 @@ from love_letter.models import Player
 from love_letter.models.cards import find_card_by_name
 
 
+def as_player(context, player: str):
+    if not hasattr(context, player):
+        p = Player()
+        p.name = player
+        return p
+
+    return getattr(context, player)
+
+
 @given('{player} 持有 {card1} {card2}')
 def player_hold_two_cards(context, player, card1, card2):
-    p = Player()
-    p.name = player
+    p = as_player(context, player)
     p.cards = [find_card_by_name(card1), find_card_by_name(card2)]
     setattr(context, player, p)
 
 
 @given('{player} 持有 {card}')
 def player_hold_one_card(context, player, card):
-    p = Player()
-    p.name = player
+    p = as_player(context, player)
     p.cards = [find_card_by_name(card)]
     setattr(context, player, p)
 
 
 @given('{player} 被侍女保護中')
 def player_is_protected(context, player):
-    p = Player()
-    p.name = player
+    p = as_player(context, player)
     p.protected = True
     setattr(context, player, p)
 
