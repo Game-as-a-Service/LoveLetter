@@ -186,5 +186,20 @@ class PlayingGameRoundByRoundTests(TestCase):
         """
         當牌庫已空時，決定最後的 winner。讓此局結束開始新的一局
         """
-        # TODO
-        raise NotImplemented
+
+        # given the arranged deck
+        reset_deck(['伯爵夫人', '公主', '國王', '衛兵'])
+
+        # given a started game
+        self.game.start()
+
+        # when the deck become empty
+        self.game.play('1', '衛兵',  # player-1 kill nobody
+                       GuessCard(chosen_player='2', guess_card='侍女'))
+
+        # then player-2 is winner because 公主 is the card of the highest value (8)
+        #   1. the winner of the last round
+        #   2. the turn player at the new round
+        self.assertEqual(2, len(self.game.rounds))  # there are two rounds
+        self.assertEqual('2', self.game.rounds[-2].winner)  # the last round winner
+        self.assertEqual('2', self.game.rounds[-1].turn_player.name)  # turn player of this round

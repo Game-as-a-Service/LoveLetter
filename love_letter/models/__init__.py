@@ -31,10 +31,16 @@ class Round:
             deck.draw(p)
         return deck
 
-    def next_turn_player(self, last_winner: str = None):
+    def next_turn_player(self, last_winner: str = None) -> bool:
+        """
+        True if the round keeps going, otherwise false.
+
+        For example:
+        1. the deck is empty will cause the round ended
+        1. only one player alive will cause the round ended
+        """
         self._shift_to_next_player(last_winner)
-        self.deck.draw(self.turn_player)
-        # TODO tell the game from return-value if the round has ended
+        return self.deck.draw(self.turn_player)
 
     def _shift_to_next_player(self, last_winner: str = None):
         # assign the turn player from the last winner
@@ -118,7 +124,14 @@ class Game:
             self.rounds[-1].winner = winner_name
             self.next_round(winner_name)
             return
-        self.next_turn_player()
+
+        has_next_player = self.next_turn_player()
+        if not has_next_player:
+            # find the winner from the alive players
+            winner = max(might_has_winner)
+            self.rounds[-1].winner = winner.name
+            self.next_round(winner.name)
+            return
 
     def handle_when_guess_card_action(self, player_id: str, card_name: str, action: GuessCard):
         if not isinstance(action, GuessCard):
@@ -163,8 +176,8 @@ class Game:
     def get_turn_player(self):
         return self.rounds[-1].turn_player
 
-    def next_turn_player(self):
-        self.rounds[-1].next_turn_player()
+    def next_turn_player(self) -> bool:
+        return self.rounds[-1].next_turn_player()
 
 
 @dataclass
@@ -218,6 +231,10 @@ class Player:
 
     def __repr__(self):
         return f"Player({self.name},{self.cards})"
+
+    def __gt__(self, other: "Player"):
+        if len(self.cards) == 1 and len(other.cards) == 1:
+            return self.cards[0].value > other.cards[0].value
 
     @classmethod
     def create(cls, name):
