@@ -16,13 +16,13 @@ def build_fake_data():
 
     player_a = Player()
     player_a.name = 'player-a'
-    player_a.cards = [find_card_by_name('衛兵'), find_card_by_name('公主')]
-    game.add_player(player_a)
+    player_a.cards = []
+    game.join(player_a)
 
     player_b = Player()
     player_b.name = 'player-b'
-    player_b.cards = [find_card_by_name('神父')]
-    game.add_player(player_b)
+    player_b.cards = []
+    game.join(player_b)
 
 
 build_fake_data()
@@ -34,7 +34,7 @@ class GameService:
         if game_id not in database:
             return
         game: Game = database.get(game_id)
-        game.next_round()
+        game.start()
         return game.to_dict()
 
     def play_card(self, game_id, player_id: str, card_name: str,

@@ -47,6 +47,9 @@ class Card(metaclass=abc.ABCMeta):
     def __eq__(self, other):
         return self.name == other.name
 
+    def __repr__(self) -> str:
+        return str(f"Card({self.name},{self.value})")
+
 
 class GuardCard(Card):
     name = '衛兵'
