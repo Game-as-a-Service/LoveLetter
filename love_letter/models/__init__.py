@@ -98,7 +98,7 @@ class Game:
         self.next_round()
 
     def next_round(self, last_winner: str = None):
-        # TODO 如果沒有下一局，丟 exception
+        # TODO if we arrive the ending of the game, show the lucky person who won the Princess
         round = Round(deepcopy(self.players))
         round.next_turn_player(last_winner)
         self.rounds.append(round)
