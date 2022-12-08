@@ -58,7 +58,7 @@ class Round:
             return
 
         from_index = self.players.index(self.turn_player)
-        for x in range(1, len(self.players)):
+        for _ in range(1, len(self.players)):
             from_index = from_index + 1
             if from_index >= len(self.players):
                 selected = self.players[from_index - len(self.players)]
