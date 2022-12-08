@@ -1,113 +1,61 @@
 import unittest
+from typing import List
 
-from starlette.testclient import TestClient
-
-from love_letter.models import Deck
-from love_letter.web.app import app
-
-
-class TestDeck(Deck):
-    def shuffle(self, player_num: int):
-        super().shuffle(player_num)
-        from love_letter.models import find_card_by_name as c
-
-        self.cards = [
-            c('侍女'),  # player-a 的初始手牌
-            c('神父'),  # player-b 的初始手牌
-            c('公主'),  # player-a 為 turn player 獲得的牌
-            c('衛兵'),
-            c('伯爵夫人'),
-            c('衛兵'),
-        ]
+from love_letter.models import Deck, Game, Player
+from love_letter.web.dto import GuessCard
 
 
-class LostHandMaidProtected(unittest.TestCase):
+def reset_deck(card_name_list: List[str]):
+    class _TestDeck(Deck):
+        def shuffle(self, player_num: int):
+            super().shuffle(player_num)
+            from love_letter.models import find_card_by_name as c
+            self.cards = [c(x) for x in card_name_list]
+
+    import love_letter.models
+    love_letter.models.deck_factory = lambda: _TestDeck()
+
+
+class LoseHandMaidProtected(unittest.TestCase):
     def setUp(self) -> None:
-        self.t = TestClient(app)
-
-    def tearDown(self) -> None:
-        self.t.close()
+        self.game: Game = Game()
+        self.game.join(Player.create('1'))
+        self.game.join(Player.create('2'))
 
     def test_finish_one_round_lose_handmaid_protected(self):
-        game_id = "g-5566"
+        """
+        遊戲開始後，經過一輪後玩家1失去侍女保護，可以被其他玩家執行卡牌效果
+        玩家1 出牌 獲得侍女保護
+        玩家2 對 玩家1 出牌 衛兵 指定 公主 => 玩家1 被侍女保護 無效
+        玩家1 出牌 伯爵夫人
+        玩家2 對 玩家1 出牌 衛兵 指定 公主 => 玩家1 出局
+        :return:
+        """
 
-        # 將牌庫換成測試用牌庫
-        import love_letter.models
-        love_letter.models.deck_factory = lambda: TestDeck()
+        # given the arranged deck
+        reset_deck(['侍女', '神父', '公主', '衛兵', '伯爵夫人', '衛兵'])
 
-        # 開始遊戲
-        response = self.t.post(f"/games/{game_id}/start").json()
-        self.assertEqual(dict(
-            game_id=game_id,
-            players=[dict(name="player-a", out=False), dict(name="player-b", out=False)],
-            rounds=[
-                dict(
-                    winner=None,
-                    players=[dict(name="player-a", out=False), dict(name="player-b", out=False)]
-                )
-            ]
-        ), response)
+        # given a started game
+        self.game.start()
 
-        # 玩家A 出牌 獲得侍女保護
-        response = self.t.post(f"/games/{game_id}/player/player-a/card/侍女/play").json()
-        self.assertEqual(dict(
-            game_id=game_id,
-            players=[dict(name="player-a", out=False), dict(name="player-b", out=False)],
-            rounds=[
-                dict(
-                    winner=None,
-                    players=[dict(name="player-a", out=False), dict(name="player-b", out=False)]
-                )
-            ]
-        ), response)
+        self.game.play("1", '侍女', None)  # player-1 was protected
 
-        # 玩家B 對 玩家A 出牌 衛兵 指定 公主 => 玩家A 被侍女保護 無效
-        request_body = {
-            "chosen_player": "player-a",
-            "guess_card": "公主"
-        }
-        response = self.t.post(f"/games/{game_id}/player/player-b/card/衛兵/play", json=request_body).json()
-        self.assertEqual(dict(
-            game_id=game_id,
-            players=[dict(name="player-a", out=False), dict(name="player-b", out=False)],
-            rounds=[
-                dict(
-                    winner=None,
-                    players=[dict(name="player-a", out=False), dict(name="player-b", out=False)]
-                )
-            ]
-        ), response)
+        # then player-1 was protected
+        self.assertTrue(self.game.this_round_players()[0].protected)
 
-        # 玩家A 出牌 伯爵夫人
-        response = self.t.post(f"/games/{game_id}/player/player-a/card/伯爵夫人/play").json()
-        self.assertEqual(dict(
-            game_id=game_id,
-            players=[dict(name="player-a", out=False), dict(name="player-b", out=False)],
-            rounds=[
-                dict(
-                    winner=None,
-                    players=[dict(name="player-a", out=False), dict(name="player-b", out=False)]
-                )
-            ]
-        ), response)
+        self.game.play("2", '衛兵',  # player-2 can't kill player-1, because player-1 was protected
+                       GuessCard(chosen_player='1', guess_card="公主"))
 
-        # 玩家B 對 玩家A 出牌 衛兵 指定 公主 => 玩家A 出局
-        request_body = {
-            "chosen_player": "player-a",
-            "guess_card": "公主"
-        }
-        response = self.t.post(f"/games/{game_id}/player/player-b/card/衛兵/play", json=request_body).json()
-        self.assertEqual(dict(
-            game_id=game_id,
-            players=[dict(name="player-a", out=False), dict(name="player-b", out=False)],
-            rounds=[
-                dict(
-                    winner="player-b",
-                    players=[dict(name="player-a", out=True), dict(name="player-b", out=False)]
-                ),
-                dict(
-                    winner=None,
-                    players=[dict(name="player-a", out=False), dict(name="player-b", out=False)]
-                )
-            ]
-        ), response)
+        # then player-1 lose protected
+        self.assertFalse(self.game.this_round_players()[0].protected)
+
+        self.game.play("1", '伯爵夫人', None)  # player-1 lose protected
+        self.game.play("2", '衛兵',  # player-2 can kill player-1
+                       GuessCard(chosen_player='1', guess_card="公主"))
+
+        # then the player-2 will be
+        # 1. the winner of the last round
+        # 2. the turn player at the new round
+        self.assertEqual(2, len(self.game.rounds))  # there are two rounds
+        self.assertEqual('2', self.game.rounds[-2].winner)  # the last round winner
+        self.assertEqual('2', self.game.rounds[-1].turn_player.name)  # turn player of this round

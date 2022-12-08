@@ -1,7 +1,6 @@
 from typing import Dict, Optional, Union
 
 from love_letter.models import Game, Player
-from love_letter.models.cards import find_card_by_name
 from love_letter.web.dto import GuessCard, ToSomeoneCard
 
 database = dict()

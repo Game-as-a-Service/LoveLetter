@@ -60,6 +60,7 @@ class GuardCard(Card):
         for card in chosen_player.cards:
             if with_card == card:
                 chosen_player.out()
+                break
 
 
 class PriestCard(Card):
