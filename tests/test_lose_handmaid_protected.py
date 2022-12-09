@@ -1,7 +1,7 @@
 import unittest
 from typing import List
 
-from love_letter.models import Deck, Game, Player
+from love_letter.models import Deck, Game, Player, Round
 from love_letter.web.dto import GuessCard
 
 
@@ -21,6 +21,14 @@ class LoseHandMaidProtected(unittest.TestCase):
         self.game: Game = Game()
         self.game.join(Player.create('1'))
         self.game.join(Player.create('2'))
+
+        # disable random-picker for the first round
+        # it always returns the first player
+        self.origin_choose_one_randomly = Round.choose_one_randomly
+        Round.choose_one_randomly = lambda x: x[0]
+
+    def tearDown(self) -> None:
+        Round.choose_one_randomly = self.origin_choose_one_randomly
 
     def test_finish_one_round_lose_handmaid_protected(self):
         """
