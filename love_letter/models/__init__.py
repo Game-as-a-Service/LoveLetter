@@ -208,6 +208,13 @@ class Player:
         self.total_value_of_card: int = 0
         self.seen_cards: List[Seen] = []
 
+    def drop_card(self, discarded_card: Card):
+        # only drop 1 card
+        for index, card in enumerate(self.cards):
+            if card.name == discarded_card.name:
+                self.cards.pop(index)
+                break
+
     def discard_card(self, chosen_player: "Player" = None, discarded_card: Card = None, with_card: "Card" = None):
         # Precondition: the player must hold 2 cards
         if len(self.cards) != 2:

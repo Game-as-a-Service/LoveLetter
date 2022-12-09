@@ -1,7 +1,16 @@
 from behave import given, when, then
 
 from love_letter.models import Player
-from love_letter.models.cards import find_card_by_name
+from love_letter.models.cards import find_card_by_name, Deck
+
+
+def as_player(context, player: str):
+    if not hasattr(context, player):
+        p = Player()
+        p.name = player
+        return p
+
+    return getattr(context, player)
 
 
 def as_player(context, player: str):
@@ -86,6 +95,14 @@ def player_success_play_this_card(context, player: str, card: str):
 
     assert result is True
     assert turn_player.total_value_of_card == discarded_card.value
+
+
+@then('{player} 丟棄手牌 {card}')
+def player_discard_card(context, player: str, card: str):
+    turn_player: Player = getattr(context, player)
+    card_result = find_card_by_name(card)
+    turn_player.drop_card(card_result)
+    assert len(turn_player.cards) == 0
 
 
 @then('{player} 丟棄手牌')
