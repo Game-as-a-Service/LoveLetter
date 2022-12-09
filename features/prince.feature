@@ -16,14 +16,6 @@ Feature: 王子 出牌規則
     Then 玩家A 丟棄手牌
 #    Then 玩家A 從牌庫拿一張牌
 
-# TODO: 牌庫沒有牌的function，從移除牌拿牌的function
-#  Scenario: 玩家出王子 指定沒有手牌的玩家後出牌
-#    Given 玩家A 持有 王子
-#    Given 牌庫 已經沒有牌
-#    When 玩家A 對 玩家B 出牌 王子
-#    Then 玩家B 丟棄手牌
-#    Then 玩家B 從 移除牌 拿取一張牌
-
 #  TODO: 與牌庫相關的動作，等Deck完成後再實作
   Scenario: 玩家出王子 指定已經被侍女保護的人
     Given 玩家A 持有 王子
