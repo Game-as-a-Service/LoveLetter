@@ -2,7 +2,7 @@ import json
 import unittest
 from fastapi.testclient import TestClient
 
-from love_letter.models import Deck
+from love_letter.models import Deck, Round
 
 
 def _test_client() -> TestClient:
@@ -28,8 +28,13 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.t: TestClient = _test_client()
+        # disable random-picker for the first round
+        # it always returns the first player
+        self.origin_choose_one_randomly = Round.choose_one_randomly
+        Round.choose_one_randomly = lambda x: x[0]
 
     def tearDown(self) -> None:
+        Round.choose_one_randomly = self.origin_choose_one_randomly
         self.t.close()
 
     def test_start_game_with_predefined_state(self):

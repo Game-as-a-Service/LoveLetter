@@ -201,13 +201,16 @@ class Deck:
         for num in range(remove_cards_num):
             self.remove_by_rule_cards.append(self.cards.pop(0))
 
-    def draw(self, player: "Player"):
+    def draw(self, player: "Player") -> bool:
         """
         Player draw the top card.
         :param player:
         :return:
         """
+        if len(self.cards) == 0:
+            return False
         player.cards.append(self.cards.pop(0))
+        return True
 
 
 ALL_CARD_TYPES = [
