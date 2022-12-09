@@ -17,6 +17,8 @@ Feature: 王子 出牌規則
 #    Then 玩家A 從牌庫拿一張牌
 
   Scenario: 玩家出王子 指定已經被侍女保護的人
-    Given 玩家A 持有 王子
+    Given 玩家A 持有 國王 王子
+    Given 玩家B 持有 男爵
     Given 玩家B 被侍女保護中
     When 玩家A 對 玩家B 出牌 王子
+    Then 玩家B 未出局
