@@ -4,9 +4,18 @@ from love_letter.models import Player
 from love_letter.models.cards import find_card_by_name, Deck
 
 
+def as_player(context, player: str):
+    if not hasattr(context, player):
+        p = Player()
+        p.name = player
+        return p
+
+    return getattr(context, player)
+
+
 @given('{player} 持有 {card1} {card2}')
 def player_hold_two_cards(context, player, card1, card2):
-    p = Player()
+    p = as_player(context, player)
     p.name = player
     p.cards = [find_card_by_name(card1), find_card_by_name(card2)]
     setattr(context, player, p)
@@ -14,7 +23,7 @@ def player_hold_two_cards(context, player, card1, card2):
 
 @given('{player} 持有 {card}')
 def player_hold_one_card(context, player, card):
-    p = Player()
+    p = as_player(context, player)
     p.name = player
     p.cards = [find_card_by_name(card)]
     setattr(context, player, p)
@@ -22,8 +31,7 @@ def player_hold_one_card(context, player, card):
 
 @given('{player} 被侍女保護中')
 def player_is_protected(context, player):
-    p = Player()
-    p.name = player
+    p = as_player(context, player)
     p.protected = True
     setattr(context, player, p)
 
@@ -82,10 +90,11 @@ def player_success_play_this_card(context, player: str, card: str):
     assert turn_player.total_value_of_card == discarded_card.value
 
 
-@then('{player} 丟棄手牌')
-def player_discard_card(context, player: str):
+@then('{player} 丟棄手牌 {card}')
+def player_discard_card(context, player: str, card: str):
     turn_player: Player = getattr(context, player)
-    turn_player.drop_card()
+    card_result = find_card_by_name(card)
+    turn_player.drop_card(card_result)
     assert len(turn_player.cards) == 0
 
 
@@ -118,10 +127,8 @@ def player_saw_opponent_hand(context, player_a, player_b, card):
     assert (turn_player.seen_cards[-1].card == card_will_be_checked) is True
 
 
-@then('{player} 從牌庫拿一張牌')
-def player_draw_card(context, player: str):
+@then('{player} 手牌為 {card}')
+def player_error_play_this_card(context, player, card):
     turn_player: Player = getattr(context, player)
-    deck = Deck()
-    deck.shuffle(4)
-    deck.draw(turn_player)
-    assert len(turn_player.cards) == 1
+    card_result = find_card_by_name(card)
+    assert (turn_player.cards[0] == card_result) is True
