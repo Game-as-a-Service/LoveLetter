@@ -96,10 +96,12 @@ class Player:
         self.total_value_of_card: int = 0
         self.seen_cards: List[Seen] = []
 
-    def drop_cards(self):
-        for card in self.cards:
-            self.total_value_of_card += card.value
-        self.cards = []
+    def drop_card(self):
+        if len(self.cards) == 1:
+            self.total_value_of_card += self.cards[-1].value
+            self.cards = []
+            return True
+        return False
 
     def discard_card(self, chosen_player: "Player" = None, discarded_card: Card = None, with_card: "Card" = None):
         # TODO precondition: the player must hold 2 cards
