@@ -42,6 +42,10 @@ class Round:
         """
         # TODO should fix the side effect (when empty deck, it should not be moved) before making player-context
         self._shift_to_next_player(last_winner)
+        
+        # Remove player protected after one round
+        self.turn_player.protected = False
+        
         return self.deck.draw(self.turn_player)
 
     def _shift_to_next_player(self, last_winner: str = None):
@@ -58,6 +62,7 @@ class Round:
             return
 
         from_index = self.players.index(self.turn_player)
+
         for _ in range(1, len(self.players)):
             from_index = from_index + 1
             if from_index >= len(self.players):
@@ -117,9 +122,11 @@ class Game:
         players = self.this_round_players()
 
         # TODO rewrite handles to chain of rules and catching lost cases
-        self.handle_when_guess_card_action(player_id, card_name, card_action)
-        self.handle_when_to_someone_action(player_id, card_name, card_action)
-        self.handle_when_to_nothing_action(player_id, card_name, card_action)
+        turn_player: "Player" = self.find_player_by_id(player_id)
+        discarded_card: "Card" = find_card_by_name(card_name)
+        self.handle_when_guess_card_action(turn_player, discarded_card, card_action)
+        self.handle_when_to_someone_action(turn_player, discarded_card, card_action)
+        self.handle_when_to_nothing_action(turn_player, discarded_card, card_action)
 
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
         might_has_winner = [x for x in players if not x.am_i_out]
@@ -138,14 +145,13 @@ class Game:
             self.next_round(winner.name)
             return
 
-    def handle_when_guess_card_action(self, player_id: str, card_name: str, action: GuessCard):
+    def handle_when_guess_card_action(self, turn_player: "Player", discarded_card: "Card", action: GuessCard):
         if not isinstance(action, GuessCard):
             return
 
-        turn_player: "Player" = self.find_player_by_id(player_id)
         chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
 
-        turn_player.discard_card(chosen_player=chosen_player, discarded_card=find_card_by_name(card_name),
+        turn_player.discard_card(chosen_player=chosen_player, discarded_card=discarded_card,
                                  with_card=find_card_by_name(action.guess_card))
 
     def find_player_by_id(self, player_id):
@@ -158,16 +164,17 @@ class Game:
     def this_round_players(self):
         return self.rounds[-1].players
 
-    def handle_when_to_someone_action(self, player_id: str, card_name: str, action: ToSomeoneCard):
+    def handle_when_to_someone_action(self, turn_player: "Player", discarded_card: "Card", action: ToSomeoneCard):
         if not isinstance(action, ToSomeoneCard):
             return
         raise NotImplemented
 
-    def handle_when_to_nothing_action(self, player_id: str, card_name: str, action):
+    def handle_when_to_nothing_action(self, turn_player: "Player", discarded_card: "Card", action: None):
         if action is not None:
+            # Don't go there
             return
 
-        raise NotImplemented
+        turn_player.discard_card(turn_player, discarded_card)
 
     @classmethod
     def create(cls, player: "Player") -> "Game":
@@ -202,25 +209,23 @@ class Player:
         self.seen_cards: List[Seen] = []
 
     def discard_card(self, chosen_player: "Player" = None, discarded_card: Card = None, with_card: "Card" = None):
-        # TODO precondition: the player must hold 2 cards
+        # Precondition: the player must hold 2 cards
         if len(self.cards) != 2:
             return False
 
-        # Check will_be_played_card is in the hands
+        # Precondition: Check will_be_played_card is in the hands
         if not any([True for c in self.cards if c.name == discarded_card.name]):
             return False
 
-        if chosen_player and chosen_player.protected:
-            # TODO send completed event for player
-            return
-
-        discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
+        if not (chosen_player and chosen_player.protected):
+            discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
 
         # TODO postcondition: the player holds 1 card after played
         self.drop_card(discarded_card)
 
         if len(self.cards) != 1:
             return False
+
         self.total_value_of_card += discarded_card.value
 
         return True

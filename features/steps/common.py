@@ -129,6 +129,18 @@ def player_get_protected(context, player_a):
     assert turn_player.protected is True
 
 
+@then("{player} 剩一張手牌")
+def player_left_one_card(context, player):
+    turn_player: Player = getattr(context, player)
+    assert len(turn_player.cards) == 1
+
+
+@then("{player} 什麼也沒看到")
+def player_saw_nothing(context, player):
+    turn_player: Player = getattr(context, player)
+    assert len(turn_player.seen_cards) == 0
+
+
 @then('{player} 手牌為 {card}')
 def player_error_play_this_card(context, player, card):
     turn_player: Player = getattr(context, player)
