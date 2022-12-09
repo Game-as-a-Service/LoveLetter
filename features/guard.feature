@@ -17,3 +17,4 @@ Feature: 衛兵 出牌規則
     Given 玩家B 被侍女保護中
     When 玩家A 對 玩家B 出牌 衛兵 指定 神父
     Then 玩家B 未出局
+    Then 玩家A 剩一張手牌

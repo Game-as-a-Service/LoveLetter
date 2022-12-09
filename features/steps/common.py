@@ -13,10 +13,18 @@ def as_player(context, player: str):
     return getattr(context, player)
 
 
+def as_player(context, player: str):
+    if not hasattr(context, player):
+        p = Player()
+        p.name = player
+        return p
+
+    return getattr(context, player)
+
+
 @given('{player} 持有 {card1} {card2}')
 def player_hold_two_cards(context, player, card1, card2):
     p = as_player(context, player)
-    p.name = player
     p.cards = [find_card_by_name(card1), find_card_by_name(card2)]
     setattr(context, player, p)
 
@@ -24,7 +32,6 @@ def player_hold_two_cards(context, player, card1, card2):
 @given('{player} 持有 {card}')
 def player_hold_one_card(context, player, card):
     p = as_player(context, player)
-    p.name = player
     p.cards = [find_card_by_name(card)]
     setattr(context, player, p)
 
@@ -125,6 +132,24 @@ def player_saw_opponent_hand(context, player_a, player_b, card):
     # check last seen_cards opponent name and card equal
     assert (turn_player.seen_cards[-1].opponent_name == chosen_player.name) is True
     assert (turn_player.seen_cards[-1].card == card_will_be_checked) is True
+
+
+@then('{player_a} 擁有保護效果')
+def player_get_protected(context, player_a):
+    turn_player: Player = getattr(context, player_a)
+    assert turn_player.protected is True
+
+
+@then("{player} 剩一張手牌")
+def player_left_one_card(context, player):
+    turn_player: Player = getattr(context, player)
+    assert len(turn_player.cards) == 1
+
+
+@then("{player} 什麼也沒看到")
+def player_saw_nothing(context, player):
+    turn_player: Player = getattr(context, player)
+    assert len(turn_player.seen_cards) == 0
 
 
 @then('{player} 手牌為 {card}')

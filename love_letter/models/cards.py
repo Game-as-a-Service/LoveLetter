@@ -47,6 +47,9 @@ class Card(metaclass=abc.ABCMeta):
     def __eq__(self, other):
         return self.name == other.name
 
+    def __repr__(self) -> str:
+        return str(f"Card({self.name},{self.value})")
+
 
 class GuardCard(Card):
     name = '衛兵'
@@ -57,6 +60,7 @@ class GuardCard(Card):
         for card in chosen_player.cards:
             if with_card == card:
                 chosen_player.out()
+                break
 
 
 class PriestCard(Card):
@@ -85,7 +89,7 @@ class HandmaidCard(Card):
     quantity = 2
 
     def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
-        raise NotImplemented
+        card_holder.protected = True
 
 
 class PrinceCard(Card):
@@ -122,6 +126,14 @@ class KingCard(Card):
         for c in card_holder.cards:
             if c.name == "伯爵夫人":
                 raise REJECT_BY_RULE
+
+        # 出牌者剩下的牌(型別為list)
+        card_holder_left_card = list(filter(lambda x: x.name != self.name, card_holder.cards))
+        # 因為出牌者剩下的牌list只有一個元素，故直接寫[0]
+        card_holder_swap_card_index = card_holder.cards.index(card_holder_left_card[0])
+        chosen_player.cards[0], card_holder.cards[card_holder_swap_card_index] =\
+            card_holder.cards[card_holder_swap_card_index], chosen_player.cards[0]
+
 
 
 class CountessCard(Card):
@@ -189,13 +201,16 @@ class Deck:
         for num in range(remove_cards_num):
             self.remove_by_rule_cards.append(self.cards.pop(0))
 
-    def draw(self, player: "Player"):
+    def draw(self, player: "Player") -> bool:
         """
         Player draw the top card.
         :param player:
         :return:
         """
+        if len(self.cards) == 0:
+            return False
         player.cards.append(self.cards.pop(0))
+        return True
 
 
 ALL_CARD_TYPES = [
