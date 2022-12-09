@@ -105,6 +105,12 @@ def player_discard_card(context, player: str, card: str):
     assert len(turn_player.cards) == 0
 
 
+@then('{player} 丟棄手牌')
+def player_discard_card(context, player: str):
+    turn_player: Player = getattr(context, player)
+    assert len(turn_player.cards) == 0
+
+
 @then('{player} 無法打出 {card}')
 def player_error_play_this_card(context, player: str, card: str):
     turn_player: Player = getattr(context, player)
