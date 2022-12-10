@@ -22,8 +22,8 @@ class GameService:
         try:
             self.repository.get(game_id).join(Player.create(player_id))
             return True
-        except:
-            traceback.print_tb()
+        except BaseException as e:
+            traceback.print_exception(e)
             return False
 
     def start_game(self, game_id: str) -> Optional[Dict]:
