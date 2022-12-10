@@ -1,5 +1,6 @@
 from typing import Union
 
+import uvicorn
 from fastapi import FastAPI
 
 from love_letter.repository import GameRepositoryInMemoryImpl
@@ -30,3 +31,7 @@ async def play_card(
         game_id: str, player_id: str, card_name: str, card_action: Union[GuessCard, ToSomeoneCard, None] = None
 ):
     return service.play_card(game_id, player_id, card_name, card_action)
+
+
+if __name__ == '__main__':
+    uvicorn.run(app, host="0.0.0.0", port=8080)
