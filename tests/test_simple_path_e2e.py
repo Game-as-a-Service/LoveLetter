@@ -38,16 +38,24 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         self.t.close()
 
     def test_start_game_with_predefined_state(self):
-        game_id = "g-5566"
+        player_a = "player-a"
+        player_b = "player-b"
 
         # 將牌庫換成測試用牌庫
         import love_letter.models
         love_letter.models.deck_factory = lambda: TestDeck()
 
+        # 建立遊戲
+        game_id = self.t.post(f"/games/create/by_player/{player_a}").json()
+
+        # 加入遊戲
+        is_success = self.t.post(f"/games/{game_id}/player/{player_b}/join").json()
+        self.assertTrue(is_success)
+
         # 開始遊戲
         response = self.t.post(f"/games/{game_id}/start").json()
         self.assertEqual(dict(
-            game_id="g-5566",
+            game_id=game_id,
             players=[dict(name="player-a", out=False), dict(name="player-b", out=False)],
             rounds=[
                 dict(
@@ -64,7 +72,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         }
         response = self.t.post(f"/games/{game_id}/player/player-a/card/衛兵/play", json=request_body).json()
         self.assertEqual(dict(
-            game_id="g-5566",
+            game_id=game_id,
             players=[dict(name="player-a", out=False), dict(name="player-b", out=False)],
             rounds=[
                 dict(
