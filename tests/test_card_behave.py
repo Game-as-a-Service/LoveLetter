@@ -126,7 +126,7 @@ class DiscardPrinceCardTests(unittest.TestCase):
         # when player-1 discards the prince and chosen player-2
         self.game.play("1", "王子", ToSomeoneCard(chosen_player="2"))
 
-        # then player-2 has one card in the last round
+        # then player-2 has one card from deck card in the last round
         self.assertEqual(len(self.game.rounds[-2].turn_player.cards), 1)
 
         # then player-1 is the winner
@@ -149,11 +149,14 @@ class DiscardPrinceCardTests(unittest.TestCase):
         # when player-1 discards the prince and chosen player-2
         self.game.play("1", "王子", ToSomeoneCard(chosen_player="2"))
 
-        # then player-2 is turn player, so have two card in hands
-        self.assertEqual(len(self.game.rounds[-1].turn_player.cards), 2)
+        # then player-2 has one card from deck remove_by_rule_cards in the last round
+        self.assertEqual(len(self.game.rounds[-2].turn_player.cards), 1)
 
-        # then the deck cards is empty
-        self.assertEqual(len(self.game.rounds[-1].deck.cards), 0)
+        # then player-1 is the winner
+        self.assertEqual(self.game.rounds[-2].winner, "1")
 
-        # then the deck remove_by_rule_card is empty
-        self.assertEqual(len(self.game.rounds[-1].deck.cards), 0)
+        # then the deck cards is empty in last round
+        self.assertEqual(len(self.game.rounds[-2].deck.cards), 0)
+
+        # then the deck remove_by_rule_card is empty in last round
+        self.assertEqual(len(self.game.rounds[-2].deck.remove_by_rule_cards), 0)
