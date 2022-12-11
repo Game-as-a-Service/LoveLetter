@@ -78,14 +78,23 @@ class Round:
     def choose_one_randomly(cls, players: List["Player"]):
         return players[secrets.randbelow(len(players))]
 
-    def draw_card_by_system(self, player: "Player"):
+    def draw_card_by_system(self, players: List["Player"]):
         """
-        Help the player with one less card to draw a card.
+        Make sure each players has one card and
+        help the player with one less card to draw a card.
         If deck card is empty, will draw remove_by_rule_card
-        :param player:
+        :param players:
         :return:
         """
-        if len(player.cards):
+        player = None
+
+        for p in players:
+            if len(p.cards) != 1:
+                player = p
+                continue
+
+        # if don't get player or player has card return
+        if not player or len(player.cards):
             return
 
         if not self.deck.draw_card(player):
@@ -141,14 +150,10 @@ class Game:
         self.handle_when_to_someone_action(turn_player, discarded_card, card_action)
         self.handle_when_to_nothing_action(turn_player, discarded_card, card_action)
 
+        self.rounds[-1].draw_card_by_system(players)
+
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
         might_has_winner = [x for x in players if not x.am_i_out]
-
-        # make sure each players has a card
-        less_one_card_player = self.get_less_one_card_player(might_has_winner)
-        if less_one_card_player:
-            self.rounds[-1].draw_card_by_system(less_one_card_player)
-
         if len(might_has_winner) == 1:
             winner_name = might_has_winner[0].name
             self.rounds[-1].winner = winner_name
@@ -211,12 +216,6 @@ class Game:
 
     def next_turn_player(self) -> bool:
         return self.rounds[-1].next_turn_player()
-
-    def get_less_one_card_player(self, players: List["Player"]) -> Optional["Player"]:
-        for player in players:
-            if len(player.cards) != 1:
-                return player
-        return None
 
 
 @dataclass
