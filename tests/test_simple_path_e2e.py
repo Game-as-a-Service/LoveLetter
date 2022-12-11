@@ -53,17 +53,30 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         self.assertTrue(is_success)
 
         # 開始遊戲
-        response = self.t.post(f"/games/{game_id}/start").json()
-        self.assertEqual(dict(
-            game_id=game_id,
-            players=[dict(name="player-a", out=False), dict(name="player-b", out=False)],
-            rounds=[
-                dict(
-                    winner=None,
-                    players=[dict(name="player-a", out=False), dict(name="player-b", out=False)]
-                )
-            ]
-        ), response)
+        is_started = self.t.post(f"/games/{game_id}/start").json()
+        self.assertTrue(is_started)
+
+        # 確認遊戲狀態
+        response = self.t.get(f"/games/{game_id}/player/{player_a}/status").json()
+        self.assertEqual({'game_id': game_id,
+                          'rounds': [{'players': [{'cards': [{'description': '<description>',
+                                                              'name': '衛兵',
+                                                              'value': 1},
+                                                             {'description': '<description>',
+                                                              'name': '公主',
+                                                              'value': 8}],
+                                                   'name': 'player-a',
+                                                   'out': False},
+                                                  {'cards': [], 'name': 'player-b', 'out': False}],
+                                      'turn_player': {'cards': [{'description': '<description>',
+                                                                 'name': '衛兵',
+                                                                 'value': 1},
+                                                                {'description': '<description>',
+                                                                 'name': '公主',
+                                                                 'value': 8}],
+                                                      'name': 'player-a',
+                                                      'out': False},
+                                      'winner': None}]}, response)
 
         # 玩家出牌
         request_body = {
@@ -71,17 +84,38 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
             "guess_card": "神父"
         }
         response = self.t.post(f"/games/{game_id}/player/player-a/card/衛兵/play", json=request_body).json()
-        self.assertEqual(dict(
-            game_id=game_id,
-            players=[dict(name="player-a", out=False), dict(name="player-b", out=False)],
-            rounds=[
-                dict(
-                    winner="player-a",
-                    players=[dict(name="player-a", out=False), dict(name="player-b", out=True)]
-                ),
-                dict(
-                    winner=None,
-                    players=[dict(name="player-a", out=False), dict(name="player-b", out=False)]
-                )
-            ]
-        ), response)
+        self.assertEqual({'game_id': game_id,
+                          'rounds': [{'players': [{'cards': [{'description': '<description>',
+                                                              'name': '公主',
+                                                              'value': 8}],
+                                                   'name': 'player-a',
+                                                   'out': False},
+                                                  {'cards': [{'description': '<description>',
+                                                              'name': '神父',
+                                                              'value': 2}],
+                                                   'name': 'player-b',
+                                                   'out': True}],
+                                      'turn_player': {'cards': [{'description': '<description>',
+                                                                 'name': '公主',
+                                                                 'value': 8}],
+                                                      'name': 'player-a',
+                                                      'out': False},
+                                      'winner': 'player-a'},
+                                     {'players': [{'cards': [{'description': '<description>',
+                                                              'name': '衛兵',
+                                                              'value': 1},
+                                                             {'description': '<description>',
+                                                              'name': '公主',
+                                                              'value': 8}],
+                                                   'name': 'player-a',
+                                                   'out': False},
+                                                  {'cards': [], 'name': 'player-b', 'out': False}],
+                                      'turn_player': {'cards': [{'description': '<description>',
+                                                                 'name': '衛兵',
+                                                                 'value': 1},
+                                                                {'description': '<description>',
+                                                                 'name': '公主',
+                                                                 'value': 8}],
+                                                      'name': 'player-a',
+                                                      'out': False},
+                                      'winner': None}]}, response)

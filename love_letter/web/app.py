@@ -5,10 +5,11 @@ from fastapi import FastAPI
 
 from love_letter.repository import GameRepositoryInMemoryImpl
 from love_letter.service import GameService
-from love_letter.web.dto import GuessCard, ToSomeoneCard
+from love_letter.web.dto import GameStatus, GuessCard, ToSomeoneCard
 
 app = FastAPI()
-service = GameService(GameRepositoryInMemoryImpl())
+repo = GameRepositoryInMemoryImpl()
+service = GameService(repo)
 
 
 @app.post("/games/create/by_player/{player_id}")
@@ -26,12 +27,17 @@ async def start_game(game_id: str):
     return service.start_game(game_id)
 
 
-@app.post("/games/{game_id}/player/{player_id}/card/{card_name}/play")
+@app.post("/games/{game_id}/player/{player_id}/card/{card_name}/play", response_model=GameStatus)
 async def play_card(
         game_id: str, player_id: str, card_name: str, card_action: Union[GuessCard, ToSomeoneCard, None] = None
 ):
     return service.play_card(game_id, player_id, card_name, card_action)
 
 
+@app.get("/games/{game_id}/player/{player_id}/status", response_model=GameStatus)
+async def get_status(game_id: str, player_id: str):
+    return service.get_status(game_id, player_id)
+
+
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    uvicorn.run("love_letter.web.app:app", host="0.0.0.0", port=8080, reload=True)

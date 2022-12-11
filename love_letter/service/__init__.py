@@ -26,12 +26,12 @@ class GameService:
             traceback.print_exception(e)
             return False
 
-    def start_game(self, game_id: str) -> Optional[Dict]:
+    def start_game(self, game_id: str) -> bool:
         game: Game = self.repository.get(game_id)
         if game is None:
             return
         game.start()
-        return game.to_dict()
+        return True
 
     def play_card(self, game_id, player_id: str, card_name: str,
                   card_action: Union[GuessCard, ToSomeoneCard, None]) -> Optional[Dict]:
@@ -40,4 +40,26 @@ class GameService:
         if game is None:
             return
         game.play(player_id, card_name, card_action)
-        return game.to_dict()
+        return self.convert_to_player_view(game, player_id)
+
+    def get_status(self, game_id: str, player_id: str):
+        game: Game = self.repository.get(game_id)
+        if game is None:
+            return
+
+        return self.convert_to_player_view(game, player_id)
+
+    def convert_to_player_view(self, game, player_id):
+        # we should remove private data for each player
+        # players only know their own cards
+        raw_result = game.to_dict()
+        if len(raw_result['rounds']) < 1:
+            return raw_result
+        last_round = raw_result['rounds'][-1]
+        for p in last_round['players']:
+            if p['name'] != player_id:
+                p['cards'] = []
+        turn_player = last_round['turn_player']
+        if turn_player['name'] != player_id:
+            turn_player['cards'] = []
+        return raw_result
