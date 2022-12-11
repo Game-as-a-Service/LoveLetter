@@ -1,7 +1,7 @@
 import secrets
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Union, Optional
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.exceptions import GameException
@@ -29,7 +29,7 @@ class Round:
 
         # give each player a card
         for p in players:
-            deck.draw(p)
+            deck.draw_card(p)
         return deck
 
     def next_turn_player(self, last_winner: str = None) -> bool:
@@ -46,7 +46,7 @@ class Round:
         # Remove player protected after one round
         self.turn_player.protected = False
         
-        return self.deck.draw(self.turn_player)
+        return self.deck.draw_card(self.turn_player)
 
     def _shift_to_next_player(self, last_winner: str = None):
         # assign the turn player from the last winner
@@ -77,6 +77,19 @@ class Round:
     @classmethod
     def choose_one_randomly(cls, players: List["Player"]):
         return players[secrets.randbelow(len(players))]
+
+    def draw_card_by_system(self, player: "Player"):
+        """
+        Help the player with one less card to draw a card.
+        If deck card is empty, will draw remove_by_rule_card
+        :param player:
+        :return:
+        """
+        if len(player.cards):
+            return
+
+        if not self.deck.draw_card(player):
+            self.deck.draw_remove_card(player)
 
     def to_dict(self):
         return dict(players=[x.to_dict() for x in self.players], winner=self.winner)
@@ -130,6 +143,12 @@ class Game:
 
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
         might_has_winner = [x for x in players if not x.am_i_out]
+
+        # make sure each players has a card
+        less_one_card_player = self.get_less_one_card_player(might_has_winner)
+        if less_one_card_player:
+            self.rounds[-1].draw_card_by_system(less_one_card_player)
+
         if len(might_has_winner) == 1:
             winner_name = might_has_winner[0].name
             self.rounds[-1].winner = winner_name
@@ -167,7 +186,9 @@ class Game:
     def handle_when_to_someone_action(self, turn_player: "Player", discarded_card: "Card", action: ToSomeoneCard):
         if not isinstance(action, ToSomeoneCard):
             return
-        raise NotImplemented
+
+        chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
+        turn_player.discard_card(chosen_player, discarded_card)
 
     def handle_when_to_nothing_action(self, turn_player: "Player", discarded_card: "Card", action: None):
         if action is not None:
@@ -191,6 +212,12 @@ class Game:
     def next_turn_player(self) -> bool:
         return self.rounds[-1].next_turn_player()
 
+    def get_less_one_card_player(self, players: List["Player"]) -> Optional["Player"]:
+        for player in players:
+            if len(player.cards) != 1:
+                return player
+        return None
+
 
 @dataclass
 class Seen:
@@ -207,13 +234,6 @@ class Player:
         self.protected = False
         self.total_value_of_card: int = 0
         self.seen_cards: List[Seen] = []
-
-    def drop_card(self, discarded_card: Card):
-        # only drop 1 card
-        for index, card in enumerate(self.cards):
-            if card.name == discarded_card.name:
-                self.cards.pop(index)
-                break
 
     def discard_card(self, chosen_player: "Player" = None, discarded_card: Card = None, with_card: "Card" = None):
         # Precondition: the player must hold 2 cards

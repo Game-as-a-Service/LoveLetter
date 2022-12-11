@@ -135,7 +135,6 @@ class KingCard(Card):
             card_holder.cards[card_holder_swap_card_index], chosen_player.cards[0]
 
 
-
 class CountessCard(Card):
     name = '伯爵夫人'
     value = 7
@@ -201,7 +200,7 @@ class Deck:
         for num in range(remove_cards_num):
             self.remove_by_rule_cards.append(self.cards.pop(0))
 
-    def draw(self, player: "Player") -> bool:
+    def draw_card(self, player: "Player") -> bool:
         """
         Player draw the top card.
         :param player:
@@ -210,6 +209,17 @@ class Deck:
         if len(self.cards) == 0:
             return False
         player.cards.append(self.cards.pop(0))
+        return True
+
+    def draw_remove_card(self, player: "Player") -> bool:
+        """
+        Player draw the top remove_by_rule_cards.
+        :param player:
+        :return:
+        """
+        if len(self.remove_by_rule_cards) == 0:
+            return False
+        player.cards.append(self.remove_by_rule_cards.pop(0))
         return True
 
 
