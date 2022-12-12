@@ -41,5 +41,5 @@ class DeckTest(unittest.TestCase):
         self.deck.shuffle(player_num)
 
         for player in players:
-            self.deck.draw(player)
+            self.deck.draw_card(player)
             assert len(player.cards) == 1
