@@ -89,7 +89,7 @@ class Round:
         player = None
 
         for p in players:
-            if len(p.cards) != 1:
+            if not p.am_i_out and len(p.cards) != 1:
                 player = p
                 continue
 

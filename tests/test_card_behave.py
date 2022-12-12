@@ -110,6 +110,32 @@ class DiscardPrinceCardTests(unittest.TestCase):
         # then the deck is empty
         self.assertEqual(len(self.game.rounds[-1].deck.cards), 0)
 
+    def test_discard_prince_card_and_chosen_player_out_and_not_get_other_card_from_deck(self):
+        """
+        測試出王子牌，系統不從牌庫補牌，因為玩家已經出局
+        玩家A 對 玩家B 出牌 王子，玩家B棄牌公主，該局結束，系統不發牌
+        :return:
+        """
+
+        # given the arranged deck
+        reset_deck(['王子', '公主', '國王', '衛兵', '衛兵'])
+
+        # given a started game
+        self.game.start()
+
+        # when player-1 discards the prince and chosen player-2
+        self.game.play("1", "王子", ToSomeoneCard(chosen_player="2"))
+
+        # then player-2 is out and don't have card in hands
+        self.assertEqual(self.game.rounds[-2].winner, "1")
+
+        # then player get the expected cards
+        expected_card_mapping = [('1', ['國王']), ('2', [])]
+        for index, player in enumerate(self.game.rounds[-2].players):
+            name, cards = expected_card_mapping[index]
+            self.assertEqual(name, player.name)
+            self.assertEqual(cards, [x.name for x in player.cards])
+
     def test_discard_prince_card_and_chosen_player_get_other_card_from_deck_and_deck_card_is_empty(self):
         """
         測試出王子牌，系統從牌庫補牌，補完牌後牌庫也沒牌 => 遊戲結束
