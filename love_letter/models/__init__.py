@@ -42,10 +42,9 @@ class Round:
         """
         # TODO should fix the side effect (when empty deck, it should not be moved) before making player-context
         self._shift_to_next_player(last_winner)
-        
+
         # Remove player protected after one round
         self.turn_player.protected = False
-        
         return self.deck.draw_card(self.turn_player)
 
     def _shift_to_next_player(self, last_winner: str = None):
@@ -241,7 +240,7 @@ class Player:
 
         # Precondition: Check will_be_played_card is in the hands
         if not any([True for c in self.cards if c.name == discarded_card.name]):
-            return False
+            raise GameException("Cannot discard cards not in your hand")
 
         if not (chosen_player and chosen_player.protected):
             discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
