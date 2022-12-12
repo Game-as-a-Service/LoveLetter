@@ -1,4 +1,3 @@
-import math
 from collections import Counter
 from typing import Callable, List
 from unittest import TestCase
@@ -18,7 +17,7 @@ def reset_deck(card_name_list: List[str]):
     love_letter.models.deck_factory = lambda: _TestDeck()
 
 
-class GetGameStartedTests(TestCase):
+class CatchableTestCase(TestCase):
 
     def setUp(self):
         self.exception_message: str = None
@@ -27,6 +26,9 @@ class GetGameStartedTests(TestCase):
         with self.assertRaises(BaseException) as ex:
             callable()
         self.exception_message = str(ex.exception)
+
+
+class GetGameStartedTests(CatchableTestCase):
 
     def test_game_can_not_start_less_than_two_players(self):
         """
@@ -236,3 +238,27 @@ class FirstRoundRandomPickerTests(TestCase):
         # any player has the chance to be the turn player
         for value in counter.values():
             self.assertTrue(value > 1)
+
+
+class TurnPlayerCannotDiscardCardNotInTheirHandTests(CatchableTestCase):
+
+    def setUp(self):
+        # make a game with 2 players
+        game: Game = Game()
+        game.join(Player.create('1'))
+        game.join(Player.create('2'))
+        self.game: Game = game
+
+    def test_turn_player_cannot_discard_cards_not_in_their_hand(self):
+        # given the arranged deck
+        reset_deck(['神父', '神父', '衛兵', '衛兵'])
+
+        # given a started game
+        self.game.start()
+
+        # when player discard the card not in their hands
+        turn_player = self.game.get_turn_player().name
+        self.catch(lambda: self.game.play(turn_player, '公主', None))
+
+        # then got error
+        self.assertEqual("Cannot discard cards not in your hand", self.exception_message)
