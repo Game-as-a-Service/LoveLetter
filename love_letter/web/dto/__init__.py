@@ -10,3 +10,26 @@ class GuessCard(BaseModel):
 
 class ToSomeoneCard(BaseModel):
     chosen_player: str
+
+
+class CardModel(BaseModel):
+    name: str
+    description: str
+    value: int
+
+
+class PlayerModel(BaseModel):
+    name: str | None
+    out: bool
+    cards: List[CardModel]
+
+
+class RoundModel(BaseModel):
+    players: List[PlayerModel]
+    winner: str | None
+    turn_player: PlayerModel
+
+
+class GameStatus(BaseModel):
+    game_id: str
+    rounds: List[RoundModel]

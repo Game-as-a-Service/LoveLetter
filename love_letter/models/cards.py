@@ -50,6 +50,9 @@ class Card(metaclass=abc.ABCMeta):
     def __repr__(self) -> str:
         return str(f"Card({self.name},{self.value})")
 
+    def to_dict(self):
+        return dict(name=self.name, description="<description>", value=self.value)
+
 
 class GuardCard(Card):
     name = '衛兵'
@@ -131,7 +134,7 @@ class KingCard(Card):
         card_holder_left_card = list(filter(lambda x: x.name != self.name, card_holder.cards))
         # 因為出牌者剩下的牌list只有一個元素，故直接寫[0]
         card_holder_swap_card_index = card_holder.cards.index(card_holder_left_card[0])
-        chosen_player.cards[0], card_holder.cards[card_holder_swap_card_index] =\
+        chosen_player.cards[0], card_holder.cards[card_holder_swap_card_index] = \
             card_holder.cards[card_holder_swap_card_index], chosen_player.cards[0]
 
 

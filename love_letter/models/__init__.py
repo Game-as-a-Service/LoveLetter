@@ -1,7 +1,7 @@
 import secrets
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Union, Optional
+from typing import List, Union
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.exceptions import GameException
@@ -100,7 +100,9 @@ class Round:
             self.deck.draw_remove_card(player)
 
     def to_dict(self):
-        return dict(players=[x.to_dict() for x in self.players], winner=self.winner)
+        return dict(players=[x.to_dict() for x in self.players],
+                    winner=self.winner,
+                    turn_player=self.turn_player.to_dict())
 
 
 class Game:
@@ -259,7 +261,7 @@ class Player:
         self.am_i_out = True
 
     def to_dict(self):
-        return dict(name=self.name, out=self.am_i_out)
+        return dict(name=self.name, out=self.am_i_out, cards=[x.to_dict() for x in self.cards])
 
     def __eq__(self, other):
         return self.name == other.name
