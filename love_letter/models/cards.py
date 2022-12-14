@@ -44,6 +44,9 @@ class Card(metaclass=abc.ABCMeta):
         """
         return NotImplemented
 
+    def can_discard(self, hand_cards: List[str]) -> bool:
+        return True
+
     def __eq__(self, other):
         return self.name == other.name
 
@@ -51,7 +54,7 @@ class Card(metaclass=abc.ABCMeta):
         return str(f"Card({self.name},{self.value})")
 
     def to_dict(self):
-        return dict(name=self.name, description="<description>", value=self.value)
+        return dict(name=self.name, description="<description>", value=self.value, can_discard=self.can_discard)
 
 
 class GuardCard(Card):
@@ -119,6 +122,9 @@ class PrinceCard(Card):
         # TODO the game system should send a new card to the player who did discard
         chosen_player.cards = []
 
+    def can_discard(self, hand_cards: List[str]) -> bool:
+        return CountessCard.name not in hand_cards
+
 
 class KingCard(Card):
     name = '國王'
@@ -136,6 +142,9 @@ class KingCard(Card):
         card_holder_swap_card_index = card_holder.cards.index(card_holder_left_card[0])
         chosen_player.cards[0], card_holder.cards[card_holder_swap_card_index] = \
             card_holder.cards[card_holder_swap_card_index], chosen_player.cards[0]
+
+    def can_discard(self, hand_cards: List[str]) -> bool:
+        return CountessCard.name not in hand_cards
 
 
 class CountessCard(Card):

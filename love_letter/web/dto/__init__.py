@@ -16,6 +16,7 @@ class CardModel(BaseModel):
     name: str
     description: str
     value: int
+    can_discard: bool
 
 
 class PlayerModel(BaseModel):
