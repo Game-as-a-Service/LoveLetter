@@ -17,6 +17,7 @@ class CardModel(BaseModel):
     description: str
     value: int
     can_discard: bool
+    choose_players: List[str]
 
 
 class PlayerModel(BaseModel):

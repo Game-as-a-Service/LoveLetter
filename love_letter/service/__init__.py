@@ -1,5 +1,5 @@
 import traceback
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, List, Any
 
 from love_letter.models import Game, Player
 from love_letter.repository import GameRepository
@@ -57,20 +57,31 @@ class GameService:
             return raw_result
 
         last_round = raw_result['rounds'][-1]
+        last_round_alive_players = [p['name'] for p in last_round['players'] if not p['out']]
+        turn_player = last_round['turn_player']
+
         for p in last_round['players']:
             if p['name'] != player_id:
                 p['cards'] = []
-            self._add_cards_usage(p)
+            else:
+                self._add_cards_usage(p, turn_player, last_round_alive_players)
 
-        turn_player = last_round['turn_player']
         if turn_player['name'] != player_id:
             turn_player['cards'] = []
         else:
-            self._add_cards_usage(turn_player)
+            self._add_cards_usage(turn_player, turn_player, last_round_alive_players)
 
         return raw_result
 
-    def _add_cards_usage(self, turn_player):
-        hand_cards = [c["name"] for c in turn_player["cards"]]
-        for c in turn_player['cards']:
-            c['can_discard'] = c['can_discard'](hand_cards)
+    def _add_cards_usage(self, player, turn_player, last_round_alive_players):
+        hand_cards = [c['name'] for c in player['cards']]
+        for c in player['cards']:
+            if player['name'] != turn_player['name']:
+                c['can_discard'] = False
+            else:
+                c['can_discard'] = c['can_discard'](hand_cards)
+
+            if c['can_discard']:
+                c['choose_players'] = c['choose_players'](player['name'], last_round_alive_players)
+            else:
+                c['choose_players'] = []

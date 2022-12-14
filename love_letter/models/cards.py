@@ -1,4 +1,5 @@
 import abc
+import copy
 import random
 from typing import List
 
@@ -47,6 +48,9 @@ class Card(metaclass=abc.ABCMeta):
     def can_discard(self, hand_cards: List[str]) -> bool:
         return True
 
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        return []
+
     def __eq__(self, other):
         return self.name == other.name
 
@@ -54,7 +58,13 @@ class Card(metaclass=abc.ABCMeta):
         return str(f"Card({self.name},{self.value})")
 
     def to_dict(self):
-        return dict(name=self.name, description="<description>", value=self.value, can_discard=self.can_discard)
+        return dict(
+            name=self.name,
+            description="<description>",
+            value=self.value,
+            can_discard=self.can_discard,
+            choose_players=self.choose_players,
+        )
 
 
 class GuardCard(Card):
@@ -79,6 +89,11 @@ class PriestCard(Card):
         seen_card = Seen(chosen_player.name, chosen_player.cards[-1])
         card_holder.seen_cards.append(seen_card)
 
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        _alive_player = copy.deepcopy(alive_player_names)
+        _alive_player.remove(current_player_name)
+        return _alive_player
+
 
 class BaronCard(Card):
     name = '男爵'
@@ -87,6 +102,11 @@ class BaronCard(Card):
 
     def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         raise NotImplemented
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        _alive_player = copy.deepcopy(alive_player_names)
+        _alive_player.remove(current_player_name)
+        return _alive_player
 
 
 class HandmaidCard(Card):
@@ -125,6 +145,9 @@ class PrinceCard(Card):
     def can_discard(self, hand_cards: List[str]) -> bool:
         return CountessCard.name not in hand_cards
 
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        return alive_player_names
+
 
 class KingCard(Card):
     name = '國王'
@@ -145,6 +168,11 @@ class KingCard(Card):
 
     def can_discard(self, hand_cards: List[str]) -> bool:
         return CountessCard.name not in hand_cards
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        _alive_player = copy.deepcopy(alive_player_names)
+        _alive_player.remove(current_player_name)
+        return _alive_player
 
 
 class CountessCard(Card):
