@@ -269,14 +269,13 @@ class Player:
         return f"Player({self.name},{self.cards})"
 
     def __gt__(self, other: "Player"):
-        # Players are comparable only if each player has only 1 card.
-        if len(self.cards) == 1 and len(other.cards) == 1:
-            return (
-                self.cards[0].value > other.cards[0].value
-                or self.total_value_of_card > other.total_value_of_card
-            )
-        else:
-            raise AssertionError('Unable to compare players.')
+        if len(self.cards) != 1 or len(other.cards) != 1:
+            raise AssertionError("Unable to compare players.")
+        if self.cards[0].value > other.cards[0].value:
+            return True
+        if self.cards[0].value == other.cards[0].value:
+            return self.total_value_of_card > other.total_value_of_card
+        return False
 
     @classmethod
     def create(cls, name):
