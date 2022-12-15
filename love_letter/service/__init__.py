@@ -56,6 +56,13 @@ class GameService:
         if len(raw_result['rounds']) < 1:
             return raw_result
 
+        # Set previous round players cards can_discard=False、choose_players=[]
+        if len(raw_result['rounds']) > 1:
+            for round in raw_result['rounds'][:-1]:
+                for p in round['players']:
+                    self._add_cards_usage(p, None, None, True)
+                self._add_cards_usage(round['turn_player'], None, None, True)
+
         last_round = raw_result['rounds'][-1]
         last_round_alive_players = [p['name'] for p in last_round['players'] if not p['out']]
         turn_player = last_round['turn_player']
@@ -73,9 +80,30 @@ class GameService:
 
         return raw_result
 
-    def _add_cards_usage(self, player, turn_player, last_round_alive_players):
+    def _add_cards_usage(
+            self,
+            player: Dict[str, Any],
+            turn_player: Optional[Dict[str, Any]],
+            last_round_alive_players: Optional[List[str]],
+            previous_round: bool = False
+    ):
+        """
+        If is previous_round = True set 'can_discard'、'choose_players' to default value
+        If the player is not turn_player all cards can't be discarded
+        If the player is turn_player all cards can be discarded，and have choose_players value
+        :param player:
+        :param turn_player:
+        :param last_round_alive_players:
+        :param previous_round:
+        :return:
+        """
         hand_cards = [c['name'] for c in player['cards']]
         for c in player['cards']:
+            if previous_round:
+                c['can_discard'] = False
+                c['choose_players'] = []
+                continue
+
             if player['name'] != turn_player['name']:
                 c['can_discard'] = False
             else:
