@@ -21,11 +21,13 @@ class PlayersTest(unittest.TestCase):
         assign_values(player1, 4, 10)
         assign_values(player2, 6, 3)
         assert player1 < player2
+        assert (player1 > player2) is False
 
     def test_compare_total_value_if_tie(self):
         assign_values(player1, 4, 10)
         assign_values(player2, 4, 3)
         assert player1 > player2
+        assert (player1 < player2) is False
 
     def test_find_winner(self):
         assign_values(player1, 3, 10)
