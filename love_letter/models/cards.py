@@ -1,7 +1,7 @@
 import abc
 import copy
 import random
-from typing import List
+from typing import List, Optional
 
 REJECT_BY_RULE = ValueError("You can not discard by the rule")
 
@@ -51,6 +51,9 @@ class Card(metaclass=abc.ABCMeta):
     def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
         return []
 
+    def can_guess_cards(self) -> List[str]:
+        return []
+
     def __eq__(self, other):
         return self.name == other.name
 
@@ -64,6 +67,7 @@ class Card(metaclass=abc.ABCMeta):
             value=self.value,
             can_discard=self.can_discard,
             choose_players=self.choose_players,
+            can_guess_cards=self.can_guess_cards(),
         )
 
 
@@ -77,6 +81,15 @@ class GuardCard(Card):
             if with_card == card:
                 chosen_player.out()
                 break
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        _alive_player = copy.deepcopy(alive_player_names)
+        _alive_player.remove(current_player_name)
+        return _alive_player
+
+    def can_guess_cards(self) -> Optional[List[str]]:
+        # todo: Return didn't discard cards(All cards - discard card - turn_player hand card - GuardCard)
+        return [card.name for card in ALL_CARD_TYPES if card != GuardCard]
 
 
 class PriestCard(Card):

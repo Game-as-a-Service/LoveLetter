@@ -88,9 +88,7 @@ class GameService:
             previous_round: bool = False
     ):
         """
-        If is previous_round = True set 'can_discard'、'choose_players' to default value
-        If the player is not turn_player all cards can't be discarded
-        If the player is turn_player all cards can be discarded，and have choose_players value
+        Add turn_player cards usage.
         :param player:
         :param turn_player:
         :param last_round_alive_players:
@@ -99,16 +97,19 @@ class GameService:
         """
         hand_cards = [c['name'] for c in player['cards']]
         for c in player['cards']:
+            # if is previous_round = True set 'can_discard'、'choose_players' to default value
             if previous_round:
                 c['can_discard'] = False
                 c['choose_players'] = []
                 continue
 
+            # if the player is not turn_player all cards can't be discarded
             if player['name'] != turn_player['name']:
                 c['can_discard'] = False
             else:
                 c['can_discard'] = c['can_discard'](hand_cards)
 
+            # if the player is turn_player all cards can be discarded，and have choose_players value
             if c['can_discard']:
                 c['choose_players'] = c['choose_players'](player['name'], last_round_alive_players)
             else:

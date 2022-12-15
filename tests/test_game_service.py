@@ -88,21 +88,21 @@ class PlayerContextTest(unittest.TestCase):
         Round.choose_one_randomly = self.origin_choose_one_randomly
 
     def check_player_card_usage(self, player_name, last_round, card_mapping):
+        def check(name, current_player):
+            if name == current_player.name:
+                cards, can_discard, choose_players, can_guess_cards = card_mapping[current_player.name]
+                self.assertEqual(cards, [c.name for c in current_player.cards])
+                self.assertEqual(can_discard, [c.can_discard for c in current_player.cards])
+                self.assertEqual(choose_players, [c.choose_players for c in current_player.cards])
+                self.assertEqual(can_guess_cards, [c.can_guess_cards for c in current_player.cards])
+
         # check player list
         for p in last_round.players:
-            if player_name == p.name:
-                cards, can_discard, choose_players = card_mapping[p.name]
-                self.assertEqual(cards, [x.name for x in p.cards])
-                self.assertEqual(can_discard, [x.can_discard for x in p.cards])
-                self.assertEqual(choose_players, [x.choose_players for x in p.cards])
+            check(player_name, p)
 
         # check turn_player list
         turn_player = last_round.turn_player
-        if player_name == turn_player.name:
-            cards, can_discard, choose_players = card_mapping[turn_player.name]
-            self.assertEqual(cards, [x.name for x in turn_player.cards])
-            self.assertEqual(can_discard, [x.can_discard for x in turn_player.cards])
-            self.assertEqual(choose_players, [x.choose_players for x in turn_player.cards])
+        check(player_name, turn_player)
 
     def assert_player_status_prompt(self, expected_card_mapping):
         """
@@ -131,9 +131,9 @@ class PlayerContextTest(unittest.TestCase):
         # given a started game
         self.game_service.start_game(self.game_id)
 
-        expected_card_mapping = {'1': (['王子', '伯爵夫人'], [False, True], [[], []]),
-                                 '2': (['國王'], [False], [[]]),
-                                 '3': (['伯爵夫人'], [False], [[]])}
+        expected_card_mapping = {'1': (['王子', '伯爵夫人'], [False, True], [[], []], [[], []]),
+                                 '2': (['國王'], [False], [[]], [[]]),
+                                 '3': (['伯爵夫人'], [False], [[]], [[]])}
 
         # then assert the player status prompt
         self.assert_player_status_prompt(expected_card_mapping)
@@ -141,9 +141,9 @@ class PlayerContextTest(unittest.TestCase):
         # when player-1 discard countess
         self.game_service.play_card(self.game_id, "1", "伯爵夫人", None)
 
-        expected_card_mapping = {'1': (['王子'], [False], [[]]),
-                                 '2': (['國王', '伯爵夫人'], [False, True], [[], []]),
-                                 '3': (['伯爵夫人'], [False], [[]])}
+        expected_card_mapping = {'1': (['王子'], [False], [[]], [[]]),
+                                 '2': (['國王', '伯爵夫人'], [False, True], [[], []], [[], []]),
+                                 '3': (['伯爵夫人'], [False], [[]], [[]])}
 
         # then assert the player status prompt
         self.assert_player_status_prompt(expected_card_mapping)
@@ -160,16 +160,16 @@ class PlayerContextTest(unittest.TestCase):
         self.game_service.start_game(self.game_id)
 
         # then player get the expected cards
-        expected_card_mapping = {'1': (['國王', '神父'], [True, True], [["2", "3"], ["2", "3"]]),
-                                 '2': (['男爵'], [False], [[]]),
-                                 '3': (['王子'], [False], [[]])}
+        expected_card_mapping = {'1': (['國王', '神父'], [True, True], [["2", "3"], ["2", "3"]], [[], []]),
+                                 '2': (['男爵'], [False], [[]], [[]]),
+                                 '3': (['王子'], [False], [[]], [[]])}
 
         # then assert the player status prompt
         self.assert_player_status_prompt(expected_card_mapping)
 
     def test_prompt_player_discard_baron_and_prince(self):
         """
-        玩家1持有 男爵 王子，提示都能打出，且提供可指定的player清單(不含自己)，王子包含自己
+        玩家1持有 男爵 王子，提示都能打出，且提供可指定的player清單，男爵不含自己，王子包含自己
         :return:
         """
         # given the arranged deck
@@ -178,9 +178,28 @@ class PlayerContextTest(unittest.TestCase):
         # given a started game
         self.game_service.start_game(self.game_id)
 
-        expected_card_mapping = {'1': (['男爵', '王子'], [True, True], [['2', '3'], ['1', '2', '3']]),
-                                 '2': (['國王'], [False], [[]]),
-                                 '3': (['神父'], [False], [[]])}
+        expected_card_mapping = {'1': (['男爵', '王子'], [True, True], [['2', '3'], ['1', '2', '3']], [[], []]),
+                                 '2': (['國王'], [False], [[]], [[]]),
+                                 '3': (['神父'], [False], [[]], [[]])}
+
+        # then assert the player status prompt
+        self.assert_player_status_prompt(expected_card_mapping)
+
+    def test_prompt_player_discard_guard_and_prince(self):
+        """
+        玩家1持有 衛兵 王子，提示都能打出，且提供可指定的player清單，衛兵不含自己，王子包含自己
+        :return:
+        """
+        # given the arranged deck
+        reset_deck(['衛兵', '國王', '神父', '王子', '衛兵'])
+
+        # given a started game
+        self.game_service.start_game(self.game_id)
+
+        expected_card_mapping = {'1': (['衛兵', '王子'], [True, True], [['2', '3'], ['1', '2', '3']],
+                                       [['神父', '男爵', '侍女', '王子', '國王', '伯爵夫人', '公主'], []]),
+                                 '2': (['國王'], [False], [[]], [[]]),
+                                 '3': (['神父'], [False], [[]], [[]])}
 
         # then assert the player status prompt
         self.assert_player_status_prompt(expected_card_mapping)

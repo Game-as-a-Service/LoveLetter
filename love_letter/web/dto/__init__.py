@@ -18,6 +18,7 @@ class CardModel(BaseModel):
     value: int
     can_discard: bool
     choose_players: List[str]
+    can_guess_cards: List[str]
 
 
 class PlayerModel(BaseModel):
