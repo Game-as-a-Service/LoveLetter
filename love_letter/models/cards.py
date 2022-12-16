@@ -1,6 +1,7 @@
 import abc
+import copy
 import random
-from typing import List
+from typing import List, Optional
 
 REJECT_BY_RULE = ValueError("You can not discard by the rule")
 
@@ -44,6 +45,22 @@ class Card(metaclass=abc.ABCMeta):
         """
         return NotImplemented
 
+    def can_discard(self, hand_cards: List[str]) -> bool:
+        return True
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        return []
+
+    def can_guess_cards(self) -> List[str]:
+        return []
+
+    def usage(self):
+        return {
+            "can_discard": self.can_discard,
+            "choose_players": self.choose_players,
+            "can_guess_cards": self.can_guess_cards(),
+        }
+
     def __eq__(self, other):
         return self.name == other.name
 
@@ -51,7 +68,12 @@ class Card(metaclass=abc.ABCMeta):
         return str(f"Card({self.name},{self.value})")
 
     def to_dict(self):
-        return dict(name=self.name, description="<description>", value=self.value)
+        return dict(
+            name=self.name,
+            description="<description>",
+            value=self.value,
+            usage=self.usage(),
+        )
 
 
 class GuardCard(Card):
@@ -65,6 +87,15 @@ class GuardCard(Card):
                 chosen_player.out()
                 break
 
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        players = copy.deepcopy(alive_player_names)
+        players.remove(current_player_name)
+        return players
+
+    def can_guess_cards(self) -> Optional[List[str]]:
+        # todo: Return didn't discard cards(All cards - discard card - turn_player hand card - GuardCard)
+        return [card.name for card in ALL_CARD_TYPES if card != GuardCard]
+
 
 class PriestCard(Card):
     name = '神父'
@@ -76,6 +107,11 @@ class PriestCard(Card):
         seen_card = Seen(chosen_player.name, chosen_player.cards[-1])
         card_holder.seen_cards.append(seen_card)
 
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        players = copy.deepcopy(alive_player_names)
+        players.remove(current_player_name)
+        return players
+
 
 class BaronCard(Card):
     name = '男爵'
@@ -84,6 +120,11 @@ class BaronCard(Card):
 
     def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
         raise NotImplemented
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        players = copy.deepcopy(alive_player_names)
+        players.remove(current_player_name)
+        return players
 
 
 class HandmaidCard(Card):
@@ -119,6 +160,12 @@ class PrinceCard(Card):
         # TODO the game system should send a new card to the player who did discard
         chosen_player.cards = []
 
+    def can_discard(self, hand_cards: List[str]) -> bool:
+        return CountessCard.name not in hand_cards
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        return alive_player_names
+
 
 class KingCard(Card):
     name = '國王'
@@ -136,6 +183,14 @@ class KingCard(Card):
         card_holder_swap_card_index = card_holder.cards.index(card_holder_left_card[0])
         chosen_player.cards[0], card_holder.cards[card_holder_swap_card_index] = \
             card_holder.cards[card_holder_swap_card_index], chosen_player.cards[0]
+
+    def can_discard(self, hand_cards: List[str]) -> bool:
+        return CountessCard.name not in hand_cards
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        players = copy.deepcopy(alive_player_names)
+        players.remove(current_player_name)
+        return players
 
 
 class CountessCard(Card):
