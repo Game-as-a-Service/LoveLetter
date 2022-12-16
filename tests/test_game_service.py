@@ -90,11 +90,9 @@ class PlayerContextTest(unittest.TestCase):
     def check_player_card_usage(self, player_name, last_round, card_mapping):
         def check(name, current_player):
             if name == current_player.name:
-                cards, can_discard, choose_players, can_guess_cards = card_mapping[current_player.name]
+                cards, usage = card_mapping[current_player.name]
                 self.assertEqual(cards, [c.name for c in current_player.cards])
-                self.assertEqual(can_discard, [c.can_discard for c in current_player.cards])
-                self.assertEqual(choose_players, [c.choose_players for c in current_player.cards])
-                self.assertEqual(can_guess_cards, [c.can_guess_cards for c in current_player.cards])
+                self.assertEqual(usage, [c.usage for c in current_player.cards])
 
         # check player list
         for p in last_round.players:
@@ -131,9 +129,13 @@ class PlayerContextTest(unittest.TestCase):
         # given a started game
         self.game_service.start_game(self.game_id)
 
-        expected_card_mapping = {'1': (['王子', '伯爵夫人'], [False, True], [[], []], [[], []]),
-                                 '2': (['國王'], [False], [[]], [[]]),
-                                 '3': (['伯爵夫人'], [False], [[]], [[]])}
+        expected_card_mapping = {'1': (['王子', '伯爵夫人'],
+                                       [{'can_discard': False, 'choose_players': [], 'can_guess_cards': []},
+                                        {'can_discard': True, 'choose_players': [], 'can_guess_cards': []}]),
+                                 '2': (['國王'],
+                                       [{'can_discard': False, 'choose_players': [], 'can_guess_cards': []}]),
+                                 '3': (['伯爵夫人'],
+                                       [{'can_discard': False, 'choose_players': [], 'can_guess_cards': []}])}
 
         # then assert the player status prompt
         self.assert_player_status_prompt(expected_card_mapping)
@@ -141,9 +143,13 @@ class PlayerContextTest(unittest.TestCase):
         # when player-1 discard countess
         self.game_service.play_card(self.game_id, "1", "伯爵夫人", None)
 
-        expected_card_mapping = {'1': (['王子'], [False], [[]], [[]]),
-                                 '2': (['國王', '伯爵夫人'], [False, True], [[], []], [[], []]),
-                                 '3': (['伯爵夫人'], [False], [[]], [[]])}
+        expected_card_mapping = {'1': (['王子'],
+                                       [{'can_discard': False, 'choose_players': [], 'can_guess_cards': []}]),
+                                 '2': (['國王', '伯爵夫人'],
+                                       [{'can_discard': False, 'choose_players': [], 'can_guess_cards': []},
+                                        {'can_discard': True, 'choose_players': [], 'can_guess_cards': []}]),
+                                 '3': (['伯爵夫人'],
+                                       [{'can_discard': False, 'choose_players': [], 'can_guess_cards': []}])}
 
         # then assert the player status prompt
         self.assert_player_status_prompt(expected_card_mapping)
@@ -160,9 +166,13 @@ class PlayerContextTest(unittest.TestCase):
         self.game_service.start_game(self.game_id)
 
         # then player get the expected cards
-        expected_card_mapping = {'1': (['國王', '神父'], [True, True], [["2", "3"], ["2", "3"]], [[], []]),
-                                 '2': (['男爵'], [False], [[]], [[]]),
-                                 '3': (['王子'], [False], [[]], [[]])}
+        expected_card_mapping = {'1': (['國王', '神父'],
+                                       [{'can_discard': True, 'choose_players': ["2", "3"], 'can_guess_cards': []},
+                                        {'can_discard': True, 'choose_players': ["2", "3"], 'can_guess_cards': []}]),
+                                 '2': (['男爵'],
+                                       [{'can_discard': False, 'choose_players': [], 'can_guess_cards': []}]),
+                                 '3': (['王子'],
+                                       [{'can_discard': False, 'choose_players': [], 'can_guess_cards': []}])}
 
         # then assert the player status prompt
         self.assert_player_status_prompt(expected_card_mapping)
@@ -178,9 +188,14 @@ class PlayerContextTest(unittest.TestCase):
         # given a started game
         self.game_service.start_game(self.game_id)
 
-        expected_card_mapping = {'1': (['男爵', '王子'], [True, True], [['2', '3'], ['1', '2', '3']], [[], []]),
-                                 '2': (['國王'], [False], [[]], [[]]),
-                                 '3': (['神父'], [False], [[]], [[]])}
+        expected_card_mapping = {'1': (['男爵', '王子'],
+                                       [{'can_discard': True, 'choose_players': ["2", "3"], 'can_guess_cards': []},
+                                        {'can_discard': True, 'choose_players': ["1", "2", "3"],
+                                         'can_guess_cards': []}]),
+                                 '2': (['國王'],
+                                       [{'can_discard': False, 'choose_players': [], 'can_guess_cards': []}]),
+                                 '3': (['神父'],
+                                       [{'can_discard': False, 'choose_players': [], 'can_guess_cards': []}])}
 
         # then assert the player status prompt
         self.assert_player_status_prompt(expected_card_mapping)
@@ -196,10 +211,15 @@ class PlayerContextTest(unittest.TestCase):
         # given a started game
         self.game_service.start_game(self.game_id)
 
-        expected_card_mapping = {'1': (['衛兵', '王子'], [True, True], [['2', '3'], ['1', '2', '3']],
-                                       [['神父', '男爵', '侍女', '王子', '國王', '伯爵夫人', '公主'], []]),
-                                 '2': (['國王'], [False], [[]], [[]]),
-                                 '3': (['神父'], [False], [[]], [[]])}
+        expected_card_mapping = {'1': (['衛兵', '王子'],
+                                       [{'can_discard': True, 'choose_players': ["2", "3"],
+                                         'can_guess_cards': ['神父', '男爵', '侍女', '王子', '國王', '伯爵夫人', '公主']},
+                                        {'can_discard': True, 'choose_players': ["1", "2", "3"],
+                                         'can_guess_cards': []}]),
+                                 '2': (['國王'],
+                                       [{'can_discard': False, 'choose_players': [], 'can_guess_cards': []}]),
+                                 '3': (['神父'],
+                                       [{'can_discard': False, 'choose_players': [], 'can_guess_cards': []}])}
 
         # then assert the player status prompt
         self.assert_player_status_prompt(expected_card_mapping)

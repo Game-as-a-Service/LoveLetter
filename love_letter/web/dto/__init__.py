@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Any
 
 from pydantic import BaseModel
 
@@ -16,9 +16,7 @@ class CardModel(BaseModel):
     name: str
     description: str
     value: int
-    can_discard: bool
-    choose_players: List[str]
-    can_guess_cards: List[str]
+    usage: Dict[str, Any]
 
 
 class PlayerModel(BaseModel):

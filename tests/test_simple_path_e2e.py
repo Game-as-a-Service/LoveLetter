@@ -62,34 +62,42 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                           'rounds': [{'players': [{'cards': [{'description': '<description>',
                                                               'name': '衛兵',
                                                               'value': 1,
-                                                              'can_discard': True,
-                                                              'choose_players': ['player-b'],
-                                                              'can_guess_cards': [
-                                                                  '神父', '男爵', '侍女', '王子',
-                                                                  '國王', '伯爵夫人', '公主']},
+                                                              'usage': {
+                                                                  'can_discard': True,
+                                                                  'choose_players': ['player-b'],
+                                                                  'can_guess_cards': [
+                                                                      '神父', '男爵', '侍女', '王子',
+                                                                      '國王', '伯爵夫人', '公主']},
+                                                              },
                                                              {'description': '<description>',
                                                               'name': '公主',
                                                               'value': 8,
-                                                              'can_discard': True,
-                                                              'choose_players': [],
-                                                              'can_guess_cards': []}],
+                                                              'usage': {
+                                                                  'can_discard': True,
+                                                                  'choose_players': [],
+                                                                  'can_guess_cards': []
+                                                              }}],
                                                    'name': 'player-a',
                                                    'out': False},
                                                   {'cards': [], 'name': 'player-b', 'out': False}],
                                       'turn_player': {'cards': [{'description': '<description>',
                                                                  'name': '衛兵',
                                                                  'value': 1,
-                                                                 'can_discard': True,
-                                                                 'choose_players': ['player-b'],
-                                                                 'can_guess_cards': [
-                                                                     '神父', '男爵', '侍女', '王子',
-                                                                     '國王', '伯爵夫人', '公主']},
+                                                                 'usage': {
+                                                                     'can_discard': True,
+                                                                     'choose_players': ['player-b'],
+                                                                     'can_guess_cards': [
+                                                                         '神父', '男爵', '侍女', '王子',
+                                                                         '國王', '伯爵夫人', '公主']
+                                                                 }},
                                                                 {'description': '<description>',
                                                                  'name': '公主',
                                                                  'value': 8,
-                                                                 'can_discard': True,
-                                                                 'choose_players': [],
-                                                                 'can_guess_cards': []}],
+                                                                 'usage': {
+                                                                     'can_discard': True,
+                                                                     'choose_players': [],
+                                                                     'can_guess_cards': []
+                                                                 }}],
                                                       'name': 'player-a',
                                                       'out': False},
                                       'winner': None}]}, response)
@@ -104,59 +112,73 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                           'rounds': [{'players': [{'cards': [{'description': '<description>',
                                                               'name': '公主',
                                                               'value': 8,
-                                                              'can_discard': False,
-                                                              'choose_players': [],
-                                                              'can_guess_cards': []}],
+                                                              'usage': {
+                                                                  'can_discard': False,
+                                                                  'choose_players': [],
+                                                                  'can_guess_cards': []
+                                                              }}],
                                                    'name': 'player-a',
                                                    'out': False},
                                                   {'cards': [{'description': '<description>',
                                                               'name': '神父',
                                                               'value': 2,
-                                                              'can_discard': False,
-                                                              'choose_players': [],
-                                                              'can_guess_cards': []}],
+                                                              'usage': {
+                                                                  'can_discard': False,
+                                                                  'choose_players': [],
+                                                                  'can_guess_cards': []
+                                                              }}],
                                                    'name': 'player-b',
                                                    'out': True}],
                                       'turn_player': {'cards': [{'description': '<description>',
                                                                  'name': '公主',
                                                                  'value': 8,
-                                                                 'can_discard': False,
-                                                                 'choose_players': [],
-                                                                 'can_guess_cards': []}],
+                                                                 'usage': {
+                                                                     'can_discard': False,
+                                                                     'choose_players': [],
+                                                                     'can_guess_cards': []
+                                                                 }}],
                                                       'name': 'player-a',
                                                       'out': False},
                                       'winner': 'player-a'},
                                      {'players': [{'cards': [{'description': '<description>',
                                                               'name': '衛兵',
                                                               'value': 1,
-                                                              'can_discard': True,
-                                                              'choose_players': ['player-b'],
-                                                              'can_guess_cards': [
-                                                                  '神父', '男爵', '侍女', '王子',
-                                                                  '國王', '伯爵夫人', '公主']},
+                                                              'usage': {
+                                                                  'can_discard': True,
+                                                                  'choose_players': ['player-b'],
+                                                                  'can_guess_cards': [
+                                                                      '神父', '男爵', '侍女', '王子',
+                                                                      '國王', '伯爵夫人', '公主']
+                                                              }},
                                                              {'description': '<description>',
                                                               'name': '公主',
                                                               'value': 8,
-                                                              'can_discard': True,
-                                                              'choose_players': [],
-                                                              'can_guess_cards': []}],
+                                                              'usage': {
+                                                                  'can_discard': True,
+                                                                  'choose_players': [],
+                                                                  'can_guess_cards': []
+                                                              }}],
                                                    'name': 'player-a',
                                                    'out': False},
                                                   {'cards': [], 'name': 'player-b', 'out': False}],
                                       'turn_player': {'cards': [{'description': '<description>',
                                                                  'name': '衛兵',
                                                                  'value': 1,
-                                                                 'can_discard': True,
-                                                                 'choose_players': ['player-b'],
-                                                                 'can_guess_cards': [
-                                                                     '神父', '男爵', '侍女', '王子',
-                                                                     '國王', '伯爵夫人', '公主']},
+                                                                 'usage': {
+                                                                     'can_discard': True,
+                                                                     'choose_players': ['player-b'],
+                                                                     'can_guess_cards': [
+                                                                         '神父', '男爵', '侍女', '王子',
+                                                                         '國王', '伯爵夫人', '公主']
+                                                                 }},
                                                                 {'description': '<description>',
                                                                  'name': '公主',
                                                                  'value': 8,
-                                                                 'can_discard': True,
-                                                                 'choose_players': [],
-                                                                 'can_guess_cards': []}],
+                                                                 'usage': {
+                                                                     'can_discard': True,
+                                                                     'choose_players': [],
+                                                                     'can_guess_cards': []
+                                                                 }}],
                                                       'name': 'player-a',
                                                       'out': False},
                                       'winner': None}]}, response)

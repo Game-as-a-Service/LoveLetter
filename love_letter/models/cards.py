@@ -54,6 +54,13 @@ class Card(metaclass=abc.ABCMeta):
     def can_guess_cards(self) -> List[str]:
         return []
 
+    def usage(self):
+        return {
+            "can_discard": self.can_discard,
+            "choose_players": self.choose_players,
+            "can_guess_cards": self.can_guess_cards(),
+        }
+
     def __eq__(self, other):
         return self.name == other.name
 
@@ -65,9 +72,10 @@ class Card(metaclass=abc.ABCMeta):
             name=self.name,
             description="<description>",
             value=self.value,
-            can_discard=self.can_discard,
-            choose_players=self.choose_players,
-            can_guess_cards=self.can_guess_cards(),
+            # can_discard=self.can_discard,
+            # choose_players=self.choose_players,
+            # can_guess_cards=self.can_guess_cards(),
+            usage=self.usage(),
         )
 
 
@@ -83,9 +91,9 @@ class GuardCard(Card):
                 break
 
     def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
-        _alive_player = copy.deepcopy(alive_player_names)
-        _alive_player.remove(current_player_name)
-        return _alive_player
+        players = copy.deepcopy(alive_player_names)
+        players.remove(current_player_name)
+        return players
 
     def can_guess_cards(self) -> Optional[List[str]]:
         # todo: Return didn't discard cards(All cards - discard card - turn_player hand card - GuardCard)
@@ -103,9 +111,9 @@ class PriestCard(Card):
         card_holder.seen_cards.append(seen_card)
 
     def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
-        _alive_player = copy.deepcopy(alive_player_names)
-        _alive_player.remove(current_player_name)
-        return _alive_player
+        players = copy.deepcopy(alive_player_names)
+        players.remove(current_player_name)
+        return players
 
 
 class BaronCard(Card):
@@ -117,9 +125,9 @@ class BaronCard(Card):
         raise NotImplemented
 
     def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
-        _alive_player = copy.deepcopy(alive_player_names)
-        _alive_player.remove(current_player_name)
-        return _alive_player
+        players = copy.deepcopy(alive_player_names)
+        players.remove(current_player_name)
+        return players
 
 
 class HandmaidCard(Card):
@@ -183,9 +191,9 @@ class KingCard(Card):
         return CountessCard.name not in hand_cards
 
     def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
-        _alive_player = copy.deepcopy(alive_player_names)
-        _alive_player.remove(current_player_name)
-        return _alive_player
+        players = copy.deepcopy(alive_player_names)
+        players.remove(current_player_name)
+        return players
 
 
 class CountessCard(Card):
