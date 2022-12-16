@@ -173,6 +173,12 @@ def find_card_by_name(name):
             return card
     raise ValueError(f'Cannot find the card with name: {name}')
 
+def find_card_by_value(value: int):
+    for card in ALL_CARD_TYPES:
+        if card.value == value:
+            return card
+    raise ValueError(f'Cannot find the card with value: {value}')
+
 
 class Deck:
     def __init__(self):
