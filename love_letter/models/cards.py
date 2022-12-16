@@ -72,9 +72,6 @@ class Card(metaclass=abc.ABCMeta):
             name=self.name,
             description="<description>",
             value=self.value,
-            # can_discard=self.can_discard,
-            # choose_players=self.choose_players,
-            # can_guess_cards=self.can_guess_cards(),
             usage=self.usage(),
         )
 
