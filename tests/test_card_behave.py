@@ -186,3 +186,45 @@ class DiscardPrinceCardTests(unittest.TestCase):
 
         # then the deck remove_by_rule_card is empty in last round
         self.assertEqual(len(self.game.rounds[-2].deck.remove_by_rule_cards), 0)
+
+
+class EndRoundTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.game: Game = Game()
+        self.game.join(Player.create('1'))
+        self.game.join(Player.create('2'))
+
+        # disable random-picker for the first round
+        # it always returns the first player
+        self.origin_choose_one_randomly = Round.choose_one_randomly
+        Round.choose_one_randomly = lambda x: x[0]
+
+    def tearDown(self) -> None:
+        Round.choose_one_randomly = self.origin_choose_one_randomly
+
+    def test_left_one_player_winner_get_token_of_affection(self):
+        """
+        遊戲開始後，剩餘一位玩家，此局結束，勝者拿到一枚好感指示物
+        玩家1 對 玩家2 出牌 衛兵 指定 公主 => 玩家1 出局
+        此局結束 玩家1 獲得一枚好感指示物
+        :return:
+        """
+
+        # given the arranged deck
+        reset_deck(['衛兵', '神父', '公主', '衛兵', '伯爵夫人', '衛兵'])
+
+        # given a started game
+        self.game.start()
+
+        # when only one player left
+        self.game.play("1", '衛兵',  # player1 guess card correctly
+                       GuessCard(chosen_player='2', guess_card="神父"))
+
+        # then player1 gets 1 token of affection
+        self.assertEqual(1, self.game.players[0].tokens_of_affection)
+        # then the player-2 will be
+        # 1. the winner of the last round
+        # 2. the turn player at the new round
+        self.assertEqual(2, len(self.game.rounds))  # there are two rounds
+        self.assertEqual('1', self.game.rounds[-2].winner)  # the last round winner
+        self.assertEqual('1', self.game.rounds[-1].turn_player.name)  # turn player of this round

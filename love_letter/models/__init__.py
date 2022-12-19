@@ -155,6 +155,9 @@ class Game:
         might_has_winner = [x for x in players if not x.am_i_out]
         if len(might_has_winner) == 1:
             winner_name = might_has_winner[0].name
+            for player in self.players:
+                if player.name == might_has_winner[0].name:
+                    player.tokens_of_affection += 1
             self.rounds[-1].winner = winner_name
             self.next_round(winner_name)
             return
@@ -232,6 +235,7 @@ class Player:
         self.protected = False
         self.total_value_of_card: int = 0
         self.seen_cards: List[Seen] = []
+        self.tokens_of_affection: int = 0
 
     def discard_card(self, chosen_player: "Player" = None, discarded_card: Card = None, with_card: "Card" = None):
         # Precondition: the player must hold 2 cards
