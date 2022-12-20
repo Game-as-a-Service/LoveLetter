@@ -128,3 +128,19 @@ def player_error_play_this_card(context, player, card):
     turn_player: Player = getattr(context, player)
     card_result = find_card_by_name(card)
     assert (turn_player.cards[0] == card_result) is True
+
+
+@then('{player_a} 對 {player_b} 出牌 {card1} 無法指定 {card2}')
+def player_error_specify(context, player_a, player_b, card1, card2):
+    turn_player: Player = getattr(context, player_a)
+    chosen_player: Player = getattr(context, player_b)
+    card_result_1 = find_card_by_name(card1)
+    card_result_2 = find_card_by_name(card2)
+    found_exception = False
+    try:
+        turn_player.discard_card(chosen_player=chosen_player,
+                                 discarded_card=card_result_1,
+                                 with_card=card_result_2)
+    except ValueError as e:
+        found_exception = True
+    assert found_exception

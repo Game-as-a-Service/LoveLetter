@@ -3,6 +3,8 @@ import random
 from typing import List
 
 REJECT_BY_RULE = ValueError("You can not discard by the rule")
+REJECT_BY_RULE_GUESS_GUARD = ValueError("You can not guess guard")
+
 
 
 class Card(metaclass=abc.ABCMeta):
@@ -57,8 +59,8 @@ class GuardCard(Card):
     quantity = 5
 
     def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
-        if with_card == GuardCard:
-            return False
+        if isinstance(with_card, GuardCard):
+            raise REJECT_BY_RULE_GUESS_GUARD
         for card in chosen_player.cards:
             if with_card == card:
                 chosen_player.out()
