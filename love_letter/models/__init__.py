@@ -1,3 +1,4 @@
+import secrets
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import List, Union
@@ -28,31 +29,80 @@ class Round:
 
         # give each player a card
         for p in players:
-            deck.draw(p)
+            deck.draw_card(p)
         return deck
 
-    def next_turn_player(self):
-        self._shift_to_next_player()
-        self.deck.draw(self.turn_player)
-        # TODO tell the game from return-value if the round has ended
+    def next_turn_player(self, last_winner: str = None) -> bool:
+        """
+        True if the round keeps going, otherwise false.
 
-    def _shift_to_next_player(self):
-        # TODO only shift to players who is not out
+        For example:
+        1. the deck is empty will cause the round ended
+        1. only one player alive will cause the round ended
+        """
+        # TODO should fix the side effect (when empty deck, it should not be moved) before making player-context
+        self._shift_to_next_player(last_winner)
+
+        # Remove player protected after one round
+        self.turn_player.protected = False
+        return self.deck.draw_card(self.turn_player)
+
+    def _shift_to_next_player(self, last_winner: str = None):
+        # assign the turn player from the last winner
+        if last_winner is not None:
+            for player in self.players:
+                if player.name == last_winner:
+                    self.turn_player = player
+                    return
+
+        # pick up a player for the first round
         if self.turn_player is None:
-            # TODO pick a turn player randomly if no one is turn player *FOR NOW*
-            # TODO fix it by rules 1. first round => randomly, 2. non-first round, pick last winner as the turn player
-            self.turn_player = self.players[0]
+            self.turn_player = Round.choose_one_randomly(self.players)
             return
 
         from_index = self.players.index(self.turn_player)
-        for next_index in range(from_index + 1, len(self.players)):
-            next_index = next_index % len(self.players)
-            if not self.players[next_index].am_i_out:
-                self.turn_player = self.players[next_index]
-                return
+
+        for _ in range(1, len(self.players)):
+            from_index = from_index + 1
+            if from_index >= len(self.players):
+                selected = self.players[from_index - len(self.players)]
+            else:
+                selected = self.players[from_index]
+
+            if not selected.am_i_out:
+                self.turn_player = selected
+                break
+
+    @classmethod
+    def choose_one_randomly(cls, players: List["Player"]):
+        return players[secrets.randbelow(len(players))]
+
+    def draw_card_by_system(self, players: List["Player"]):
+        """
+        Make sure each players has one card and
+        help the player with one less card to draw a card.
+        If deck card is empty, will draw remove_by_rule_card
+        :param players:
+        :return:
+        """
+        player = None
+
+        for p in players:
+            if not p.am_i_out and len(p.cards) != 1:
+                player = p
+                continue
+
+        # if don't get player or player has card return
+        if not player or len(player.cards):
+            return
+
+        if not self.deck.draw_card(player):
+            self.deck.draw_remove_card(player)
 
     def to_dict(self):
-        return dict(players=[x.to_dict() for x in self.players], winner=self.winner)
+        return dict(players=[x.to_dict() for x in self.players],
+                    winner=self.winner,
+                    turn_player=self.turn_player.to_dict())
 
 
 class Game:
@@ -78,10 +128,10 @@ class Game:
 
         self.next_round()
 
-    def next_round(self):
-        # TODO 如果沒有下一局，丟 exception
+    def next_round(self, last_winner: str = None):
+        # TODO if we arrive the ending of the game, show the lucky person who won the Princess
         round = Round(deepcopy(self.players))
-        round.next_turn_player()
+        round.next_turn_player(last_winner)
         self.rounds.append(round)
 
     def to_dict(self):
@@ -95,25 +145,37 @@ class Game:
         players = self.this_round_players()
 
         # TODO rewrite handles to chain of rules and catching lost cases
-        self.handle_when_guess_card_action(player_id, card_name, card_action)
-        self.handle_when_to_someone_action(player_id, card_name, card_action)
-        self.handle_when_to_nothing_action(player_id, card_name, card_action)
+        turn_player: "Player" = self.find_player_by_id(player_id)
+        discarded_card: "Card" = find_card_by_name(card_name)
+        self.handle_when_guess_card_action(turn_player, discarded_card, card_action)
+        self.handle_when_to_someone_action(turn_player, discarded_card, card_action)
+        self.handle_when_to_nothing_action(turn_player, discarded_card, card_action)
+
+        self.rounds[-1].draw_card_by_system(players)
 
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
         might_has_winner = [x for x in players if not x.am_i_out]
         if len(might_has_winner) == 1:
-            self.rounds[-1].winner = might_has_winner[0].name
-            self.next_round()
-        self.next_turn_player()
+            winner_name = might_has_winner[0].name
+            self.rounds[-1].winner = winner_name
+            self.next_round(winner_name)
+            return
 
-    def handle_when_guess_card_action(self, player_id: str, card_name: str, action: GuessCard):
+        has_next_player = self.next_turn_player()
+        if not has_next_player:
+            # find the winner from the alive players
+            winner = max(might_has_winner)
+            self.rounds[-1].winner = winner.name
+            self.next_round(winner.name)
+            return
+
+    def handle_when_guess_card_action(self, turn_player: "Player", discarded_card: "Card", action: GuessCard):
         if not isinstance(action, GuessCard):
             return
 
-        turn_player: "Player" = self.find_player_by_id(player_id)
         chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
 
-        turn_player.discard_card(chosen_player=chosen_player, discarded_card=find_card_by_name(card_name),
+        turn_player.discard_card(chosen_player=chosen_player, discarded_card=discarded_card,
                                  with_card=find_card_by_name(action.guess_card))
 
     def find_player_by_id(self, player_id):
@@ -126,16 +188,19 @@ class Game:
     def this_round_players(self):
         return self.rounds[-1].players
 
-    def handle_when_to_someone_action(self, player_id: str, card_name: str, action: ToSomeoneCard):
+    def handle_when_to_someone_action(self, turn_player: "Player", discarded_card: "Card", action: ToSomeoneCard):
         if not isinstance(action, ToSomeoneCard):
             return
-        raise NotImplemented
 
-    def handle_when_to_nothing_action(self, player_id: str, card_name: str, action):
+        chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
+        turn_player.discard_card(chosen_player, discarded_card)
+
+    def handle_when_to_nothing_action(self, turn_player: "Player", discarded_card: "Card", action: None):
         if action is not None:
+            # Don't go there
             return
 
-        raise NotImplemented
+        turn_player.discard_card(turn_player, discarded_card)
 
     @classmethod
     def create(cls, player: "Player") -> "Game":
@@ -149,8 +214,8 @@ class Game:
     def get_turn_player(self):
         return self.rounds[-1].turn_player
 
-    def next_turn_player(self):
-        self.rounds[-1].next_turn_player()
+    def next_turn_player(self) -> bool:
+        return self.rounds[-1].next_turn_player()
 
 
 @dataclass
@@ -163,32 +228,30 @@ class Player:
 
     def __init__(self):
         self.name: str = None
-        self.cards: List["Card"] = []
+        self.cards: List[Card] = []
         self.am_i_out: bool = False
         self.protected = False
         self.total_value_of_card: int = 0
         self.seen_cards: List[Seen] = []
 
     def discard_card(self, chosen_player: "Player" = None, discarded_card: Card = None, with_card: "Card" = None):
-        # TODO precondition: the player must hold 2 cards
+        # Precondition: the player must hold 2 cards
         if len(self.cards) != 2:
             return False
 
-        # Check will_be_played_card is in the hands
+        # Precondition: Check will_be_played_card is in the hands
         if not any([True for c in self.cards if c.name == discarded_card.name]):
-            return False
+            raise GameException("Cannot discard cards not in your hand")
 
-        if chosen_player and chosen_player.protected:
-            # TODO send completed event for player
-            return
-
-        discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
+        if not (chosen_player and chosen_player.protected):
+            discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
 
         # TODO postcondition: the player holds 1 card after played
-        self.cards = list(filter(lambda x: x.name != discarded_card.name, self.cards))
+        self.drop_card(discarded_card)
 
         if len(self.cards) != 1:
             return False
+
         self.total_value_of_card += discarded_card.value
 
         return True
@@ -197,13 +260,31 @@ class Player:
         self.am_i_out = True
 
     def to_dict(self):
-        return dict(name=self.name, out=self.am_i_out)
+        return dict(name=self.name, out=self.am_i_out, cards=[x.to_dict() for x in self.cards])
 
     def __eq__(self, other):
         return self.name == other.name
+
+    def __repr__(self):
+        return f"Player({self.name},{self.cards})"
+
+    def __gt__(self, other: "Player"):
+        if len(self.cards) != 1 or len(other.cards) != 1:
+            raise AssertionError("Unable to compare players.")
+        elif self.cards[0].value == other.cards[0].value:
+            return self.total_value_of_card > other.total_value_of_card
+        else:
+            return self.cards[0].value > other.cards[0].value
 
     @classmethod
     def create(cls, name):
         p = Player()
         p.name = name
         return p
+
+    def drop_card(self, discarded_card: Card):
+        # only drop 1 card
+        for index, card in enumerate(self.cards):
+            if card.name == discarded_card.name:
+                self.cards.pop(index)
+                break
