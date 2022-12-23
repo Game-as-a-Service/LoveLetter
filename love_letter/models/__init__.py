@@ -1,7 +1,8 @@
 import secrets
+from abc import ABC, abstractmethod
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Union, Optional
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.exceptions import GameException
@@ -142,15 +143,11 @@ class Game:
         if self.find_player_by_id(player_id) != self.get_turn_player():
             raise ValueError(f"{player_id} is not a turn player")
 
-        players = self.this_round_players()
-
-        # TODO rewrite handles to chain of rules and catching lost cases
         turn_player: "Player" = self.find_player_by_id(player_id)
         discarded_card: "Card" = find_card_by_name(card_name)
-        self.handle_when_guess_card_action(turn_player, discarded_card, card_action)
-        self.handle_when_to_someone_action(turn_player, discarded_card, card_action)
-        self.handle_when_to_nothing_action(turn_player, discarded_card, card_action)
+        HANDLER.handle(self, turn_player, discarded_card, card_action)
 
+        players = self.this_round_players()
         self.rounds[-1].draw_card_by_system(players)
 
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
@@ -169,15 +166,6 @@ class Game:
             self.next_round(winner.name)
             return
 
-    def handle_when_guess_card_action(self, turn_player: "Player", discarded_card: "Card", action: GuessCard):
-        if not isinstance(action, GuessCard):
-            return
-
-        chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
-
-        turn_player.discard_card(chosen_player=chosen_player, discarded_card=discarded_card,
-                                 with_card=find_card_by_name(action.guess_card))
-
     def find_player_by_id(self, player_id):
         players = self.this_round_players()
         for x in players:
@@ -187,20 +175,6 @@ class Game:
 
     def this_round_players(self):
         return self.rounds[-1].players
-
-    def handle_when_to_someone_action(self, turn_player: "Player", discarded_card: "Card", action: ToSomeoneCard):
-        if not isinstance(action, ToSomeoneCard):
-            return
-
-        chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
-        turn_player.discard_card(chosen_player, discarded_card)
-
-    def handle_when_to_nothing_action(self, turn_player: "Player", discarded_card: "Card", action: None):
-        if action is not None:
-            # Don't go there
-            return
-
-        turn_player.discard_card(turn_player, discarded_card)
 
     @classmethod
     def create(cls, player: "Player") -> "Game":
@@ -288,3 +262,76 @@ class Player:
             if card.name == discarded_card.name:
                 self.cards.pop(index)
                 break
+
+
+class Handler(ABC):
+    next_handler: "Handler" = None
+
+    def __init__(self, handler: Optional["Handler"]):
+        self.next_handler = handler
+
+    def handle(self,
+               game: "Game",
+               turn_player: "Player",
+               discarded_card: "Card",
+               action: Union[GuessCard, ToSomeoneCard, None]):
+        if self.can_handle(action):
+            self.do_handling(game, turn_player, discarded_card, action)
+        elif self.next_handler:
+            self.next_handler.handle(game, turn_player, discarded_card, action)
+        else:
+            raise ValueError(f"Cannot handler this action: {action}")
+
+    @abstractmethod
+    def can_handle(self, action: Union[GuessCard, ToSomeoneCard, None]) -> bool:
+        pass
+
+    @abstractmethod
+    def do_handling(self,
+                    game: "Game",
+                    turn_player: "Player",
+                    discarded_card: "Card",
+                    action: Union[GuessCard, ToSomeoneCard, None]):
+        pass
+
+
+class GuessCardHandler(Handler):
+    def can_handle(self, action: Union[GuessCard, ToSomeoneCard, None]) -> bool:
+        return isinstance(action, GuessCard)
+
+    def do_handling(self,
+                    game: "Game",
+                    turn_player: "Player",
+                    discarded_card: "Card",
+                    action: Union[GuessCard, ToSomeoneCard, None]):
+        chosen_player: "Player" = game.find_player_by_id(action.chosen_player)
+        turn_player.discard_card(chosen_player=chosen_player, discarded_card=discarded_card,
+                                 with_card=find_card_by_name(action.guess_card))
+
+
+class SomeoneHandler(Handler):
+    def can_handle(self, action: Union[GuessCard, ToSomeoneCard, None]) -> bool:
+        return isinstance(action, ToSomeoneCard)
+
+    def do_handling(self,
+                    game: "Game",
+                    turn_player: "Player",
+                    discarded_card: "Card",
+                    action: Union[GuessCard, ToSomeoneCard, None]):
+        chosen_player: "Player" = game.find_player_by_id(action.chosen_player)
+        turn_player.discard_card(chosen_player, discarded_card)
+
+
+class NothingHandler(Handler):
+    def can_handle(self, action: Union[GuessCard, ToSomeoneCard, None]) -> bool:
+        return action is None
+
+    def do_handling(self,
+                    game: "Game",
+                    turn_player: "Player",
+                    discarded_card: "Card",
+                    action: Union[GuessCard, ToSomeoneCard, None]):
+        turn_player.discard_card(turn_player, discarded_card)
+
+
+HANDLER = GuessCardHandler(SomeoneHandler(NothingHandler(None)))
