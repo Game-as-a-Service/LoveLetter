@@ -244,11 +244,10 @@ class Player:
         if not any([True for c in self.cards if c.name == discarded_card.name]):
             raise GameException("Cannot discard cards not in your hand")
 
+        self.drop_card(discarded_card)
         if not (chosen_player and chosen_player.protected):
             discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
 
-        # TODO postcondition: the player holds 1 card after played
-        self.drop_card(discarded_card)
 
         if len(self.cards) != 1:
             return False
