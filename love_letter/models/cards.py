@@ -85,7 +85,7 @@ class BaronCard(Card):
     value = 3
     quantity = 2
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player"):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player", with_card: "Card" = None):
         if card_holder > chosen_player:
             chosen_player.out()
         else:
