@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Any
 
 from pydantic import BaseModel
 
@@ -16,6 +16,7 @@ class CardModel(BaseModel):
     name: str
     description: str
     value: int
+    usage: Dict[str, Any]
 
 
 class PlayerModel(BaseModel):
