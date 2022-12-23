@@ -1,6 +1,9 @@
 import abc
 import random
-from typing import List
+from typing import List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from love_letter.models import Player
 
 REJECT_BY_RULE = ValueError("You can not discard by the rule")
 
@@ -82,8 +85,11 @@ class BaronCard(Card):
     value = 3
     quantity = 2
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
-        raise NotImplemented
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player"):
+        if card_holder > chosen_player:
+            chosen_player.out()
+        else:
+            card_holder.out()
 
 
 class HandmaidCard(Card):
