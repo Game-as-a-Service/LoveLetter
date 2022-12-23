@@ -2,6 +2,7 @@ import secrets
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import List, Union, Optional
+from operator import attrgetter
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.exceptions import GameException
@@ -166,7 +167,19 @@ class Game:
         if not has_next_player:
             # TODO it doesn't cover the case: two players own same card but different total values (score)
             # find the winner from the alive players
-            winner = max(might_has_winner)
+            # 牌庫抽完，比較手牌大小
+            winner = might_has_winner[0]
+            for x in might_has_winner:
+                if x.cards[0].value > winner.cards[0].value:
+                    winner = x
+            biggest_card_value = winner.cards[0].value
+            might_has_winner = list(filter(lambda x: x.cards[0].value == biggest_card_value, might_has_winner))
+            # 當手牌大小一樣時，比較棄牌堆的總和
+            if len(might_has_winner) != 1:
+                winner = max(might_has_winner, key=attrgetter('total_value_of_card'))
+            for player in self.players:
+                if player.name == winner.name:
+                    player.tokens_of_affection += 1
             self.rounds[-1].winner = winner.name
             self.next_round(winner.name)
             return

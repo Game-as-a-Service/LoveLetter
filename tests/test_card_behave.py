@@ -205,7 +205,7 @@ class EndRoundTests(unittest.TestCase):
     def test_left_one_player_winner_get_token_of_affection(self):
         """
         遊戲開始後，剩餘一位玩家，此局結束，勝者拿到一枚好感指示物
-        玩家1 對 玩家2 出牌 衛兵 指定 公主 => 玩家1 出局
+        玩家1 對 玩家2 出牌 衛兵 指定 神父 => 玩家1 出局
         此局結束 玩家1 獲得一枚好感指示物
         :return:
         """
@@ -222,7 +222,60 @@ class EndRoundTests(unittest.TestCase):
 
         # then player1 gets 1 token of affection
         self.assertEqual(1, self.game.players[0].tokens_of_affection)
+        # then the player-1 will be
+        # 1. the winner of the last round
+        # 2. the turn player at the new round
+        self.assertEqual(2, len(self.game.rounds))  # there are two rounds
+        self.assertEqual('1', self.game.rounds[-2].winner)  # the last round winner
+        self.assertEqual('1', self.game.rounds[-1].turn_player.name)  # turn player of this round
+
+    def test_with_no_card_in_deck_the_player_has_biggest_card_is_the_winner(self):
+        """
+        遊戲開始後，牌庫的牌抽完，此局結束，手牌較大者獲勝，勝者拿到一枚好感指示物
+        玩家1 出牌 獲得侍女保護
+        此局結束 玩家2手牌較大 獲得一枚好感指示物
+        :return:
+        """
+
+        # given the arranged deck
+        reset_deck(['衛兵', '神父', '侍女'])
+
+        # given a started game
+        self.game.start()
+
+        # when there is no card in deck, compare player's card
+        self.game.play("1", '侍女', None)
+
+        # then player2 gets 1 token of affection
+        self.assertEqual(1, self.game.players[1].tokens_of_affection)
         # then the player-2 will be
+        # 1. the winner of the last round
+        # 2. the turn player at the new round
+        self.assertEqual(2, len(self.game.rounds))  # there are two rounds
+        self.assertEqual('2', self.game.rounds[-2].winner)  # the last round winner
+        self.assertEqual('2', self.game.rounds[-1].turn_player.name)  # turn player of this round
+
+    def test_with_no_card_in_deck_more_than_one_player_has_biggest_card(self):
+        """
+        遊戲開始後，牌庫的牌抽完，此局結束，手牌較大者獲勝，手牌較大的玩家有兩位以上時，比較棄牌堆大小，勝者拿到一枚好感指示物
+        玩家1 出牌 獲得侍女保護
+        此局結束 玩家1的棄牌堆總和較大 獲得一枚好感指示物
+        :return:
+        """
+
+        # given the arranged deck
+        reset_deck(['神父', '神父', '侍女'])
+
+        # given a started game
+        self.game.start()
+
+        # when there is no card in deck, compare player's card
+        # when two or more than two player have the biggest card in hand, compare the total_value_of_card
+        self.game.play("1", '侍女', None)
+
+        # then player1 gets 1 token of affection
+        self.assertEqual(1, self.game.players[0].tokens_of_affection)
+        # then the player-1 will be
         # 1. the winner of the last round
         # 2. the turn player at the new round
         self.assertEqual(2, len(self.game.rounds))  # there are two rounds
