@@ -186,3 +186,54 @@ class DiscardPrinceCardTests(unittest.TestCase):
 
         # then the deck remove_by_rule_card is empty in last round
         self.assertEqual(len(self.game.rounds[-2].deck.remove_by_rule_cards), 0)
+
+
+class DiscardBaronCardTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.game: Game = Game()
+        self.game.join(Player.create('1'))
+        self.game.join(Player.create('2'))
+
+        # disable random-picker for the first round
+        # it always returns the first player
+        self.origin_choose_one_randomly = Round.choose_one_randomly
+        Round.choose_one_randomly = lambda x: x[0]
+
+    def tearDown(self) -> None:
+        Round.choose_one_randomly = self.origin_choose_one_randomly
+
+    def test_retire_opponent_if_greater_hand_card_value(self):
+        """
+        遊戲開始後，經過一輪後玩家1抽得男爵
+        玩家1 出牌 男爵，指定玩家2
+        玩家1 與 玩家2 比較手牌 => 玩家2 出局
+        :return:
+        """
+
+        # given the arranged deck
+        reset_deck(['國王', '神父', '男爵'])
+
+        # given a started game
+        self.game.start()
+
+        self.game.play("1", '男爵', ToSomeoneCard(chosen_player='2'))
+        # King (6) is larger than Priest (2). Player-1 won.
+        self.assertEqual(self.game.rounds[-2].winner, "1")
+        
+    def test_retire_self_if_smaller_hand_card_value(self):
+        """
+        遊戲開始後，經過一輪後玩家1抽得男爵
+        玩家1 出牌 男爵，指定玩家2
+        玩家1 與 玩家2 比較手牌 => 玩家1 出局
+        :return:
+        """
+
+        # given the arranged deck
+        reset_deck(['神父', '國王', '男爵'])
+
+        # given a started game
+        self.game.start()
+
+        self.game.play("1", '男爵', ToSomeoneCard(chosen_player='2'))
+        # King (6) is larger than Priest (2). Player-2 won.
+        self.assertEqual(self.game.rounds[-2].winner, "2")
