@@ -1,7 +1,7 @@
 import secrets
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Optional, Union
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.exceptions import GameException
@@ -13,6 +13,7 @@ def deck_factory() -> Deck:
 
 
 class Round:
+    winner: Optional[str] = None
 
     def __init__(self, players: List["Player"]):
         self.players: List["Player"] = players
