@@ -153,37 +153,7 @@ class Game:
         self.rounds[-1].draw_card_by_system(players)
 
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
-        might_has_winner = [x for x in players if not x.am_i_out]
-        if len(might_has_winner) == 1:
-            winner_name = might_has_winner[0].name
-            for player in self.players:
-                if player.name == might_has_winner[0].name:
-                    player.tokens_of_affection += 1
-            self.rounds[-1].winner = winner_name
-            self.next_round(winner_name)
-            return
-
-        has_next_player = self.next_turn_player()
-        if not has_next_player:
-            # TODO it doesn't cover the case: two players own same card but different total values (score)
-            # find the winner from the alive players
-            # 牌庫抽完，比較手牌大小
-            winner = might_has_winner[0]
-            for x in might_has_winner:
-                if x.cards[0].value > winner.cards[0].value:
-                    winner = x
-            biggest_card_value = winner.cards[0].value
-            might_has_winner = list(filter(lambda x: x.cards[0].value == biggest_card_value, might_has_winner))
-            # 當手牌大小一樣時，比較棄牌堆的總和
-            if len(might_has_winner) != 1:
-                winner = max(might_has_winner, key=attrgetter('total_value_of_card'))
-            for player in self.players:
-                if player.name == winner.name:
-                    player.tokens_of_affection += 1
-            self.rounds[-1].winner = winner.name
-            self.next_round(winner.name)
-            return
-
+        self.find_winner(players)
     def handle_when_guess_card_action(self, turn_player: "Player", discarded_card: "Card", action: GuessCard):
         if not isinstance(action, GuessCard):
             return
@@ -231,6 +201,48 @@ class Game:
 
     def next_turn_player(self) -> bool:
         return self.rounds[-1].next_turn_player()
+
+    def find_winner(self, players: List["Player"]):
+        might_has_winner = [x for x in players if not x.am_i_out]
+        if len(might_has_winner) == 1:
+            winner_name = might_has_winner[0].name
+            # increase token of affection in game player
+            # 這幾個 for loop 都很像，是否要開一個 method
+            for player in self.players:
+                if player.name == winner_name:
+                    player.tokens_of_affection += 1
+            # increase token of affection in round player
+            for player in players:
+                if player.name == winner_name:
+                    player.tokens_of_affection += 1
+            self.rounds[-1].winner = winner_name
+            self.next_round(winner_name)
+            return
+        has_next_player = self.next_turn_player()
+        if not has_next_player:
+            # TODO it doesn't cover the case: two players own same card but different total values (score)
+            # find the winner from the alive players
+            # 牌庫抽完，比較手牌大小
+            winner = might_has_winner[0]
+            for x in might_has_winner:
+                # get the biggest card value from alive players
+                if x.cards[0].value > winner.cards[0].value:
+                    winner = x
+            biggest_card_value = winner.cards[0].value
+            # collect all the players that has the biggest card value
+            might_has_winner = list(filter(lambda x: x.cards[0].value == biggest_card_value, might_has_winner))
+            # 當手牌大小一樣時，比較棄牌堆的總和
+            if len(might_has_winner) != 1:
+                winner = max(might_has_winner, key=attrgetter('total_value_of_card'))
+            for player in self.players:
+                if player.name == winner.name:
+                    player.tokens_of_affection += 1
+            for player in players:
+                if player.name == winner.name:
+                    player.tokens_of_affection += 1
+            self.rounds[-1].winner = winner.name
+            self.next_round(winner.name)
+            return
 
 
 @dataclass

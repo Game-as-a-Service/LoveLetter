@@ -205,7 +205,7 @@ class EndRoundTests(unittest.TestCase):
     def test_left_one_player_winner_get_token_of_affection(self):
         """
         遊戲開始後，剩餘一位玩家，此局結束，勝者拿到一枚好感指示物
-        玩家1 對 玩家2 出牌 衛兵 指定 神父 => 玩家1 出局
+        玩家1 對 玩家2 出牌 衛兵 指定 神父 => 玩家2 出局
         此局結束 玩家1 獲得一枚好感指示物
         :return:
         """
@@ -220,8 +220,9 @@ class EndRoundTests(unittest.TestCase):
         self.game.play("1", '衛兵',  # player1 guess card correctly
                        GuessCard(chosen_player='2', guess_card="神父"))
 
-        # then player1 gets 1 token of affection
+        # then player1 gets 1 token of affection in both game class and round class
         self.assertEqual(1, self.game.players[0].tokens_of_affection)
+        self.assertEqual(1, self.game.rounds[-2].players[0].tokens_of_affection)
         # then the player-1 will be
         # 1. the winner of the last round
         # 2. the turn player at the new round
@@ -246,8 +247,9 @@ class EndRoundTests(unittest.TestCase):
         # when there is no card in deck, compare player's card
         self.game.play("1", '侍女', None)
 
-        # then player2 gets 1 token of affection
+        # then player2 gets 1 token of affection in both game class and round class
         self.assertEqual(1, self.game.players[1].tokens_of_affection)
+        self.assertEqual(1, self.game.rounds[-2].players[1].tokens_of_affection)
         # then the player-2 will be
         # 1. the winner of the last round
         # 2. the turn player at the new round
@@ -273,8 +275,9 @@ class EndRoundTests(unittest.TestCase):
         # when two or more than two player have the biggest card in hand, compare the total_value_of_card
         self.game.play("1", '侍女', None)
 
-        # then player1 gets 1 token of affection
+        # then player2 gets 1 token of affection in both game class and round class
         self.assertEqual(1, self.game.players[0].tokens_of_affection)
+        self.assertEqual(1, self.game.rounds[-2].players[0].tokens_of_affection)
         # then the player-1 will be
         # 1. the winner of the last round
         # 2. the turn player at the new round
