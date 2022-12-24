@@ -29,7 +29,7 @@ class LoseHandMaidProtected(unittest.TestCase):
         # disable random-picker for the first round
         # it always returns the first player
         self.origin_choose_one_randomly = Round.choose_one_randomly
-        Round.choose_one_randomly = lambda x: x[0]
+        Round.choose_one_randomly = lambda players: players[0]
 
     def tearDown(self) -> None:
         Round.choose_one_randomly = self.origin_choose_one_randomly
@@ -83,7 +83,7 @@ class DiscardPrinceCardTests(unittest.TestCase):
         # disable random-picker for the first round
         # it always returns the first player
         self.origin_choose_one_randomly = Round.choose_one_randomly
-        Round.choose_one_randomly = lambda x: x[0]
+        Round.choose_one_randomly = lambda players: players[0]
 
     def tearDown(self) -> None:
         Round.choose_one_randomly = self.origin_choose_one_randomly
@@ -197,7 +197,7 @@ class DiscardBaronCardTests(unittest.TestCase):
         # disable random-picker for the first round
         # it always returns the first player
         self.origin_choose_one_randomly = Round.choose_one_randomly
-        Round.choose_one_randomly = lambda x: x[0]
+        Round.choose_one_randomly = lambda players: players[0]
 
     def tearDown(self) -> None:
         Round.choose_one_randomly = self.origin_choose_one_randomly
