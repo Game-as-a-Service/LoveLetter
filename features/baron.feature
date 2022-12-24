@@ -13,6 +13,13 @@ Feature: 男爵 出牌規則
     When 玩家A 對 玩家B 出牌 男爵
     Then 玩家A 出局
 
+  Scenario: 玩家出男爵 指定玩家 手牌平手 無人出局
+    Given 玩家A 持有 男爵 衛兵
+    Given 玩家B 持有 衛兵
+    When 玩家A 對 玩家B 出牌 男爵
+    Then 玩家A 未出局 
+    Then 玩家B 未出局
+
   Scenario: 玩家出男爵 指定已經被侍女保護的人
     Given 玩家A 持有 男爵 國王
     Given 玩家B 持有 神父
