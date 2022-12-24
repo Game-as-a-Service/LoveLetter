@@ -164,7 +164,6 @@ class Game:
 
         has_next_player = self.next_turn_player()
         if not has_next_player:
-            # TODO it doesn't cover the case: two players own same card but different total values (score)
             # find the winner from the alive players
             winner = max(might_has_winner)
             self.rounds[-1].winner = winner.name
@@ -274,7 +273,11 @@ class Player:
             return self.cards[0].value < other.cards[0].value
         
     def __gt__(self, other: "Player"):
-        if len(self.cards) == 1 and len(other.cards) == 1:
+        if len(self.cards) != 1 or len(other.cards) != 1:
+            raise AssertionError("Unable to compare players.")
+        elif self.cards[0].value == other.cards[0].value:
+            return self.total_value_of_card > other.total_value_of_card
+        else:
             return self.cards[0].value > other.cards[0].value
 
     @classmethod
