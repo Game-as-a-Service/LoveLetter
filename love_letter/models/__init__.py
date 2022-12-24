@@ -267,7 +267,11 @@ class Player:
 
     def __repr__(self):
         return f"Player({self.name},{self.cards})"
-
+    
+    def __lt__(self, other: "Player"):
+        if len(self.cards) == 1 and len(other.cards) == 1:
+            return self.cards[0].value < other.cards[0].value
+        
     def __gt__(self, other: "Player"):
         if len(self.cards) == 1 and len(other.cards) == 1:
             return self.cards[0].value > other.cards[0].value
