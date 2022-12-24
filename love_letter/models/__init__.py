@@ -144,12 +144,9 @@ class Game:
 
         players = self.this_round_players()
 
-        # TODO rewrite handles to chain of rules and catching lost cases
         turn_player: "Player" = self.find_player_by_id(player_id)
         discarded_card: "Card" = find_card_by_name(card_name)
-        self.handle_when_guess_card_action(turn_player, discarded_card, card_action)
-        self.handle_when_to_someone_action(turn_player, discarded_card, card_action)
-        self.handle_when_to_nothing_action(turn_player, discarded_card, card_action)
+        self.handle_card_action(turn_player, discarded_card, card_action)
 
         self.rounds[-1].draw_card_by_system(players)
 
@@ -169,15 +166,6 @@ class Game:
             self.next_round(winner.name)
             return
 
-    def handle_when_guess_card_action(self, turn_player: "Player", discarded_card: "Card", action: GuessCard):
-        if not isinstance(action, GuessCard):
-            return
-
-        chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
-
-        turn_player.discard_card(chosen_player=chosen_player, discarded_card=discarded_card,
-                                 with_card=find_card_by_name(action.guess_card))
-
     def find_player_by_id(self, player_id):
         players = self.this_round_players()
         for x in players:
@@ -187,20 +175,6 @@ class Game:
 
     def this_round_players(self):
         return self.rounds[-1].players
-
-    def handle_when_to_someone_action(self, turn_player: "Player", discarded_card: "Card", action: ToSomeoneCard):
-        if not isinstance(action, ToSomeoneCard):
-            return
-
-        chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
-        turn_player.discard_card(chosen_player, discarded_card)
-
-    def handle_when_to_nothing_action(self, turn_player: "Player", discarded_card: "Card", action: None):
-        if action is not None:
-            # Don't go there
-            return
-
-        turn_player.discard_card(turn_player, discarded_card)
 
     @classmethod
     def create(cls, player: "Player") -> "Game":
@@ -216,6 +190,30 @@ class Game:
 
     def next_turn_player(self) -> bool:
         return self.rounds[-1].next_turn_player()
+
+    def handle_card_action(self,
+                           turn_player: "Player",
+                           discarded_card: "Card",
+                           action: Union[GuessCard, ToSomeoneCard, None]) -> None:
+        """
+        Handles all card actions like GuessCard, ToSomeoneCard and None
+        :param turn_player:
+        :param discarded_card:
+        :param action:
+        :return:
+        """
+        if isinstance(action, GuessCard):
+            chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
+
+            turn_player.discard_card(chosen_player=chosen_player, discarded_card=discarded_card,
+                                     with_card=find_card_by_name(action.guess_card))
+        elif isinstance(action, ToSomeoneCard):
+            chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
+            turn_player.discard_card(chosen_player, discarded_card)
+        elif action is None:
+            turn_player.discard_card(turn_player, discarded_card)
+        else:
+            raise TypeError(f"Cannot handle this action: {action}")
 
 
 @dataclass
