@@ -237,3 +237,25 @@ class DiscardBaronCardTests(unittest.TestCase):
         self.game.play("1", '男爵', ToSomeoneCard(chosen_player='2'))
         # King (6) is larger than Priest (2). Player-2 won.
         self.assertEqual(self.game.rounds[-2].winner, "2")
+
+
+    def test_if_equal_hand_card_value(self):
+        """
+        遊戲開始後，經過一輪後玩家1抽得男爵
+        玩家1 出牌 男爵，指定玩家2
+        玩家1 與 玩家2 比較手牌 => 手牌相等 此局繼續
+        玩家2 出牌 衛兵，指定玩家1，正確猜測手牌 => 玩家1 出局
+        :return:
+        """
+
+        # given the arranged deck
+        reset_deck(['神父', '神父', '男爵', '衛兵'])
+
+        # given a started game
+        self.game.start()
+
+        # 手牌相等，此局繼續
+        self.game.play("1", '男爵', ToSomeoneCard(chosen_player='2'))
+        # 由於Player2已知 Player1手牌，使用衛兵，Player1出局
+        self.game.play("2", '衛兵', GuessCard(chosen_player='1', guess_card='神父'))
+        self.assertEqual(self.game.rounds[-2].winner, "2")
