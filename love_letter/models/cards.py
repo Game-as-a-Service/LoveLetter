@@ -36,9 +36,11 @@ class Card(metaclass=abc.ABCMeta):
     * quantity: how many copies of this card
 
     """
+    name: Optional[str] = None
+    value: Optional[int] = None
 
     @abc.abstractmethod
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: Optional["Player"] = None, with_card: Optional["Card"] = None):
         """
         play the card to player with a card by rules
 
@@ -87,7 +89,7 @@ class GuardCard(Card):
     value = 1
     quantity = 5
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player", with_card: "Card"):
         if isinstance(with_card, GuardCard):
             raise REJECT_BY_RULE_GUESS_GUARD
         for card in chosen_player.cards:
@@ -110,7 +112,7 @@ class PriestCard(Card):
     value = 2
     quantity = 2
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player", with_card: None = None):
         from love_letter.models import Seen
         seen_card = Seen(chosen_player.name, chosen_player.cards[-1])
         card_holder.seen_cards.append(seen_card)
@@ -126,7 +128,7 @@ class BaronCard(Card):
     value = 3
     quantity = 2
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player", with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player", with_card: None = None):
         if card_holder > chosen_player:
             chosen_player.out()
         elif card_holder < chosen_player:
@@ -143,7 +145,7 @@ class HandmaidCard(Card):
     value = 4
     quantity = 2
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: None = None, with_card: None = None):
         card_holder.protected = True
 
 
@@ -158,7 +160,7 @@ class PrinceCard(Card):
     If the deck is empty, that player draws the card that was removed at the start of the round
     """
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player", with_card: None = None):
         # choose self to discard the card in the hand
         for c in card_holder.cards:
             if c.name == "伯爵夫人":
@@ -183,7 +185,7 @@ class KingCard(Card):
     value = 6
     quantity = 1
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player", with_card: None = None):
         for c in card_holder.cards:
             if c.name == "伯爵夫人":
                 raise REJECT_BY_RULE
@@ -219,7 +221,7 @@ class CountessCard(Card):
     She likes to play mind games....
     """
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: Optional["Player"] = None, with_card: Optional["Card"] = None):
         # nothing happen by the rule
         pass
 
@@ -229,7 +231,7 @@ class PrincessCard(Card):
     value = 8
     quantity = 1
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: None = None, with_card: None = None):
         card_holder.out()
 
 
