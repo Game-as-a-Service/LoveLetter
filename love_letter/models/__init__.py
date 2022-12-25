@@ -202,18 +202,16 @@ class Game:
         :param action:
         :return:
         """
-        if isinstance(action, GuessCard):
-            chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
-
-            turn_player.discard_card(chosen_player=chosen_player, discarded_card=discarded_card,
-                                     with_card=find_card_by_name(action.guess_card))
-        elif isinstance(action, ToSomeoneCard):
-            chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
-            turn_player.discard_card(chosen_player, discarded_card)
-        elif action is None:
+        if action is None:
             turn_player.discard_card(turn_player, discarded_card)
-        else:
-            raise TypeError(f"Cannot handle this action: {action}")
+            return
+
+        with_card = None
+        if isinstance(action, GuessCard):
+            with_card = find_card_by_name(action.guess_card)
+
+        chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
+        turn_player.discard_card(chosen_player, discarded_card, with_card)
 
 
 @dataclass
