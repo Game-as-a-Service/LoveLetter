@@ -21,6 +21,20 @@
 - 因為我對上面的一些Practice stack也不太熟悉，所以希望會是大家一起討論出自己覺得對的方式，藉此來一起踩雷、學習XD
 - 大家一起做code review
 
+# 環境建置
+### Poetry
+  ```shell
+  # install with poetry.lock
+  poetry install
+  ```
+### pre-commit
+  ```shell
+  # 將 pre-commit hook 安裝至專案裡的 .git/hooks 資料夾底下
+  pre-commit install --install-hooks
+  
+  # 執行git commit的時候就會觸發到.pre-commit-config.yaml了
+  ```
+
 # 教學文
 - [Poetry](https://blog.kyomind.tw/python-poetry/)
   - ```

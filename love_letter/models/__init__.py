@@ -13,7 +13,6 @@ def deck_factory() -> Deck:
 
 
 class Round:
-
     def __init__(self, players: List["Player"]):
         self.players: List["Player"] = players
         self.deck = self._setup_round(self.players)
@@ -100,13 +99,14 @@ class Round:
             self.deck.draw_remove_card(player)
 
     def to_dict(self):
-        return dict(players=[x.to_dict() for x in self.players],
-                    winner=self.winner,
-                    turn_player=self.turn_player.to_dict())
+        return dict(
+            players=[x.to_dict() for x in self.players],
+            winner=self.winner,
+            turn_player=self.turn_player.to_dict(),
+        )
 
 
 class Game:
-
     def __init__(self):
         self.id: str = None
         self.players: List["Player"] = []
@@ -135,10 +135,18 @@ class Game:
         self.rounds.append(round)
 
     def to_dict(self):
-        return dict(game_id=self.id, players=[x.to_dict() for x in self.players],
-                    rounds=[x.to_dict() for x in self.rounds])
+        return dict(
+            game_id=self.id,
+            players=[x.to_dict() for x in self.players],
+            rounds=[x.to_dict() for x in self.rounds],
+        )
 
-    def play(self, player_id: str, card_name: str, card_action: Union[GuessCard, ToSomeoneCard, None]):
+    def play(
+        self,
+        player_id: str,
+        card_name: str,
+        card_action: Union[GuessCard, ToSomeoneCard, None],
+    ):
         if self.find_player_by_id(player_id) != self.get_turn_player():
             raise ValueError(f"{player_id} is not a turn player")
 
@@ -169,14 +177,19 @@ class Game:
             self.next_round(winner.name)
             return
 
-    def handle_when_guess_card_action(self, turn_player: "Player", discarded_card: "Card", action: GuessCard):
+    def handle_when_guess_card_action(
+        self, turn_player: "Player", discarded_card: "Card", action: GuessCard
+    ):
         if not isinstance(action, GuessCard):
             return
 
         chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
 
-        turn_player.discard_card(chosen_player=chosen_player, discarded_card=discarded_card,
-                                 with_card=find_card_by_name(action.guess_card))
+        turn_player.discard_card(
+            chosen_player=chosen_player,
+            discarded_card=discarded_card,
+            with_card=find_card_by_name(action.guess_card),
+        )
 
     def find_player_by_id(self, player_id):
         players = self.this_round_players()
@@ -188,14 +201,18 @@ class Game:
     def this_round_players(self):
         return self.rounds[-1].players
 
-    def handle_when_to_someone_action(self, turn_player: "Player", discarded_card: "Card", action: ToSomeoneCard):
+    def handle_when_to_someone_action(
+        self, turn_player: "Player", discarded_card: "Card", action: ToSomeoneCard
+    ):
         if not isinstance(action, ToSomeoneCard):
             return
 
         chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
         turn_player.discard_card(chosen_player, discarded_card)
 
-    def handle_when_to_nothing_action(self, turn_player: "Player", discarded_card: "Card", action: None):
+    def handle_when_to_nothing_action(
+        self, turn_player: "Player", discarded_card: "Card", action: None
+    ):
         if action is not None:
             # Don't go there
             return
@@ -225,7 +242,6 @@ class Seen:
 
 
 class Player:
-
     def __init__(self):
         self.name: str = None
         self.cards: List[Card] = []
@@ -234,7 +250,12 @@ class Player:
         self.total_value_of_card: int = 0
         self.seen_cards: List[Seen] = []
 
-    def discard_card(self, chosen_player: "Player" = None, discarded_card: Card = None, with_card: "Card" = None):
+    def discard_card(
+        self,
+        chosen_player: "Player" = None,
+        discarded_card: Card = None,
+        with_card: "Card" = None,
+    ):
         # Precondition: the player must hold 2 cards
         if len(self.cards) != 2:
             return False
@@ -244,7 +265,9 @@ class Player:
             raise GameException("Cannot discard cards not in your hand")
 
         if not (chosen_player and chosen_player.protected):
-            discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
+            discarded_card.trigger_effect(
+                self, chosen_player=chosen_player, with_card=with_card
+            )
 
         # TODO postcondition: the player holds 1 card after played
         self.drop_card(discarded_card)
@@ -260,7 +283,9 @@ class Player:
         self.am_i_out = True
 
     def to_dict(self):
-        return dict(name=self.name, out=self.am_i_out, cards=[x.to_dict() for x in self.cards])
+        return dict(
+            name=self.name, out=self.am_i_out, cards=[x.to_dict() for x in self.cards]
+        )
 
     def __eq__(self, other):
         return self.name == other.name

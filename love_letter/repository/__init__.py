@@ -5,7 +5,6 @@ from love_letter.models import Game
 
 
 class GameRepository(metaclass=abc.ABCMeta):
-
     @abc.abstractmethod
     def save_or_update(self, game: Game):
         pass
@@ -16,7 +15,6 @@ class GameRepository(metaclass=abc.ABCMeta):
 
 
 class GameRepositoryInMemoryImpl(GameRepository):
-
     def __init__(self):
         self.in_memory_data = dict()
 
