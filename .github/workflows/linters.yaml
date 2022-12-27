@@ -9,12 +9,8 @@ on:
     branches:
       - master
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 env:
-  PYTHON_VERSION: 3.10
+  PYTHON_VERSION: '3.10'
 
 jobs:
   isort:
