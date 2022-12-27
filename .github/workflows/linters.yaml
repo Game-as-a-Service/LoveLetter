@@ -1,0 +1,82 @@
+name: Linters
+
+on:
+  push:
+    branches:
+      - master
+      - feature/add_black_and_isort_package_with_pre_commit
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: 3.10
+
+jobs:
+  isort:
+    name: isort
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set package version
+        run: |
+          isort_version="$(grep '^isort' pyproject.toml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')"
+          echo "isort_version=$isort_version" >> "$GITHUB_ENV"
+
+      - name: Install package
+        run: python -m pip install isort==${{ env.isort_version }}
+
+      - name: Set changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v35
+        with:
+          files: |
+            *.py
+
+      - name: isort
+        run: |
+          [[ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]] &&
+          echo "${{ steps.changed-files.outputs.all_changed_files }}" | xargs isort --check --diff ||
+          echo "0 Python files changed."
+  black:
+    name: black
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set package version
+        run: |
+          black_version="$(grep '^black' pyproject.toml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)"
+          echo "black_version=$black_version" >> "$GITHUB_ENV"
+
+      - name: Install package
+        run: python -m pip install black==${{ env.black_version }}
+
+      - name: Set changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v35
+        with:
+          files: |
+            *.py
+      - name: black
+        run: |
+          [[ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]] &&
+          echo "${{ steps.changed-files.outputs.all_changed_files }}" | xargs black --check --diff ||
+          echo "0 Python files changed."

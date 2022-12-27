@@ -51,3 +51,4 @@
     # 輸出 Poetry 虛擬環境的 requirements.txt
     poetry export -f requirements.txt -o requirements.txt --without-hashes 
     ```
+- [Black官方整合Pycharm](https://black.readthedocs.io/en/stable/integrations/editors.html)
