@@ -25,13 +25,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Set package version
+      - name: Install package
         run: |
           isort_version="$(grep '^isort' pyproject.toml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')"
-          echo "isort_version=$isort_version" >> "$GITHUB_ENV"
-
-      - name: Install package
-        run: python -m pip install isort==${{ env.isort_version }}
+          python -m pip install isort==$isort_version
 
       - name: Set changed files
         id: changed-files
@@ -57,13 +54,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Set package version
+      - name: Install package version
         run: |
           black_version="$(grep '^black' pyproject.toml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)"
-          echo "black_version=$black_version" >> "$GITHUB_ENV"
-
-      - name: Install package
-        run: python -m pip install black==${{ env.black_version }}
+          python -m pip install black==black_version
 
       - name: Set changed files
         id: changed-files
