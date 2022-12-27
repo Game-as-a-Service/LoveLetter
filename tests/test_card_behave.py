@@ -254,8 +254,7 @@ class DiscardBaronCardTests(unittest.TestCase):
         # given a started game
         self.game.start()
 
-        # 手牌相等，此局繼續
+        # 手牌相等，無人出局，此局繼續
         self.game.play("1", '男爵', ToSomeoneCard(chosen_player='2'))
-        # 由於Player2已知 Player1手牌，使用衛兵，Player1出局
-        self.game.play("2", '衛兵', GuessCard(chosen_player='1', guess_card='神父'))
-        self.assertEqual(self.game.rounds[-2].winner, "2")
+        for player in self.game.players:
+            self.assertEqual(player.am_i_out, False)
