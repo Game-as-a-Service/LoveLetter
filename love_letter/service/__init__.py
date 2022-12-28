@@ -29,7 +29,7 @@ class GameService:
     def start_game(self, game_id: str) -> bool:
         game: Game = self.repository.get(game_id)
         if game is None:
-            return
+            return False
         game.start()
         return True
 
@@ -113,7 +113,7 @@ class GameService:
                 continue
 
             # if the player is not turn_player all cards can't be discarded
-            if player['name'] != turn_player['name']:
+            if turn_player is None or player['name'] != turn_player['name']:
                 c['usage']['can_discard'] = False
             else:
                 c['usage']['can_discard'] = c['usage']['can_discard'](hand_cards)
