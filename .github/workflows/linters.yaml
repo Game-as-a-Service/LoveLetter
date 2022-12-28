@@ -9,6 +9,10 @@ on:
     branches:
       - master
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   PYTHON_VERSION: '3.10'
 
@@ -41,11 +45,16 @@ jobs:
             *.py
             **/*.py
 
-      - name: isort
+      - name: Check isort
         run: |
-          [[ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]] &&
-          echo "${{ steps.changed-files.outputs.all_changed_files }}" | xargs isort --check --diff ||
-          echo "0 Python files changed."
+          if [[ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]]; then
+            echo "${{ steps.changed-files.outputs.all_changed_files }}" | xargs isort --check --diff &&
+            echo "Isort was succeeded." ||
+            exit 1
+          else
+            echo "0 Python files changed."
+          fi
+
   black:
     name: black
     runs-on: ubuntu-latest
@@ -76,6 +85,10 @@ jobs:
 
       - name: black
         run: |
-          [[ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]] &&
-          echo "${{ steps.changed-files.outputs.all_changed_files }}" | xargs black --check --diff ||
-          echo "0 Python files changed."
+          if [[ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]]; then
+            echo "${{ steps.changed-files.outputs.all_changed_files }}" | xargs black --check --diff &&
+            echo "Black was succeeded." ||
+            exit 1
+          else
+            echo "0 Python files changed."
+          fi
