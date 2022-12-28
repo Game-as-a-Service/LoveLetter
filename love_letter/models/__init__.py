@@ -129,6 +129,14 @@ class Game:
 
     def next_round(self, last_winner: str = None):
         # TODO if we arrive the ending of the game, show the lucky person who won the Princess
+        if last_winner is not None:
+            players = self.rounds[-1].players
+            for player in self.players:
+                if player.name == last_winner:
+                    player.tokens_of_affection += 1
+            for player in players:
+                if player.name == last_winner:
+                    player.tokens_of_affection += 1
         round = Round(deepcopy(self.players))
         round.next_turn_player(last_winner)
         self.rounds.append(round)
@@ -208,13 +216,6 @@ class Game:
             winner_name = might_has_winner[0].name
             # increase token of affection in game player
             # 這幾個 for loop 都很像，是否要開一個 method
-            for player in self.players:
-                if player.name == winner_name:
-                    player.tokens_of_affection += 1
-            # increase token of affection in round player
-            for player in players:
-                if player.name == winner_name:
-                    player.tokens_of_affection += 1
             self.rounds[-1].winner = winner_name
             self.next_round(winner_name)
             return
@@ -234,12 +235,6 @@ class Game:
             # 當手牌大小一樣時，比較棄牌堆的總和
             if len(might_has_winner) != 1:
                 winner = max(might_has_winner, key=attrgetter('total_value_of_card'))
-            for player in self.players:
-                if player.name == winner.name:
-                    player.tokens_of_affection += 1
-            for player in players:
-                if player.name == winner.name:
-                    player.tokens_of_affection += 1
             self.rounds[-1].winner = winner.name
             self.next_round(winner.name)
             return
