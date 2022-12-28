@@ -1,7 +1,7 @@
 import secrets
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Optional, Union
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.exceptions import GameException
@@ -13,6 +13,7 @@ def deck_factory() -> Deck:
 
 
 class Round:
+    winner: Optional[str] = None
 
     def __init__(self, players: List["Player"]):
         self.players: List["Player"] = players
@@ -239,11 +240,10 @@ class Player:
         if not any([True for c in self.cards if c.name == discarded_card.name]):
             raise GameException("Cannot discard cards not in your hand")
 
+        self.drop_card(discarded_card)
         if not (chosen_player and chosen_player.protected):
             discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
 
-        # TODO postcondition: the player holds 1 card after played
-        self.drop_card(discarded_card)
 
         if len(self.cards) != 1:
             return False
@@ -263,7 +263,11 @@ class Player:
 
     def __repr__(self):
         return f"Player({self.name},{self.cards})"
-
+    
+    def __lt__(self, other: "Player"):
+        if len(self.cards) == 1 and len(other.cards) == 1:
+            return self.cards[0].value < other.cards[0].value
+        
     def __gt__(self, other: "Player"):
         if len(self.cards) != 1 or len(other.cards) != 1:
             raise AssertionError("Unable to compare players.")
