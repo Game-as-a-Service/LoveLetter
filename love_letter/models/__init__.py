@@ -222,24 +222,14 @@ class Seen:
 
 
 class Player:
-    __name: Optional[str] = None
     
-    def __init__(self):
+    def __init__(self, name: str):
+        self.name = name
         self.cards: List[Card] = []
         self.am_i_out: bool = False
         self.protected: bool = False
         self.total_value_of_card: int = 0
         self.seen_cards: List[Seen] = []
-        
-    @property
-    def name(self):
-        if self.__name is None:
-            raise ValueError('Player name is not yet assigned.')
-        return self.__name
-    
-    @name.setter
-    def name(self, value: str):
-        self.__name = value
 
     def discard_card(self, chosen_player: "Player", discarded_card: "Card", with_card: Optional["Card"] = None):
         # Precondition: the player must hold 2 cards
@@ -286,11 +276,6 @@ class Player:
         else:
             return self.cards[0].value > other.cards[0].value
 
-    @classmethod
-    def create(cls, name: str):
-        p = Player()
-        p.name = name
-        return p
 
     def drop_card(self, discarded_card: Card):
         # only drop 1 card

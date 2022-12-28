@@ -23,8 +23,8 @@ def reset_deck(card_name_list: List[str], remove_by_rule_cards: List[str] = None
 class LoseHandMaidProtected(unittest.TestCase):
     def setUp(self) -> None:
         self.game: Game = Game()
-        self.game.join(Player.create('1'))
-        self.game.join(Player.create('2'))
+        self.game.join(Player('1'))
+        self.game.join(Player('2'))
 
         # disable random-picker for the first round
         # it always returns the first player
@@ -77,8 +77,8 @@ class LoseHandMaidProtected(unittest.TestCase):
 class DiscardPrinceCardTests(unittest.TestCase):
     def setUp(self) -> None:
         self.game: Game = Game()
-        self.game.join(Player.create('1'))
-        self.game.join(Player.create('2'))
+        self.game.join(Player('1'))
+        self.game.join(Player('2'))
 
         # disable random-picker for the first round
         # it always returns the first player
@@ -191,8 +191,8 @@ class DiscardPrinceCardTests(unittest.TestCase):
 class DiscardBaronCardTests(unittest.TestCase):
     def setUp(self) -> None:
         self.game: Game = Game()
-        self.game.join(Player.create('1'))
-        self.game.join(Player.create('2'))
+        self.game.join(Player('1'))
+        self.game.join(Player('2'))
 
         # disable random-picker for the first round
         # it always returns the first player

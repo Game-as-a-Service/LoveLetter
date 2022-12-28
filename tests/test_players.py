@@ -3,9 +3,9 @@ import unittest
 from love_letter.models import Player
 from love_letter.models.cards import find_card_by_value
 
-player1 = Player().create("Player 1")
-player2 = Player().create("Player 2")
-player3 = Player().create("Player 3")
+player1 = Player("Player 1")
+player2 = Player("Player 2")
+player3 = Player("Player 3")
 
 
 def assign_values(player: Player, value: int, total_value: int):
