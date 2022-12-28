@@ -21,7 +21,7 @@ def reset_deck(card_name_list: List[str]):
 
 class CatchableTestCase(TestCase):
     def setUp(self):
-        self.exception_message: str = None
+        self.exception_message: str = ''
 
     def catch(self, callable: Callable):
         with self.assertRaises(BaseException) as ex:
@@ -108,7 +108,7 @@ class PlayingGameRoundByRoundTests(TestCase):
         # disable random-picker for the first round
         # it always returns the first player
         self.origin_choose_one_randomly = Round.choose_one_randomly
-        Round.choose_one_randomly = lambda x: x[0]
+        Round.choose_one_randomly = lambda players: players[0]
 
     def tearDown(self) -> None:
         Round.choose_one_randomly = self.origin_choose_one_randomly
@@ -166,10 +166,10 @@ class PlayingGameRoundByRoundTests(TestCase):
         self.assertEqual(1, len(self.game.rounds))
 
         # then the turn player back to the player 1
-        self.assertEqual("1", self.game.rounds[-1].turn_player.name)
+        self.assertEqual("1", self.game.get_turn_player().name)
 
         # then the turn player earns 2 points by discarding 衛兵 twice
-        self.assertEqual(2, self.game.rounds[-1].turn_player.total_value_of_card)
+        self.assertEqual(2, self.game.get_turn_player().total_value_of_card)
 
     def test_move_to_next_round_by_only_one_player_alive(self):
         """
@@ -199,9 +199,7 @@ class PlayingGameRoundByRoundTests(TestCase):
         #   2. the turn player at the new round
         self.assertEqual(2, len(self.game.rounds))  # there are two rounds
         self.assertEqual("3", self.game.rounds[-2].winner)  # the last round winner
-        self.assertEqual(
-            "3", self.game.rounds[-1].turn_player.name
-        )  # turn player of this round
+        self.assertEqual("3", self.game.get_turn_player().name)  # turn player of this round
 
     def test_move_to_next_round_by_empty_deck(self):
         """
@@ -226,9 +224,7 @@ class PlayingGameRoundByRoundTests(TestCase):
         #   2. the turn player at the new round
         self.assertEqual(2, len(self.game.rounds))  # there are two rounds
         self.assertEqual("2", self.game.rounds[-2].winner)  # the last round winner
-        self.assertEqual(
-            "2", self.game.rounds[-1].turn_player.name
-        )  # turn player of this round
+        self.assertEqual("2", self.game.get_turn_player().name)  # turn player of this round
 
 
 class FirstRoundRandomPickerTests(TestCase):

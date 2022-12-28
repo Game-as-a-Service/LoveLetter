@@ -1,14 +1,11 @@
 import unittest
-from typing import List
+from typing import List, Optional
 
 from love_letter.models import Deck, Game, Player, Round
 from love_letter.web.dto import GuessCard, ToSomeoneCard
 
 
-def reset_deck(card_name_list: List[str], remove_by_rule_cards: List[str] = None):
-    if remove_by_rule_cards is None:
-        remove_by_rule_cards = []
-
+def reset_deck(card_name_list: List[str], remove_by_rule_cards: List[str] = []):
     class _TestDeck(Deck):
         def shuffle(self, player_num: int):
             super().shuffle(player_num)
@@ -70,7 +67,7 @@ class LoseHandMaidProtected(unittest.TestCase):
         # 2. the turn player at the new round
         self.assertEqual(2, len(self.game.rounds))  # there are two rounds
         self.assertEqual('2', self.game.rounds[-2].winner)  # the last round winner
-        self.assertEqual('2', self.game.rounds[-1].turn_player.name)  # turn player of this round
+        self.assertEqual('2', self.game.get_turn_player().name)  # turn player of this round
 
 
 # 捨棄王子抽取移除卡片的規則
@@ -105,7 +102,7 @@ class DiscardPrinceCardTests(unittest.TestCase):
         self.game.play("1", "王子", ToSomeoneCard(chosen_player="2"))
 
         # then player-2 is turn player, so have two card in hands
-        self.assertEqual(len(self.game.rounds[-1].turn_player.cards), 2)
+        self.assertEqual(len(self.game.get_turn_player().cards), 2)
 
         # then the deck is empty
         self.assertEqual(len(self.game.rounds[-1].deck.cards), 0)
@@ -153,7 +150,7 @@ class DiscardPrinceCardTests(unittest.TestCase):
         self.game.play("1", "王子", ToSomeoneCard(chosen_player="2"))
 
         # then player-2 has one card from deck card in the last round
-        self.assertEqual(len(self.game.rounds[-2].turn_player.cards), 1)
+        self.assertEqual(len(self.game.get_turn_player(-2).cards), 1)
 
         # then player-1 is the winner
         self.assertEqual(self.game.rounds[-2].winner, "1")
@@ -176,7 +173,7 @@ class DiscardPrinceCardTests(unittest.TestCase):
         self.game.play("1", "王子", ToSomeoneCard(chosen_player="2"))
 
         # then player-2 has one card from deck remove_by_rule_cards in the last round
-        self.assertEqual(len(self.game.rounds[-2].turn_player.cards), 1)
+        self.assertEqual(len(self.game.get_turn_player(-2).cards), 1)
 
         # then player-1 is the winner
         self.assertEqual(self.game.rounds[-2].winner, "1")

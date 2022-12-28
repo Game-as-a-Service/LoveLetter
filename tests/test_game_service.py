@@ -1,4 +1,3 @@
-import json
 import unittest
 
 from love_letter.models import Player, Game, Round
@@ -20,12 +19,25 @@ class GameServiceTests(unittest.TestCase):
         self.assertTrue(service.join_game(game_id, Player("2").name))
         result = service.get_status(game_id, "1")
 
+        self.assertIsNotNone(result)
         # # check the game status
+
+        if result is None:
+            raise ValueError("result is None.")
+
         self.assertEqual(game_id, result.get("game_id"))
-        self.assertEqual(2, len(result.get("players")))
+        players = result.get("players")
+
+        if players is None:
+            raise ValueError("players is found in result.")
+
+        self.assertEqual(2, len(players))
 
         # check two players' id
-        names = [player.get("name") for player in result.get("players")]
+        names = [
+            player.get("name") if not isinstance(player, str) else None
+            for player in players
+        ]
         # TODO figure out why it becomes Player(<id>,[]) form?
         self.assertEqual("['1', '2']", str(names))
 

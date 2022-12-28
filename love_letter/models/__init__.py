@@ -186,8 +186,12 @@ class Game:
     def has_started(self):
         return len(self.rounds) > 0
 
-    def get_turn_player(self):
-        return self.rounds[-1].turn_player
+    def get_turn_player(self, round_index: int = -1):
+        """Return the turn player of the given round."""
+        turn_player = self.rounds[round_index].turn_player
+        if turn_player is None: 
+            raise ValueError('Turn player is not assigned.')
+        return turn_player
 
     def next_turn_player(self) -> bool:
         return self.rounds[-1].next_turn_player()
