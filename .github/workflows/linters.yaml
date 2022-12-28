@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - feature/add_black_and_isort_package_with_pre_commit
   pull_request:
     branches:
       - master
@@ -83,7 +82,7 @@ jobs:
             *.py
             **/*.py
 
-      - name: black
+      - name: Check black
         run: |
           if [[ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]]; then
             echo "${{ steps.changed-files.outputs.all_changed_files }}" | xargs black --check --diff &&
