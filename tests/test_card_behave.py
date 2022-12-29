@@ -5,7 +5,9 @@ from love_letter.models import Deck, Game, Player, Round
 from love_letter.web.dto import GuessCard, ToSomeoneCard
 
 
-def reset_deck(card_name_list: List[str], remove_by_rule_cards: List[str] = []):
+def reset_deck(card_name_list: List[str], remove_by_rule_cards: Optional[List[str]] = None):
+    if remove_by_rule_cards is None:
+        remove_by_rule_cards = []
     class _TestDeck(Deck):
         def shuffle(self, player_num: int):
             super().shuffle(player_num)
