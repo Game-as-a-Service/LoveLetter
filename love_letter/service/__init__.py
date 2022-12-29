@@ -15,12 +15,12 @@ class GameService:
         game = Game()
         # TODO for now, we dont have the registration process,
         # TODO just create the player when they are creating or joining the game
-        game.join(Player.create(player_id))
+        game.join(Player(player_id))
         return self.repository.save_or_update(game)
 
     def join_game(self, game_id: str, player_id: str) -> bool:
         try:
-            self.repository.get(game_id).join(Player.create(player_id))
+            self.repository.get(game_id).join(Player(player_id))
             return True
         except BaseException as e:
             traceback.print_exception(e)
@@ -29,7 +29,7 @@ class GameService:
     def start_game(self, game_id: str) -> bool:
         game: Game = self.repository.get(game_id)
         if game is None:
-            return
+            return False
         game.start()
         return True
 
@@ -113,7 +113,7 @@ class GameService:
                 continue
 
             # if the player is not turn_player all cards can't be discarded
-            if player['name'] != turn_player['name']:
+            if turn_player is None or player['name'] != turn_player['name']:
                 c['usage']['can_discard'] = False
             else:
                 c['usage']['can_discard'] = c['usage']['can_discard'](hand_cards)

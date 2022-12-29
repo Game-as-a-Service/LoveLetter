@@ -6,9 +6,7 @@ from love_letter.models.cards import find_card_by_name, Deck
 
 def as_player(context, player: str):
     if not hasattr(context, player):
-        p = Player()
-        p.name = player
-        return p
+        return Player(player)
 
     return getattr(context, player)
 

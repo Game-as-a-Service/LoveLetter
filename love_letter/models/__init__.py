@@ -14,14 +14,11 @@ def deck_factory() -> Deck:
 
 class Round:
     winner: Optional[str] = None
+    turn_player: Optional["Player"] = None
 
     def __init__(self, players: List["Player"]):
         self.players: List["Player"] = players
         self.deck = self._setup_round(self.players)
-        self.winner = None
-
-        # turn player is set by game
-        self.turn_player: Player = None
 
     def _setup_round(self, players: List["Player"]):
         # make the deck replaceable for testing
@@ -33,7 +30,7 @@ class Round:
             deck.draw_card(p)
         return deck
 
-    def next_turn_player(self, last_winner: str = None) -> bool:
+    def next_turn_player(self, last_winner: Optional[str] = None) -> bool:
         """
         True if the round keeps going, otherwise false.
 
@@ -44,11 +41,13 @@ class Round:
         # TODO should fix the side effect (when empty deck, it should not be moved) before making player-context
         self._shift_to_next_player(last_winner)
 
+        if self.turn_player is None:
+            raise ValueError('Turn player is not assigned yet.')
         # Remove player protected after one round
         self.turn_player.protected = False
         return self.deck.draw_card(self.turn_player)
 
-    def _shift_to_next_player(self, last_winner: str = None):
+    def _shift_to_next_player(self, last_winner: Optional[str]):
         # assign the turn player from the last winner
         if last_winner is not None:
             for player in self.players:
@@ -101,15 +100,16 @@ class Round:
             self.deck.draw_remove_card(player)
 
     def to_dict(self):
+        turn_player = self.turn_player.to_dict() if self.turn_player is not None else {}
         return dict(players=[x.to_dict() for x in self.players],
                     winner=self.winner,
-                    turn_player=self.turn_player.to_dict())
+                    turn_player=turn_player)
 
 
 class Game:
 
     def __init__(self):
-        self.id: str = None
+        self.id: Optional[str] = None # TODO: assign id to a game.
         self.players: List["Player"] = []
         self.rounds: List["Round"] = []
 
@@ -129,7 +129,7 @@ class Game:
 
         self.next_round()
 
-    def next_round(self, last_winner: str = None):
+    def next_round(self, last_winner: Optional[str] = None):
         # TODO if we arrive the ending of the game, show the lucky person who won the Princess
         round = Round(deepcopy(self.players))
         round.next_turn_player(last_winner)
@@ -186,8 +186,12 @@ class Game:
     def has_started(self):
         return len(self.rounds) > 0
 
-    def get_turn_player(self):
-        return self.rounds[-1].turn_player
+    def get_turn_player(self, round_index: int = -1):
+        """Return the turn player of the given round."""
+        turn_player = self.rounds[round_index].turn_player
+        if turn_player is None: 
+            raise ValueError('Turn player is not assigned.')
+        return turn_player
 
     def next_turn_player(self) -> bool:
         return self.rounds[-1].next_turn_player()
@@ -222,16 +226,16 @@ class Seen:
 
 
 class Player:
-
-    def __init__(self):
-        self.name: str = None
+    
+    def __init__(self, name: str):
+        self.name = name
         self.cards: List[Card] = []
         self.am_i_out: bool = False
-        self.protected = False
+        self.protected: bool = False
         self.total_value_of_card: int = 0
         self.seen_cards: List[Seen] = []
 
-    def discard_card(self, chosen_player: "Player" = None, discarded_card: Card = None, with_card: "Card" = None):
+    def discard_card(self, chosen_player: "Player", discarded_card: "Card", with_card: Optional["Card"] = None):
         # Precondition: the player must hold 2 cards
         if len(self.cards) != 2:
             return False
@@ -276,11 +280,6 @@ class Player:
         else:
             return self.cards[0].value > other.cards[0].value
 
-    @classmethod
-    def create(cls, name):
-        p = Player()
-        p.name = name
-        return p
 
     def drop_card(self, discarded_card: Card):
         # only drop 1 card

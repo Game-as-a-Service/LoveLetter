@@ -36,7 +36,7 @@ class DeckTest(unittest.TestCase):
 
     def test_player_draw(self):
         player_num = 2
-        players = [Player() for _ in range(player_num)]
+        players = [Player(str(i)) for i in range(player_num)]
 
         self.deck.shuffle(player_num)
 

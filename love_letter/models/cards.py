@@ -36,8 +36,9 @@ class Card(metaclass=abc.ABCMeta):
     * quantity: how many copies of this card
 
     """
-    name: Optional[str] = None
-    value: Optional[int] = None
+    name: str = 'Card'
+    value: int = -1
+    quantity: int = 0
 
     @abc.abstractmethod
     def trigger_effect(self, card_holder: "Player", chosen_player: Optional["Player"] = None, with_card: Optional["Card"] = None):

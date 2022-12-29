@@ -10,7 +10,7 @@ def _test_client() -> TestClient:
     return TestClient(app)
 
 
-class TestDeck(Deck):
+class _TestDeck(Deck):
 
     def shuffle(self, player_num: int):
         super().shuffle(player_num)
@@ -31,7 +31,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         # disable random-picker for the first round
         # it always returns the first player
         self.origin_choose_one_randomly = Round.choose_one_randomly
-        Round.choose_one_randomly = lambda x: x[0]
+        Round.choose_one_randomly = lambda players: players[0]
 
     def tearDown(self) -> None:
         Round.choose_one_randomly = self.origin_choose_one_randomly
@@ -43,7 +43,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
 
         # 將牌庫換成測試用牌庫
         import love_letter.models
-        love_letter.models.deck_factory = lambda: TestDeck()
+        love_letter.models.deck_factory = lambda: _TestDeck()
 
         # 建立遊戲
         game_id = self.t.post(f"/games/create/by_player/{player_a}").json()
