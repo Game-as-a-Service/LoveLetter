@@ -2,6 +2,7 @@ from typing import Union
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from love_letter.repository import GameRepositoryInMemoryImpl
 from love_letter.service import GameService
@@ -10,6 +11,14 @@ from love_letter.web.dto import GameStatus, GuessCard, ToSomeoneCard
 app = FastAPI()
 repo = GameRepositoryInMemoryImpl()
 service = GameService(repo)
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post("/games/create/by_player/{player_id}")
