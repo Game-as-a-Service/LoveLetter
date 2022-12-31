@@ -1,8 +1,15 @@
 import abc
+import copy
 import random
-from typing import List
+from typing import List, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from love_letter.models import Player
+
 
 REJECT_BY_RULE = ValueError("You can not discard by the rule")
+REJECT_BY_RULE_GUESS_GUARD = ValueError("You can not guess guard")
+
 
 
 class Card(metaclass=abc.ABCMeta):
@@ -29,9 +36,12 @@ class Card(metaclass=abc.ABCMeta):
     * quantity: how many copies of this card
 
     """
+    name: str = 'Card'
+    value: int = -1
+    quantity: int = 0
 
     @abc.abstractmethod
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: Optional["Player"] = None, with_card: Optional["Card"] = None):
         """
         play the card to player with a card by rules
 
@@ -44,11 +54,35 @@ class Card(metaclass=abc.ABCMeta):
         """
         return NotImplemented
 
+    def can_discard(self, hand_cards: List[str]) -> bool:
+        return True
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        return []
+
+    def can_guess_cards(self) -> List[str]:
+        return []
+
+    def usage(self):
+        return {
+            "can_discard": self.can_discard,
+            "choose_players": self.choose_players,
+            "can_guess_cards": self.can_guess_cards(),
+        }
+
     def __eq__(self, other):
         return self.name == other.name
 
     def __repr__(self) -> str:
         return str(f"Card({self.name},{self.value})")
+
+    def to_dict(self):
+        return dict(
+            name=self.name,
+            description="<description>",
+            value=self.value,
+            usage=self.usage(),
+        )
 
 
 class GuardCard(Card):
@@ -56,11 +90,22 @@ class GuardCard(Card):
     value = 1
     quantity = 5
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player", with_card: "Card"):
+        if isinstance(with_card, GuardCard):
+            raise REJECT_BY_RULE_GUESS_GUARD
         for card in chosen_player.cards:
             if with_card == card:
                 chosen_player.out()
                 break
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        players = copy.deepcopy(alive_player_names)
+        players.remove(current_player_name)
+        return players
+
+    def can_guess_cards(self) -> Optional[List[str]]:
+        # todo: Return didn't discard cards(All cards - discard card - turn_player hand card - GuardCard)
+        return [card.name for card in ALL_CARD_TYPES if card != GuardCard]
 
 
 class PriestCard(Card):
@@ -68,10 +113,15 @@ class PriestCard(Card):
     value = 2
     quantity = 2
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player", with_card: None = None):
         from love_letter.models import Seen
         seen_card = Seen(chosen_player.name, chosen_player.cards[-1])
         card_holder.seen_cards.append(seen_card)
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        players = copy.deepcopy(alive_player_names)
+        players.remove(current_player_name)
+        return players
 
 
 class BaronCard(Card):
@@ -79,8 +129,16 @@ class BaronCard(Card):
     value = 3
     quantity = 2
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
-        raise NotImplemented
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player", with_card: None = None):
+        if card_holder > chosen_player:
+            chosen_player.out()
+        elif card_holder < chosen_player:
+            card_holder.out()
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        players = copy.deepcopy(alive_player_names)
+        players.remove(current_player_name)
+        return players
 
 
 class HandmaidCard(Card):
@@ -88,7 +146,7 @@ class HandmaidCard(Card):
     value = 4
     quantity = 2
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: None = None, with_card: None = None):
         card_holder.protected = True
 
 
@@ -103,7 +161,7 @@ class PrinceCard(Card):
     If the deck is empty, that player draws the card that was removed at the start of the round
     """
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player", with_card: None = None):
         # choose self to discard the card in the hand
         for c in card_holder.cards:
             if c.name == "伯爵夫人":
@@ -116,13 +174,19 @@ class PrinceCard(Card):
         # TODO the game system should send a new card to the player who did discard
         chosen_player.cards = []
 
+    def can_discard(self, hand_cards: List[str]) -> bool:
+        return CountessCard.name not in hand_cards
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        return alive_player_names
+
 
 class KingCard(Card):
     name = '國王'
     value = 6
     quantity = 1
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: "Player", with_card: None = None):
         for c in card_holder.cards:
             if c.name == "伯爵夫人":
                 raise REJECT_BY_RULE
@@ -131,8 +195,16 @@ class KingCard(Card):
         card_holder_left_card = list(filter(lambda x: x.name != self.name, card_holder.cards))
         # 因為出牌者剩下的牌list只有一個元素，故直接寫[0]
         card_holder_swap_card_index = card_holder.cards.index(card_holder_left_card[0])
-        chosen_player.cards[0], card_holder.cards[card_holder_swap_card_index] =\
+        chosen_player.cards[0], card_holder.cards[card_holder_swap_card_index] = \
             card_holder.cards[card_holder_swap_card_index], chosen_player.cards[0]
+
+    def can_discard(self, hand_cards: List[str]) -> bool:
+        return CountessCard.name not in hand_cards
+
+    def choose_players(self, current_player_name: str, alive_player_names: List[str]) -> List[str]:
+        players = copy.deepcopy(alive_player_names)
+        players.remove(current_player_name)
+        return players
 
 
 class CountessCard(Card):
@@ -150,7 +222,7 @@ class CountessCard(Card):
     She likes to play mind games....
     """
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: Optional["Player"] = None, with_card: Optional["Card"] = None):
         # nothing happen by the rule
         pass
 
@@ -160,7 +232,7 @@ class PrincessCard(Card):
     value = 8
     quantity = 1
 
-    def trigger_effect(self, card_holder: "Player", chosen_player: "Player" = None, with_card: "Card" = None):
+    def trigger_effect(self, card_holder: "Player", chosen_player: None = None, with_card: None = None):
         card_holder.out()
 
 
@@ -169,6 +241,12 @@ def find_card_by_name(name):
         if card.name == name:
             return card
     raise ValueError(f'Cannot find the card with name: {name}')
+
+def find_card_by_value(value: int):
+    for card in ALL_CARD_TYPES:
+        if card.value == value:
+            return card
+    raise ValueError(f'Cannot find the card with value: {value}')
 
 
 class Deck:

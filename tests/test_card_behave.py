@@ -1,20 +1,21 @@
 import unittest
-from typing import List
+from typing import List, Optional
 
 from love_letter.models import Deck, Game, Player, Round
 from love_letter.web.dto import GuessCard, ToSomeoneCard
 
 
-def reset_deck(card_name_list: List[str], remove_by_rule_cards: List[str] = None):
-    if remove_by_rule_cards is None:
-        remove_by_rule_cards = []
-
+def reset_deck(card_name_list: List[str], remove_by_rule_cards: Optional[List[str]] = None):
     class _TestDeck(Deck):
         def shuffle(self, player_num: int):
             super().shuffle(player_num)
             from love_letter.models import find_card_by_name as c
             self.cards = [c(x) for x in card_name_list]
-            self.remove_by_rule_cards = [c(x) for x in remove_by_rule_cards]
+            self.remove_by_rule_cards = (
+                [c(x) for x in remove_by_rule_cards]
+                if remove_by_rule_cards is not None
+                else []
+            )
 
     import love_letter.models
     love_letter.models.deck_factory = lambda: _TestDeck()
@@ -23,13 +24,13 @@ def reset_deck(card_name_list: List[str], remove_by_rule_cards: List[str] = None
 class LoseHandMaidProtected(unittest.TestCase):
     def setUp(self) -> None:
         self.game: Game = Game()
-        self.game.join(Player.create('1'))
-        self.game.join(Player.create('2'))
+        self.game.join(Player('1'))
+        self.game.join(Player('2'))
 
         # disable random-picker for the first round
         # it always returns the first player
         self.origin_choose_one_randomly = Round.choose_one_randomly
-        Round.choose_one_randomly = lambda x: x[0]
+        Round.choose_one_randomly = lambda players: players[0]
 
     def tearDown(self) -> None:
         Round.choose_one_randomly = self.origin_choose_one_randomly
@@ -70,20 +71,20 @@ class LoseHandMaidProtected(unittest.TestCase):
         # 2. the turn player at the new round
         self.assertEqual(2, len(self.game.rounds))  # there are two rounds
         self.assertEqual('2', self.game.rounds[-2].winner)  # the last round winner
-        self.assertEqual('2', self.game.rounds[-1].turn_player.name)  # turn player of this round
+        self.assertEqual('2', self.game.get_turn_player().name)  # turn player of this round
 
 
 # 捨棄王子抽取移除卡片的規則
 class DiscardPrinceCardTests(unittest.TestCase):
     def setUp(self) -> None:
         self.game: Game = Game()
-        self.game.join(Player.create('1'))
-        self.game.join(Player.create('2'))
+        self.game.join(Player('1'))
+        self.game.join(Player('2'))
 
         # disable random-picker for the first round
         # it always returns the first player
         self.origin_choose_one_randomly = Round.choose_one_randomly
-        Round.choose_one_randomly = lambda x: x[0]
+        Round.choose_one_randomly = lambda players: players[0]
 
     def tearDown(self) -> None:
         Round.choose_one_randomly = self.origin_choose_one_randomly
@@ -105,7 +106,7 @@ class DiscardPrinceCardTests(unittest.TestCase):
         self.game.play("1", "王子", ToSomeoneCard(chosen_player="2"))
 
         # then player-2 is turn player, so have two card in hands
-        self.assertEqual(len(self.game.rounds[-1].turn_player.cards), 2)
+        self.assertEqual(len(self.game.get_turn_player().cards), 2)
 
         # then the deck is empty
         self.assertEqual(len(self.game.rounds[-1].deck.cards), 0)
@@ -153,7 +154,7 @@ class DiscardPrinceCardTests(unittest.TestCase):
         self.game.play("1", "王子", ToSomeoneCard(chosen_player="2"))
 
         # then player-2 has one card from deck card in the last round
-        self.assertEqual(len(self.game.rounds[-2].turn_player.cards), 1)
+        self.assertEqual(len(self.game.get_turn_player(-2).cards), 1)
 
         # then player-1 is the winner
         self.assertEqual(self.game.rounds[-2].winner, "1")
@@ -176,7 +177,7 @@ class DiscardPrinceCardTests(unittest.TestCase):
         self.game.play("1", "王子", ToSomeoneCard(chosen_player="2"))
 
         # then player-2 has one card from deck remove_by_rule_cards in the last round
-        self.assertEqual(len(self.game.rounds[-2].turn_player.cards), 1)
+        self.assertEqual(len(self.game.get_turn_player(-2).cards), 1)
 
         # then player-1 is the winner
         self.assertEqual(self.game.rounds[-2].winner, "1")
@@ -187,6 +188,77 @@ class DiscardPrinceCardTests(unittest.TestCase):
         # then the deck remove_by_rule_card is empty in last round
         self.assertEqual(len(self.game.rounds[-2].deck.remove_by_rule_cards), 0)
 
+
+class DiscardBaronCardTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.game: Game = Game()
+        self.game.join(Player('1'))
+        self.game.join(Player('2'))
+
+        # disable random-picker for the first round
+        # it always returns the first player
+        self.origin_choose_one_randomly = Round.choose_one_randomly
+        Round.choose_one_randomly = lambda players: players[0]
+
+    def tearDown(self) -> None:
+        Round.choose_one_randomly = self.origin_choose_one_randomly
+
+    def test_retire_opponent_if_greater_hand_card_value(self):
+        """
+        遊戲開始後，經過一輪後玩家1抽得男爵
+        玩家1 出牌 男爵，指定玩家2
+        玩家1 與 玩家2 比較手牌 => 玩家2 出局
+        :return:
+        """
+
+        # given the arranged deck
+        reset_deck(['國王', '神父', '男爵'])
+
+        # given a started game
+        self.game.start()
+
+        self.game.play("1", '男爵', ToSomeoneCard(chosen_player='2'))
+        # King (6) is larger than Priest (2). Player-1 won.
+        self.assertEqual(self.game.rounds[-2].winner, "1")
+        
+    def test_retire_self_if_smaller_hand_card_value(self):
+        """
+        遊戲開始後，經過一輪後玩家1抽得男爵
+        玩家1 出牌 男爵，指定玩家2
+        玩家1 與 玩家2 比較手牌 => 玩家1 出局
+        :return:
+        """
+
+        # given the arranged deck
+        reset_deck(['神父', '國王', '男爵'])
+
+        # given a started game
+        self.game.start()
+
+        self.game.play("1", '男爵', ToSomeoneCard(chosen_player='2'))
+        # King (6) is larger than Priest (2). Player-2 won.
+        self.assertEqual(self.game.rounds[-2].winner, "2")
+
+
+    def test_if_equal_hand_card_value(self):
+        """
+        遊戲開始後，經過一輪後玩家1抽得男爵
+        玩家1 出牌 男爵，指定玩家2
+        玩家1 與 玩家2 比較手牌 => 手牌相等 此局繼續
+        玩家2 出牌 衛兵，指定玩家1，正確猜測手牌 => 玩家1 出局
+        :return:
+        """
+
+        # given the arranged deck
+        reset_deck(['神父', '神父', '男爵', '衛兵'])
+
+        # given a started game
+        self.game.start()
+
+        # 手牌相等，無人出局，此局繼續
+        self.game.play("1", '男爵', ToSomeoneCard(chosen_player='2'))
+        for player in self.game.players:
+            self.assertEqual(player.am_i_out, False)
 
 class EndRoundTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -284,3 +356,4 @@ class EndRoundTests(unittest.TestCase):
         self.assertEqual(2, len(self.game.rounds))  # there are two rounds
         self.assertEqual('1', self.game.rounds[-2].winner)  # the last round winner
         self.assertEqual('1', self.game.rounds[-1].turn_player.name)  # turn player of this round
+
