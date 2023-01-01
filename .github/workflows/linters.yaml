@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - feature/add_black_and_isort_package_with_pre_commit2
   pull_request:
     branches:
       - master
