@@ -36,9 +36,15 @@ async def start_game(game_id: str):
     return service.start_game(game_id)
 
 
-@app.post("/games/{game_id}/player/{player_id}/card/{card_name}/play", response_model=GameStatus)
+@app.post(
+    "/games/{game_id}/player/{player_id}/card/{card_name}/play",
+    response_model=GameStatus,
+)
 async def play_card(
-        game_id: str, player_id: str, card_name: str, card_action: Union[GuessCard, ToSomeoneCard, None] = None
+    game_id: str,
+    player_id: str,
+    card_name: str,
+    card_action: Union[GuessCard, ToSomeoneCard, None] = None,
 ):
     return service.play_card(game_id, player_id, card_name, card_action)
 
@@ -48,5 +54,5 @@ async def get_status(game_id: str, player_id: str):
     return service.get_status(game_id, player_id)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     uvicorn.run("love_letter.web.app:app", host="0.0.0.0", port=8080, reload=True)

@@ -1,12 +1,12 @@
 # 情書（Love Letter）
 ![image](https://b.ecimg.tw/items/DEAM6UA9007S972/000001_1483519203.jpg)
 
-# 程式語言與框架
+### 程式語言與框架
 - 前端(代定): Vue、React
 - 後端: Python(FastAPI)
 - MongoDB
 
-# Practice Stack
+### Practice Stack
 - 三層式架構 (MVC）
 - 用 event storming，找出遊戲的功能與流程
 - 用 example mapping，確定需求的具體內容
@@ -14,14 +14,28 @@
 - DevOps: CI/CD Pipeline
 - OOAD
 
-# Other
+### Other
 - Github flow(Issue、Pull requests、Projects)
 
-# 期望推進的方向
+### 期望推進的方向
 - 因為我對上面的一些Practice stack也不太熟悉，所以希望會是大家一起討論出自己覺得對的方式，藉此來一起踩雷、學習XD
 - 大家一起做code review
 
-# 教學文
+### 環境建置
+#### Poetry
+  ```shell
+  # install with poetry.lock
+  poetry install
+  ```
+#### pre-commit
+  ```shell
+  # 將 pre-commit hook 安裝至專案裡的 .git/hooks 資料夾底下
+  pre-commit install --install-hooks
+  
+  # 執行git commit的時候就會觸發到.pre-commit-config.yaml了
+  ```
+
+### 教學文
 - [Poetry](https://blog.kyomind.tw/python-poetry/)
   - ```
     poetry init  # 初始化，建立pyproject.toml
@@ -37,3 +51,5 @@
     # 輸出 Poetry 虛擬環境的 requirements.txt
     poetry export -f requirements.txt -o requirements.txt --without-hashes 
     ```
+- [整合Black進Pycharm](https://black.readthedocs.io/en/stable/integrations/editors.html)
+

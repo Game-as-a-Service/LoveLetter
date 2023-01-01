@@ -1,6 +1,6 @@
 import unittest
 
-from love_letter.models import Player, Game, Round
+from love_letter.models import Game, Player, Round
 from love_letter.repository import GameRepositoryInMemoryImpl
 from love_letter.service import GameService
 from love_letter.web.dto import GameStatus

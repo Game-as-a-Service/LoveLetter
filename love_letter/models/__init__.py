@@ -1,10 +1,8 @@
 import secrets
 from copy import deepcopy
 from dataclasses import dataclass
-
-from typing import List, Union, Optional
 from operator import attrgetter
-
+from typing import List, Optional, Union
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.exceptions import GameException
@@ -45,7 +43,7 @@ class Round:
         self._shift_to_next_player(last_winner)
 
         if self.turn_player is None:
-            raise ValueError('Turn player is not assigned yet.')
+            raise ValueError("Turn player is not assigned yet.")
         # Remove player protected after one round
         self.turn_player.protected = False
         return self.deck.draw_card(self.turn_player)
@@ -104,15 +102,16 @@ class Round:
 
     def to_dict(self):
         turn_player = self.turn_player.to_dict() if self.turn_player is not None else {}
-        return dict(players=[x.to_dict() for x in self.players],
-                    winner=self.winner,
-                    turn_player=turn_player)
+        return dict(
+            players=[x.to_dict() for x in self.players],
+            winner=self.winner,
+            turn_player=turn_player,
+        )
 
 
 class Game:
-
     def __init__(self):
-        self.id: Optional[str] = None # TODO: assign id to a game.
+        self.id: Optional[str] = None  # TODO: assign id to a game.
         self.players: List["Player"] = []
         self.rounds: List["Round"] = []
 
@@ -147,10 +146,18 @@ class Game:
         self.rounds.append(round)
 
     def to_dict(self):
-        return dict(game_id=self.id, players=[x.to_dict() for x in self.players],
-                    rounds=[x.to_dict() for x in self.rounds])
+        return dict(
+            game_id=self.id,
+            players=[x.to_dict() for x in self.players],
+            rounds=[x.to_dict() for x in self.rounds],
+        )
 
-    def play(self, player_id: str, card_name: str, card_action: Union[GuessCard, ToSomeoneCard, None]):
+    def play(
+        self,
+        player_id: str,
+        card_name: str,
+        card_action: Union[GuessCard, ToSomeoneCard, None],
+    ):
         if self.find_player_by_id(player_id) != self.get_turn_player():
             raise ValueError(f"{player_id} is not a turn player")
 
@@ -164,7 +171,7 @@ class Game:
 
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
         self.find_winner(players)
-   
+
     def find_player_by_id(self, player_id):
         players = self.this_round_players()
         for x in players:
@@ -187,8 +194,8 @@ class Game:
     def get_turn_player(self, round_index: int = -1):
         """Return the turn player of the given round."""
         turn_player = self.rounds[round_index].turn_player
-        if turn_player is None: 
-            raise ValueError('Turn player is not assigned.')
+        if turn_player is None:
+            raise ValueError("Turn player is not assigned.")
         return turn_player
 
     def next_turn_player(self) -> bool:
@@ -213,18 +220,24 @@ class Game:
                     winner = x
             biggest_card_value = winner.cards[0].value
             # collect all the players that has the biggest card value
-            might_has_winner = list(filter(lambda x: x.cards[0].value == biggest_card_value, might_has_winner))
+            might_has_winner = list(
+                filter(
+                    lambda x: x.cards[0].value == biggest_card_value, might_has_winner
+                )
+            )
             # 當手牌大小一樣時，比較棄牌堆的總和
             if len(might_has_winner) != 1:
-                winner = max(might_has_winner, key=attrgetter('total_value_of_card'))
+                winner = max(might_has_winner, key=attrgetter("total_value_of_card"))
             self.rounds[-1].winner = winner.name
             self.next_round(winner.name)
             return
 
-    def handle_card_action(self,
-                           turn_player: "Player",
-                           discarded_card: "Card",
-                           action: Union[GuessCard, ToSomeoneCard, None]) -> None:
+    def handle_card_action(
+        self,
+        turn_player: "Player",
+        discarded_card: "Card",
+        action: Union[GuessCard, ToSomeoneCard, None],
+    ) -> None:
         """
         Handles all card actions like GuessCard, ToSomeoneCard and None
         :param turn_player:
@@ -251,7 +264,6 @@ class Seen:
 
 
 class Player:
-    
     def __init__(self, name: str):
         self.name = name
         self.cards: List[Card] = []
@@ -261,7 +273,12 @@ class Player:
         self.seen_cards: List[Seen] = []
         self.tokens_of_affection: int = 0
 
-    def discard_card(self, chosen_player: "Player", discarded_card: "Card", with_card: Optional["Card"] = None):
+    def discard_card(
+        self,
+        chosen_player: "Player",
+        discarded_card: "Card",
+        with_card: Optional["Card"] = None,
+    ):
         # Precondition: the player must hold 2 cards
         if len(self.cards) != 2:
             return False
@@ -272,8 +289,9 @@ class Player:
 
         self.drop_card(discarded_card)
         if not (chosen_player and chosen_player.protected):
-            discarded_card.trigger_effect(self, chosen_player=chosen_player, with_card=with_card)
-
+            discarded_card.trigger_effect(
+                self, chosen_player=chosen_player, with_card=with_card
+            )
 
         if len(self.cards) != 1:
             return False
@@ -286,18 +304,20 @@ class Player:
         self.am_i_out = True
 
     def to_dict(self):
-        return dict(name=self.name, out=self.am_i_out, cards=[x.to_dict() for x in self.cards])
+        return dict(
+            name=self.name, out=self.am_i_out, cards=[x.to_dict() for x in self.cards]
+        )
 
     def __eq__(self, other):
         return self.name == other.name
 
     def __repr__(self):
         return f"Player({self.name},{self.cards})"
-    
+
     def __lt__(self, other: "Player"):
         if len(self.cards) == 1 and len(other.cards) == 1:
             return self.cards[0].value < other.cards[0].value
-        
+
     def __gt__(self, other: "Player"):
         if len(self.cards) != 1 or len(other.cards) != 1:
             raise AssertionError("Unable to compare players.")
@@ -305,7 +325,6 @@ class Player:
             return self.total_value_of_card > other.total_value_of_card
         else:
             return self.cards[0].value > other.cards[0].value
-
 
     def drop_card(self, discarded_card: Card):
         # only drop 1 card

@@ -1,5 +1,6 @@
 import json
 import unittest
+
 from fastapi.testclient import TestClient
 
 from love_letter.models import Deck, Round
