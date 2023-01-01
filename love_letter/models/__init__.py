@@ -1,7 +1,10 @@
 import secrets
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Optional, Union
+
+from typing import List, Union, Optional
+from operator import attrgetter
+
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.exceptions import GameException
@@ -131,6 +134,14 @@ class Game:
 
     def next_round(self, last_winner: Optional[str] = None):
         # TODO if we arrive the ending of the game, show the lucky person who won the Princess
+        if last_winner is not None:
+            players = self.rounds[-1].players
+            for player in self.players:
+                if player.name == last_winner:
+                    player.tokens_of_affection += 1
+            for player in players:
+                if player.name == last_winner:
+                    player.tokens_of_affection += 1
         round = Round(deepcopy(self.players))
         round.next_turn_player(last_winner)
         self.rounds.append(round)
@@ -152,21 +163,8 @@ class Game:
         self.rounds[-1].draw_card_by_system(players)
 
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
-        might_has_winner = [x for x in players if not x.am_i_out]
-        if len(might_has_winner) == 1:
-            winner_name = might_has_winner[0].name
-            self.rounds[-1].winner = winner_name
-            self.next_round(winner_name)
-            return
-
-        has_next_player = self.next_turn_player()
-        if not has_next_player:
-            # find the winner from the alive players
-            winner = max(might_has_winner)
-            self.rounds[-1].winner = winner.name
-            self.next_round(winner.name)
-            return
-
+        self.find_winner(players)
+   
     def find_player_by_id(self, player_id):
         players = self.this_round_players()
         for x in players:
@@ -195,6 +193,33 @@ class Game:
 
     def next_turn_player(self) -> bool:
         return self.rounds[-1].next_turn_player()
+
+    def find_winner(self, players: List["Player"]):
+        might_has_winner = [x for x in players if not x.am_i_out]
+        if len(might_has_winner) == 1:
+            winner_name = might_has_winner[0].name
+            self.rounds[-1].winner = winner_name
+            self.next_round(winner_name)
+            return
+        has_next_player = self.next_turn_player()
+        if not has_next_player:
+            # TODO it doesn't cover the case: two players own same card but different total values (score)
+            # find the winner from the alive players
+            # 牌庫抽完，比較手牌大小
+            winner = might_has_winner[0]
+            for x in might_has_winner:
+                # get the biggest card value from alive players
+                if x.cards[0].value > winner.cards[0].value:
+                    winner = x
+            biggest_card_value = winner.cards[0].value
+            # collect all the players that has the biggest card value
+            might_has_winner = list(filter(lambda x: x.cards[0].value == biggest_card_value, might_has_winner))
+            # 當手牌大小一樣時，比較棄牌堆的總和
+            if len(might_has_winner) != 1:
+                winner = max(might_has_winner, key=attrgetter('total_value_of_card'))
+            self.rounds[-1].winner = winner.name
+            self.next_round(winner.name)
+            return
 
     def handle_card_action(self,
                            turn_player: "Player",
@@ -234,6 +259,7 @@ class Player:
         self.protected: bool = False
         self.total_value_of_card: int = 0
         self.seen_cards: List[Seen] = []
+        self.tokens_of_affection: int = 0
 
     def discard_card(self, chosen_player: "Player", discarded_card: "Card", with_card: Optional["Card"] = None):
         # Precondition: the player must hold 2 cards
