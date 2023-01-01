@@ -3,7 +3,7 @@ import copy
 import json
 import os.path
 import random
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
     from love_letter.models import Player
@@ -14,7 +14,7 @@ REJECT_BY_RULE_GUESS_GUARD = ValueError("You can not guess guard")
 
 def _load_card_data():
     file_path = os.path.join(os.path.dirname(__file__), "cards_description.json")
-    with open(file_path, "r") as fh:
+    with open(file_path, "r", encoding="utf-8") as fh:
         return json.loads(fh.read())
 
 
@@ -110,7 +110,10 @@ class GuardCard(Card):
     quantity = 5
 
     def trigger_effect(
-        self, card_holder: "Player", chosen_player: "Player", with_card: "Card"
+        self,
+        card_holder: "Player",
+        chosen_player: Optional["Player"] = None,
+        with_card: Optional["Card"] = None,
     ):
         if isinstance(with_card, GuardCard):
             raise REJECT_BY_RULE_GUESS_GUARD
@@ -137,7 +140,10 @@ class PriestCard(Card):
     quantity = 2
 
     def trigger_effect(
-        self, card_holder: "Player", chosen_player: "Player", with_card: None = None
+        self,
+        card_holder: "Player",
+        chosen_player: Optional["Player"] = None,
+        with_card: Optional["Card"] = None,
     ):
         from love_letter.models import Seen
 
@@ -158,7 +164,10 @@ class BaronCard(Card):
     quantity = 2
 
     def trigger_effect(
-        self, card_holder: "Player", chosen_player: "Player", with_card: None = None
+        self,
+        card_holder: "Player",
+        chosen_player: Optional["Player"] = None,
+        with_card: Optional["Card"] = None,
     ):
         if card_holder > chosen_player:
             chosen_player.out()
@@ -179,7 +188,10 @@ class HandmaidCard(Card):
     quantity = 2
 
     def trigger_effect(
-        self, card_holder: "Player", chosen_player: None = None, with_card: None = None
+        self,
+        card_holder: "Player",
+        chosen_player: Optional["Player"] = None,
+        with_card: Optional["Card"] = None,
     ):
         card_holder.protected = True
 
@@ -190,13 +202,16 @@ class PrinceCard(Card):
     quantity = 2
 
     """
-    When you discard Prince Arnaud, choose one player still in the round (including yourself). 
-    That player discards his or her hand (do not apply its effect) and draws a new card. 
+    When you discard Prince Arnaud, choose one player still in the round (including yourself).
+    That player discards his or her hand (do not apply its effect) and draws a new card.
     If the deck is empty, that player draws the card that was removed at the start of the round
     """
 
     def trigger_effect(
-        self, card_holder: "Player", chosen_player: "Player", with_card: None = None
+        self,
+        card_holder: "Player",
+        chosen_player: Optional["Player"] = None,
+        with_card: Optional["Card"] = None,
     ):
         # choose self to discard the card in the hand
         for c in card_holder.cards:
@@ -225,7 +240,10 @@ class KingCard(Card):
     quantity = 1
 
     def trigger_effect(
-        self, card_holder: "Player", chosen_player: "Player", with_card: None = None
+        self,
+        card_holder: "Player",
+        chosen_player: Optional["Player"] = None,
+        with_card: Optional["Card"] = None,
     ):
         for c in card_holder.cards:
             if c.name == "伯爵夫人":
@@ -259,12 +277,12 @@ class CountessCard(Card):
     quantity = 1
 
     """
-    Unlike other cards, which take effect when discarded, the text on the Countess applies while she is in your hand. 
+    Unlike other cards, which take effect when discarded, the text on the Countess applies while she is in your hand.
     In fact, she has no effect when you discard her.
 
-    If you ever have the Countess and either the King or Prince in your hand, 
-    you must discard the Countess. You do not have to reveal the other card in your hand. 
-    Of course, you can also discard the Countess even if you do not have a royal family member in your hand. 
+    If you ever have the Countess and either the King or Prince in your hand,
+    you must discard the Countess. You do not have to reveal the other card in your hand.
+    Of course, you can also discard the Countess even if you do not have a royal family member in your hand.
     She likes to play mind games....
     """
 
@@ -284,7 +302,10 @@ class PrincessCard(Card):
     quantity = 1
 
     def trigger_effect(
-        self, card_holder: "Player", chosen_player: None = None, with_card: None = None
+        self,
+        card_holder: "Player",
+        chosen_player: Optional["Player"] = None,
+        with_card: Optional["Card"] = None,
     ):
         card_holder.out()
 
@@ -329,7 +350,7 @@ class Deck:
 
         random.shuffle(self.cards)
 
-        for num in range(remove_cards_num):
+        for _ in range(remove_cards_num):
             self.remove_by_rule_cards.append(self.cards.pop(0))
 
     def draw_card(self, player: "Player") -> bool:

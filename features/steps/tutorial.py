@@ -1,16 +1,16 @@
-from behave import given, when, then
+from behave import given, then, when
 
 
-@given('we have behave installed')
+@given("we have behave installed")
 def step_impl(context):
     pass
 
 
-@when('we implement a test')
+@when("we implement a test")
 def step_impl(context):
     assert True is not False
 
 
-@then('behave will test it for us!')
+@then("behave will test it for us!")
 def step_impl(context):
     assert context.failed is False

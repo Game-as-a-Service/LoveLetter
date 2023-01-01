@@ -21,7 +21,7 @@ def reset_deck(card_name_list: List[str]):
 
 class CatchableTestCase(TestCase):
     def setUp(self):
-        self.exception_message: str = ''
+        self.exception_message: str = ""
 
     def catch(self, callable: Callable):
         with self.assertRaises(BaseException) as ex:
@@ -199,7 +199,9 @@ class PlayingGameRoundByRoundTests(TestCase):
         #   2. the turn player at the new round
         self.assertEqual(2, len(self.game.rounds))  # there are two rounds
         self.assertEqual("3", self.game.rounds[-2].winner)  # the last round winner
-        self.assertEqual("3", self.game.get_turn_player().name)  # turn player of this round
+        self.assertEqual(
+            "3", self.game.get_turn_player().name
+        )  # turn player of this round
 
     def test_move_to_next_round_by_empty_deck(self):
         """
@@ -224,7 +226,9 @@ class PlayingGameRoundByRoundTests(TestCase):
         #   2. the turn player at the new round
         self.assertEqual(2, len(self.game.rounds))  # there are two rounds
         self.assertEqual("2", self.game.rounds[-2].winner)  # the last round winner
-        self.assertEqual("2", self.game.get_turn_player().name)  # turn player of this round
+        self.assertEqual(
+            "2", self.game.get_turn_player().name
+        )  # turn player of this round
 
 
 class FirstRoundRandomPickerTests(TestCase):
