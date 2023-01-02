@@ -114,6 +114,9 @@ class Game:
         self.id: Optional[str] = None  # TODO: assign id to a game.
         self.players: List["Player"] = []
         self.rounds: List["Round"] = []
+        self.num_of_tokens_to_win: int = 0
+        self.is_gameover: bool = False
+        self.winner: Optional[str] = None
 
     def join(self, player: "Player"):
         if self.has_started():
@@ -128,7 +131,12 @@ class Game:
     def start(self):
         if len(self.players) < 2:
             raise GameException("Too Few Players")
-
+        if len(self.players) == 2:
+            self.num_of_tokens_to_win = 7
+        elif len(self.players) == 3:
+            self.num_of_tokens_to_win = 5
+        elif len(self.players) == 4:
+            self.num_of_tokens_to_win = 4
         self.next_round()
 
     def next_round(self, last_winner: Optional[str] = None):
@@ -141,6 +149,11 @@ class Game:
             for player in players:
                 if player.name == last_winner:
                     player.tokens_of_affection += 1
+        for player in self.players:
+            if player.tokens_of_affection == self.num_of_tokens_to_win:
+                self.is_gameover = True
+                self.winner = player.name
+                return
         round = Round(deepcopy(self.players))
         round.next_turn_player(last_winner)
         self.rounds.append(round)
