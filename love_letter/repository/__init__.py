@@ -16,6 +16,14 @@ class GameRepository(metaclass=abc.ABCMeta):
         pass
 
 
+class GameRepositoryPickleImpl(GameRepository):
+    def save_or_update(self, game: Game) -> str:
+        pass
+
+    def get(self, game_id) -> Game:
+        pass
+
+
 class GameRepositoryInMemoryImpl(GameRepository):
     def __init__(self):
         self.in_memory_data: Dict[str, "Game"] = dict()
@@ -33,3 +41,7 @@ class GameRepositoryInMemoryImpl(GameRepository):
         if game is None:
             raise ValueError(f"Game {game_id} does not exist")
         return game
+
+
+def create_default_repository():
+    return GameRepositoryInMemoryImpl()

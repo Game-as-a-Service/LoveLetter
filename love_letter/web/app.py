@@ -4,13 +4,12 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from love_letter.repository import GameRepositoryInMemoryImpl
+from love_letter.repository import create_default_repository
 from love_letter.service import GameService
 from love_letter.web.dto import GameStatus, GuessCard, ToSomeoneCard
 
 app = FastAPI()
-repo = GameRepositoryInMemoryImpl()
-service = GameService(repo)
+service = GameService(create_default_repository())
 origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
@@ -41,10 +40,10 @@ async def start_game(game_id: str):
     response_model=GameStatus,
 )
 async def play_card(
-    game_id: str,
-    player_id: str,
-    card_name: str,
-    card_action: Union[GuessCard, ToSomeoneCard, None] = None,
+        game_id: str,
+        player_id: str,
+        card_name: str,
+        card_action: Union[GuessCard, ToSomeoneCard, None] = None,
 ):
     return service.play_card(game_id, player_id, card_name, card_action)
 
