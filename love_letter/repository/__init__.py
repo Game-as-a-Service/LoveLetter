@@ -1,8 +1,16 @@
 import abc
+import logging
+import os.path
+import pickle
+import tempfile
 import uuid
 from typing import Dict
 
 from love_letter.models import Game
+
+logger = logging.getLogger("repository")
+logger.level = logging.INFO
+logger.addHandler(logging.StreamHandler())
 
 
 class GameRepository(metaclass=abc.ABCMeta):
@@ -17,11 +25,26 @@ class GameRepository(metaclass=abc.ABCMeta):
 
 
 class GameRepositoryPickleImpl(GameRepository):
+    def __init__(self):
+        self.working_dir = tempfile.mkdtemp()
+        logger.info(
+            f"{GameRepositoryPickleImpl.__name__} working_dir: {self.working_dir}"
+        )
+
     def save_or_update(self, game: Game) -> str:
-        pass
+        if not game.id:
+            game.id = uuid.uuid4().hex
+
+        target = os.path.join(self.working_dir, game.id)
+        with open(target, "wb") as fh:
+            pickle.dump(game, fh)
+
+        return game.id
 
     def get(self, game_id) -> Game:
-        pass
+        target = os.path.join(self.working_dir, game_id)
+        with open(target, "rb") as fh:
+            return pickle.load(fh)
 
 
 class GameRepositoryInMemoryImpl(GameRepository):
@@ -44,4 +67,7 @@ class GameRepositoryInMemoryImpl(GameRepository):
 
 
 def create_default_repository():
+    if os.environ.get("repository_impl") == "pickle":
+        return GameRepositoryPickleImpl()
+
     return GameRepositoryInMemoryImpl()

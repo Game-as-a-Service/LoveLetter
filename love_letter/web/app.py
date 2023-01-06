@@ -40,10 +40,10 @@ async def start_game(game_id: str):
     response_model=GameStatus,
 )
 async def play_card(
-        game_id: str,
-        player_id: str,
-        card_name: str,
-        card_action: Union[GuessCard, ToSomeoneCard, None] = None,
+    game_id: str,
+    player_id: str,
+    card_name: str,
+    card_action: Union[GuessCard, ToSomeoneCard, None] = None,
 ):
     return service.play_card(game_id, player_id, card_name, card_action)
 

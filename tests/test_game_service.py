@@ -91,7 +91,7 @@ class PlayerContextTest(unittest.TestCase):
         self.game.join(Player("2"))
         self.game.join(Player("3"))
         repo = create_default_repository()
-        repo.in_memory_data[self.game_id] = self.game
+        repo.save_or_update(self.game)
         self.game_service: GameService = GameService(repo)
 
         # disable random-picker for the first round
