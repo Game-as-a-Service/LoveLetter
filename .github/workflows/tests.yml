@@ -29,3 +29,14 @@ jobs:
           export PYTHONPATH=$(pwd)
           poetry run py.test --cov=love_letter --cov-report term tests
           poetry run behave
+
+      - name: Run unit tests with real storage
+        run: |
+          pip install --upgrade pip
+          pip install poetry
+          poetry update
+
+          export PYTHONPATH=$(pwd)
+          export repository_impl=pickle
+          poetry run py.test --cov=love_letter --cov-report term tests
+          poetry run behave
