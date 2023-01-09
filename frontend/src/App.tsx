@@ -1,13 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
+import { useUsername } from "./hooks";
+import { CreateOrJoinGame } from "./components/CreateOrJoinGame";
+import { ViewState } from "./types";
+
+function GameList(props: { visitFunc: (view: ViewState) => void }) {
+  const [username, setUsername] = useUsername();
+  return (
+    <>
+      <div>GameList: {username}</div>
+    </>
+  );
+}
+
+function GameUI() {
+  const [flow, setFlow] = useState<ViewState>("pick-name");
+
+  return (
+    <>
+      {flow === "pick-name" && <CreateOrJoinGame visitFunc={setFlow} />}
+      {flow === "game-list" && <GameList visitFunc={setFlow} />}
+    </>
+  );
+}
 
 function App() {
-    return (
-        <h1 className="text-3xl font-bold underline text-red-300">
-            Hello world!
-        </h1>
-    );
+  return (
+    <>
+      <GameUI />
+    </>
+  );
 }
 
 export default App;
