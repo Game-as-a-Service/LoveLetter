@@ -28,9 +28,7 @@ class GameRepository(metaclass=abc.ABCMeta):
 class GameRepositoryPickleImpl(GameRepository):
     def __init__(self):
         self.working_dir = tempfile.mkdtemp()
-        logger.info(
-            f"{GameRepositoryPickleImpl.__name__} working_dir: {self.working_dir}"
-        )
+        logger.info(f"{GameRepositoryPickleImpl.__name__} {self.working_dir=}")
 
     def save_or_update(self, game: Game) -> str:
         if not game.id:
