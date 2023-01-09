@@ -87,8 +87,6 @@ class Card(metaclass=abc.ABCMeta):
         }
 
     def __eq__(self, other):
-        if isinstance(other, str):
-            return self.name == other
         return self.name == other.name
 
     def __repr__(self) -> str:
