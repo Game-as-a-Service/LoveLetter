@@ -12,7 +12,7 @@ def _test_client() -> TestClient:
     return TestClient(app)
 
 
-class _TestDeck(Deck):
+class TestDeckForSimpleE2E(Deck):
     def shuffle(self, player_num: int):
         super().shuffle(player_num)
         from love_letter.models import find_card_by_name as c
@@ -44,7 +44,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         # 將牌庫換成測試用牌庫
         import love_letter.models
 
-        love_letter.models.deck_factory = lambda: _TestDeck()
+        love_letter.models.deck_factory = lambda: TestDeckForSimpleE2E()
 
         # 建立遊戲
         game_id = self.t.post(f"/games/create/by_player/{player_a}").json()
