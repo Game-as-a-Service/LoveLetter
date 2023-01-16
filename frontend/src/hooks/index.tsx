@@ -1,17 +1,25 @@
 import { useState } from "react";
 
-export function useUsername(): [string, (name: string) => void] {
-  const initial_username =
-    window.localStorage.getItem("username") == null
+function useStorage(key: string): [string, (name: string) => void] {
+  const initial_value =
+    window.localStorage.getItem(key) == null
       ? ""
-      : window.localStorage.getItem("username");
-  const [username, setUsername] = useState<string>(initial_username as string);
+      : window.localStorage.getItem(key);
+  const [value, setValue] = useState<string>(initial_value as string);
 
   return [
-    username,
-    (newUsername: string) => {
-      window.localStorage.setItem("username", newUsername);
-      setUsername(newUsername);
+    value,
+    (newValue: string) => {
+      window.localStorage.setItem(key, newValue);
+      setValue(newValue);
     },
   ];
+}
+
+export function useUsername(): [string, (name: string) => void] {
+  return useStorage("username");
+}
+
+export function useGameId(): [string, (name: string) => void] {
+  return useStorage("gameId");
 }

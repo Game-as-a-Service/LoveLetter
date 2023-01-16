@@ -1,14 +1,26 @@
 import { Button, Flex, Input, Spacer } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { useUsername } from "../hooks";
+import { useGameId, useUsername } from "../hooks";
 import { ViewState } from "../types";
+import { IsGameAvailable, JoinGame } from "../apis";
 
 export function CreateOrJoinGame(props: {
   visitFunc: (view: ViewState) => void;
 }) {
   const [username, setUsername] = useUsername();
-  const [roomId, setRoomId] = useState<string>("");
+  const [roomId, setRoomId] = useGameId();
+
+  useEffect(() => {
+    // clean up the roomId at the beginning when it is not available.
+    if (roomId !== "") {
+      IsGameAvailable(roomId, username).then((result: boolean) => {
+        if (!result) {
+          setRoomId("");
+        }
+      });
+    }
+  }, []);
 
   return (
     <>
@@ -46,7 +58,7 @@ export function CreateOrJoinGame(props: {
               value={roomId}
               _placeholder={{ color: "gray.500" }}
               onChange={(e) => {
-                setUsername(e.target.value);
+                setRoomId(e.target.value);
               }}
             ></Input>
           </Flex>
@@ -59,7 +71,13 @@ export function CreateOrJoinGame(props: {
               color="blue.50"
               _hover={{ color: "yellow.500" }}
               onClick={() => {
-                // props.visitFunc("game-list");
+                JoinGame(roomId, username).then((result: boolean) => {
+                  if (result === false) {
+                    alert("遊戲無法加入");
+                  } else {
+                    props.visitFunc("game-room");
+                  }
+                });
               }}
             >
               加入遊戲
