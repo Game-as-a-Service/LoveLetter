@@ -31,6 +31,11 @@ class RoundModel(BaseModel):
     turn_player: PlayerModel
 
 
+class NamedPlayer(BaseModel):
+    name: str | None
+
+
 class GameStatus(BaseModel):
     game_id: str
+    players: List[NamedPlayer]
     rounds: List[RoundModel]

@@ -62,6 +62,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         self.assertEqual(
             {
                 "game_id": game_id,
+                "players": [{"name": "player-a"}, {"name": "player-b"}],
                 "rounds": [
                     {
                         "players": [
@@ -150,6 +151,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         self.assertEqual(
             {
                 "game_id": game_id,
+                "players": [{"name": "player-a"}, {"name": "player-b"}],
                 "rounds": [
                     {
                         "players": [

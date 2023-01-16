@@ -119,6 +119,11 @@ class Game:
         if self.has_started():
             raise GameException("Game Has Started")
 
+        # TODO it is no way to verify two players with same name, just pass it
+        join_before = [p for p in self.players if p.name == player.name]
+        if join_before:
+            return
+
         if len(self.players) < 4:
             self.players.append(player)
             return
