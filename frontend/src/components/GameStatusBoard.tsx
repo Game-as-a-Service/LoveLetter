@@ -29,7 +29,7 @@ export function GameStatusBoard(props: { gameStatus: GameStatus | null }) {
   ];
 
   // game has not stared, use the top player list
-  if (gameStatus != null && gameStatus.rounds.length == 0) {
+  if (gameStatus != null && gameStatus.rounds.length === 0) {
     gameProgress = "等待玩家加入中...";
     if (gameStatus.players.length >= 2) {
       gameProgress = "等待遊戲開始";

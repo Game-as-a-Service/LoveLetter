@@ -39,32 +39,27 @@ export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
 
   return (
     <>
-      {/*<div className="flex h-screen bg-slate-200">*/}
-
-      {/*  <div>GameList: {username}</div>*/}
-      {/*  <div>{JSON.stringify(gameStatus)}</div>*/}
-      {/*</div>*/}
       <div className="flex h-screen bg-slate-200">
         <div className="w-[75vw] p-4 flex flex-col mx-auto">
           <div className="flex flex-grow items-center justify-center">
             <div className="flex h-[20vh]">
-              <PlayerHand />
+              <PlayerHand index={0} gameStatus={gameStatus} />
             </div>
           </div>
           <div className="flex min-h-[38vh] items-center justify-center">
             <div className="flex h-[20vh] m-4">
-              <PlayerHand />
+              <PlayerHand index={3} gameStatus={gameStatus} />
             </div>
             <div className="flex h-[20vh] w-[300px] m-4 ml-16 mr-16">
               <Deck></Deck>
             </div>
             <div className="flex h-[20vh] m-4">
-              <PlayerHand />
+              <PlayerHand index={1} gameStatus={gameStatus} />
             </div>
           </div>
           <div className="flex flex-grow items-center justify-center">
             <div className="flex h-[20vh]">
-              <PlayerHand />
+              <PlayerHand index={2} gameStatus={gameStatus} />
             </div>
           </div>
         </div>
