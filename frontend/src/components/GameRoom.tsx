@@ -13,18 +13,29 @@ export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
   const [gameId] = useGameId();
   const [gameStatus, setGameStatus] = useState<GameStatus | null>(null);
 
-  // TODO 自動 refresh game status
-  // TODO 需要有 "開始遊戲" 的功能
-  useEffect(() => {}, [
+  // refresh GameStatus every 5 seconds.
+  useEffect(() => {
+    // set GameStatus before the refresher triggered
     GetGameStatus(gameId, username).then((status: GameStatus) => {
-      // TODO status 中沒有等待的玩家列表，需要改 api
-      console.log(status);
-      console.log(status.players[0].name);
       if (!isEqual(gameStatus, status)) {
         setGameStatus(status);
       }
-    }),
-  ]);
+    });
+
+    const intervalId = setInterval(() => {
+      // auto-refresh GameStatus
+      GetGameStatus(gameId, username).then((status: GameStatus) => {
+        if (!isEqual(gameStatus, status)) {
+          setGameStatus(status);
+        }
+      });
+    }, 5 * 1000);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  // TODO 需要有 "開始遊戲" 的功能
 
   return (
     <>
