@@ -19,7 +19,7 @@ function PlayerItem(props: { index: number; name: string }) {
 
 export function GameStatusBoard(props: { gameStatus: GameStatus | null }) {
   const { gameStatus } = props;
-  let gameProgress = "(未知)";
+  let gameProgress = "...(未知)...";
 
   const data = [
     { name: "-", index: 1 },
@@ -32,7 +32,7 @@ export function GameStatusBoard(props: { gameStatus: GameStatus | null }) {
   if (gameStatus != null && gameStatus.rounds.length === 0) {
     gameProgress = "等待玩家加入中...";
     if (gameStatus.players.length >= 2) {
-      gameProgress = "等待遊戲開始";
+      gameProgress = "等待遊戲開始...";
     }
 
     gameStatus.players.map((p, idx) => {

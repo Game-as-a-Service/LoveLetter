@@ -13,30 +13,31 @@ export function PlayerHand(props: {
   }
 
   if (gameStatus.players[index] === undefined) {
-    return <CardBack enabled={false} />;
+    return (
+      <div>
+        <CardBack enabled={false} />
+      </div>
+    );
   }
 
+  let playerName = "";
   // TODO turn player should show two cards
+  if (gameStatus.rounds.length == 0) {
+    playerName = gameStatus.players[index].name;
+  } else {
+    // TODO use the rounds data
+    playerName = gameStatus.players[index].name;
+  }
 
-  return <CardBack enabled={true} />;
-
-  // return (
-  //   <>
-  //     {/*<div className="w-[118px] h-[172px] shadow-xl shadow-zinc-500 container relative">*/}
-  //     {/*  <img src="card-front.svg" alt="" className="bg-white rounded-xl">*/}
-  //
-  //     {/*    <div className="flex flex-col absolute top-[15px] p-2 text-white items-center">*/}
-  //     {/*      <div className="text-xs mb-1">8</div>*/}
-  //     {/*      <div className="text-2xl">公主</div>*/}
-  //     {/*      <div className="text-[8pt] mt-2 p-1">*/}
-  //     {/*        當你丟棄公主時，你立即出局。*/}
-  //     {/*      </div>*/}
-  //     {/*    </div>*/}
-  //
-  //     {/*</div>*/}
-  //     {/*<CardBack />*/}
-  //     <CardBack enabled={true} />
-  //     <CardFront />
-  //   </>
-  // );
+  return (
+    <div className="container relative">
+      <CardBack enabled={true} />
+      <div
+        className="text-xs rounded-xl bg-amber-100 p-2 font-bold"
+        style={{ position: "absolute", top: "-2.5rem", left: 5 }}
+      >
+        {playerName}
+      </div>
+    </div>
+  );
 }

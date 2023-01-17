@@ -9,6 +9,7 @@ export function CardBack(props: { enabled: boolean }) {
   return (
     <div className="w-[118px] h-[172px] shadow-xl shadow-zinc-500 container relative">
       <img
+        alt=""
         src={card_back}
         className="bg-white rounded-xl gr"
         style={cssConfig}
