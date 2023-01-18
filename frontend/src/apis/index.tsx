@@ -54,3 +54,8 @@ export async function GetGameStatus(
   );
   return response.data;
 }
+
+export async function StartGame(gameId: string): Promise<boolean> {
+  const response = await backendAxios.post<boolean>(`/games/${gameId}/start`);
+  return response.data;
+}
