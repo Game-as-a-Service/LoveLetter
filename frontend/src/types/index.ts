@@ -10,10 +10,17 @@ export interface RoundPlayer {
   name: string;
 }
 
+export interface CardUsage {
+  can_discard: true;
+  choose_players: Array<string>;
+  can_guess_cards: Array<string>;
+}
+
 export interface HandCard {
   name: string;
   description: string;
   value: number;
+  usage: CardUsage;
 }
 
 export interface TurnPlayer {

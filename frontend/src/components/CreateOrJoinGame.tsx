@@ -1,5 +1,5 @@
 import { Button, Flex, Input, Spacer } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useGameId, useUsername } from "../hooks";
 import { ViewState } from "../types";
@@ -10,11 +10,13 @@ export function CreateOrJoinGame(props: {
 }) {
   const [username, setUsername] = useUsername();
   const [roomId, setRoomId] = useGameId();
+  const [available, setAvailable] = useState(false);
 
   useEffect(() => {
     // clean up the roomId at the beginning when it is not available.
     if (roomId !== "") {
       IsGameAvailable(roomId, username).then((result: boolean) => {
+        setAvailable(result);
         if (!result) {
           setRoomId("");
         }
@@ -73,7 +75,11 @@ export function CreateOrJoinGame(props: {
               onClick={() => {
                 JoinGame(roomId, username).then((result: boolean) => {
                   if (result === false) {
-                    alert("遊戲無法加入");
+                    if (available) {
+                      props.visitFunc("game-room");
+                    } else {
+                      alert("遊戲無法加入");
+                    }
                   } else {
                     props.visitFunc("game-room");
                   }

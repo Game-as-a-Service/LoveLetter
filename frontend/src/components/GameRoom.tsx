@@ -36,7 +36,7 @@ export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
   const [gameId] = useGameId();
   const [gameStatus, setGameStatus] = useState<GameStatus | null>(null);
 
-  // refresh GameStatus every 5 seconds.
+  // refresh GameStatus every 1 seconds.
   useEffect(() => {
     // set GameStatus before the refresher triggered
     GetGameStatus(gameId, username).then((status: GameStatus) => {
@@ -52,7 +52,7 @@ export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
           setGameStatus(status);
         }
       });
-    }, 5 * 1000);
+    }, 1 * 1000);
     return () => {
       clearInterval(intervalId);
     };
