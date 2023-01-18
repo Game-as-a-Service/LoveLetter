@@ -1,15 +1,17 @@
 import { CardBack, CardFront } from "./Cards";
 import React from "react";
 import { GameStatus } from "../types";
+import { useUsername } from "../hooks";
 
 export function PlayerHand(props: {
   index: number;
   gameStatus: GameStatus | null;
 }) {
+  const [username] = useUsername();
   const { index, gameStatus } = props;
 
   if (gameStatus == null) {
-    return <CardFront />;
+    return <CardBack enabled={false} />;
   }
 
   if (gameStatus.players[index] === undefined) {
@@ -29,11 +31,32 @@ export function PlayerHand(props: {
     playerName = gameStatus.players[index].name;
   }
 
+  const is_current_user = playerName === username;
+  const current_round = gameStatus.rounds[gameStatus.rounds.length - 1];
+  const is_turn_player = playerName === current_round.turn_player.name;
+
+  // console.log(current_round.turn_player);
+
   return (
     <div className="container relative">
-      <CardBack enabled={true} />
+      <div>
+        {!is_turn_player && <CardBack enabled={true} />}
+        {is_turn_player && (
+          <div className="flex">
+            {current_round.turn_player.cards.map((x) => (
+              <CardFront
+                key={`${x.name}${playerName}`}
+                handCard={x}
+              ></CardFront>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div
-        className="text-xs rounded-xl bg-amber-100 p-2 font-bold"
+        className={`text-xs rounded-xl bg-amber-100 p-2 font-bold ${
+          is_current_user ? "border-2 border-amber-500" : ""
+        }`}
         style={{ position: "absolute", top: "-2.5rem", left: 5 }}
       >
         {playerName}
