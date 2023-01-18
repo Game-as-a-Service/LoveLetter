@@ -33,15 +33,16 @@ export function PlayerHand(props: {
 
   const is_current_user = playerName === username;
   const current_round = gameStatus.rounds[gameStatus.rounds.length - 1];
-  const is_turn_player = playerName === current_round.turn_player.name;
-
-  // console.log(current_round.turn_player);
+  let is_turn_player = false;
+  if (current_round) {
+    is_turn_player = playerName === current_round.turn_player.name;
+  }
 
   return (
     <div className="container relative">
       <div>
         {!is_turn_player && <CardBack enabled={true} />}
-        {is_turn_player && (
+        {is_turn_player && is_current_user && (
           <div className="flex">
             {current_round.turn_player.cards.map((x) => (
               <CardFront
@@ -49,6 +50,12 @@ export function PlayerHand(props: {
                 handCard={x}
               ></CardFront>
             ))}
+          </div>
+        )}
+        {is_turn_player && !is_current_user && (
+          <div className="flex border-8 border-lime-400 rounded-xl">
+            <CardBack enabled={true}></CardBack>
+            <CardBack enabled={true}></CardBack>
           </div>
         )}
       </div>
