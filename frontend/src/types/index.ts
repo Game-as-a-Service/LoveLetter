@@ -6,8 +6,18 @@ export interface NamedPlayer {
   name: string;
 }
 
+export interface SeenCard {
+  name: string;
+}
+
+export interface Seen {
+  opponent_name: string;
+  card: SeenCard;
+}
+
 export interface RoundPlayer {
   name: string;
+  seen_cards: Array<Seen>;
 }
 
 export interface CardUsage {

@@ -163,10 +163,10 @@ class Game:
         )
 
     def play(
-        self,
-        player_id: str,
-        card_name: str,
-        card_action: Union[GuessCard, ToSomeoneCard, None],
+            self,
+            player_id: str,
+            card_name: str,
+            card_action: Union[GuessCard, ToSomeoneCard, None],
     ):
         if self.find_player_by_id(player_id) != self.get_turn_player():
             raise ValueError(f"{player_id} is not a turn player")
@@ -243,10 +243,10 @@ class Game:
             return
 
     def handle_card_action(
-        self,
-        turn_player: "Player",
-        discarded_card: "Card",
-        action: Union[GuessCard, ToSomeoneCard, None],
+            self,
+            turn_player: "Player",
+            discarded_card: "Card",
+            action: Union[GuessCard, ToSomeoneCard, None],
     ) -> None:
         """
         Handles all card actions like GuessCard, ToSomeoneCard and None
@@ -298,6 +298,9 @@ class Seen:
     opponent_name: str
     card: Card
 
+    def to_dict(self):
+        return dict(opponent_name=self.opponent_name, card=self.card.to_dict())
+
 
 class Player:
     def __init__(self, name: str):
@@ -310,10 +313,10 @@ class Player:
         self.tokens_of_affection: int = 0
 
     def discard_card(
-        self,
-        chosen_player: "Player",
-        discarded_card: "Card",
-        with_card: Optional["Card"] = None,
+            self,
+            chosen_player: "Player",
+            discarded_card: "Card",
+            with_card: Optional["Card"] = None,
     ):
         # Precondition: the player must hold 2 cards
         if len(self.cards) != 2:
@@ -343,7 +346,7 @@ class Player:
         return dict(
             name=self.name,
             out=self.am_i_out,
-            seen_cards=self.seen_cards,
+            seen_cards=[x.to_dict() for x in self.seen_cards],
             cards=[x.to_dict() for x in self.cards],
         )
 

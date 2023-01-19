@@ -1,5 +1,7 @@
 import React from "react";
-import { GameStatus } from "../types";
+import { GameStatus, Seen } from "../types";
+import { useGameId, useUsername } from "../hooks";
+import exp from "constants";
 
 function PlayerItem(props: { index: number; name: string }) {
   if (props.name === "-") {
@@ -17,8 +19,20 @@ function PlayerItem(props: { index: number; name: string }) {
   );
 }
 
+export function SeenItem(props: { seen: Seen }) {
+  const { seen } = props;
+  return (
+    <>
+      <div className="text-gray-600">
+        看到 {seen.opponent_name} 持有 {seen.card.name}
+      </div>
+    </>
+  );
+}
+
 export function GameStatusBoard(props: { gameStatus: GameStatus | null }) {
   const { gameStatus } = props;
+  const [username] = useUsername();
   let gameProgress = "...(未知)...";
 
   const data = [
@@ -42,10 +56,18 @@ export function GameStatusBoard(props: { gameStatus: GameStatus | null }) {
     }
   }
 
+  let seens: Array<Seen> = [];
+
   // the game has started
   if (gameStatus != null && gameStatus.rounds.length > 0) {
     const current_round = gameStatus.rounds[gameStatus.rounds.length - 1];
     gameProgress = `等待 ${current_round.turn_player.name} 出牌...`;
+
+    current_round.players.map((p) => {
+      if (p.name === username) {
+        seens = p.seen_cards;
+      }
+    });
   }
 
   // TODO 如果可以知道遊戲結束的狀態時，要能顯示遊戲結束的贏家
@@ -61,6 +83,16 @@ export function GameStatusBoard(props: { gameStatus: GameStatus | null }) {
         {data.map((x) => (
           <PlayerItem index={x.index} name={x.name}></PlayerItem>
         ))}
+      </div>
+      <div className="absolute top-2 left-2 border-2 border-black p-1 text-[10pt]">
+        <div>玩家資訊</div>
+        <div>gameId: {gameStatus?.game_id}</div>
+        <div>
+          看到的牌：
+          {seens.map((x) => (
+            <SeenItem seen={x} />
+          ))}
+        </div>
       </div>
     </>
   );
