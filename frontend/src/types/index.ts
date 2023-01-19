@@ -34,8 +34,17 @@ export interface Round {
   players: Array<RoundPlayer>;
 }
 
+export interface CardEvent {
+  type: "card_action";
+  card: string;
+  to?: string;
+  with_card?: string;
+  turn_player: string;
+}
+
 export interface GameStatus {
   game_id: string;
   players: Array<NamedPlayer>;
   rounds: Array<Round>;
+  events: Array<CardEvent>;
 }
