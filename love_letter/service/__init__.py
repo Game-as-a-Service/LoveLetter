@@ -67,6 +67,8 @@ class GameService:
         if len(raw_result["rounds"]) < 1:
             return raw_result
 
+        # TODO fix the seen_cards for the player privacy
+
         last_round = raw_result["rounds"][-1]
         turn_player = last_round["turn_player"]
 
