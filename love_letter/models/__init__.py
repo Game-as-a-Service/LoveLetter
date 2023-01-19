@@ -341,7 +341,10 @@ class Player:
 
     def to_dict(self):
         return dict(
-            name=self.name, out=self.am_i_out, cards=[x.to_dict() for x in self.cards]
+            name=self.name,
+            out=self.am_i_out,
+            seen_cards=self.seen_cards,
+            cards=[x.to_dict() for x in self.cards],
         )
 
     def __eq__(self, other):
