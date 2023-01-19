@@ -61,6 +61,13 @@ export async function StartGame(gameId: string): Promise<boolean> {
   return response.data;
 }
 
+export async function CreateGame(username: string): Promise<string> {
+  const response = await backendAxios.post<string>(
+    `/games/create/by_player/${username}`
+  );
+  return response.data;
+}
+
 export async function PlayCard(
   gameId: string,
   username: string,

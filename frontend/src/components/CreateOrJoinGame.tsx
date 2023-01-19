@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 import { useGameId, useUsername } from "../hooks";
 import { ViewState } from "../types";
-import { IsGameAvailable, JoinGame } from "../apis";
+import { CreateGame, IsGameAvailable, JoinGame } from "../apis";
 
 export function CreateOrJoinGame(props: {
   visitFunc: (view: ViewState) => void;
@@ -94,7 +94,10 @@ export function CreateOrJoinGame(props: {
               color="blue.50"
               _hover={{ color: "yellow.500" }}
               onClick={() => {
-                // props.visitFunc("game-list");
+                CreateGame(username).then((gameId) => {
+                  setRoomId(gameId);
+                  props.visitFunc("game-room");
+                });
               }}
             >
               建立遊戲
