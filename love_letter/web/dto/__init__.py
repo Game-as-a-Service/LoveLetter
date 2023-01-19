@@ -38,4 +38,5 @@ class NamedPlayer(BaseModel):
 class GameStatus(BaseModel):
     game_id: str
     players: List[NamedPlayer]
+    events: List[Dict]
     rounds: List[RoundModel]

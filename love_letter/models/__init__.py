@@ -2,7 +2,7 @@ import secrets
 from copy import deepcopy
 from dataclasses import dataclass
 from operator import attrgetter
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.exceptions import GameException
@@ -114,6 +114,10 @@ class Game:
         self.id: Optional[str] = None  # TODO: assign id to a game.
         self.players: List["Player"] = []
         self.rounds: List["Round"] = []
+        self.events: List[Dict] = []
+
+    def post_event(self, message: Dict):
+        self.events.append(message)
 
     def join(self, player: "Player"):
         if self.has_started():
@@ -153,6 +157,7 @@ class Game:
     def to_dict(self):
         return dict(
             game_id=self.id,
+            events=self.events,
             players=[x.to_dict() for x in self.players],
             rounds=[x.to_dict() for x in self.rounds],
         )
@@ -252,6 +257,13 @@ class Game:
         """
         if action is None:
             turn_player.discard_card(turn_player, discarded_card)
+            self.post_event(
+                dict(
+                    type="card_action",
+                    turn_player=turn_player.name,
+                    card=discarded_card.name,
+                )
+            )
             return
 
         with_card = None
@@ -260,6 +272,25 @@ class Game:
 
         chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
         turn_player.discard_card(chosen_player, discarded_card, with_card)
+        if with_card:
+            self.post_event(
+                dict(
+                    type="card_action",
+                    turn_player=turn_player.name,
+                    card=discarded_card.name,
+                    to=chosen_player.name,
+                    with_card=with_card.name,
+                )
+            )
+        else:
+            self.post_event(
+                dict(
+                    type="card_action",
+                    turn_player=turn_player.name,
+                    card=discarded_card.name,
+                    to=chosen_player.name,
+                )
+            )
 
 
 @dataclass
