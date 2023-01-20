@@ -26,6 +26,8 @@ class TestDeckForSimpleE2E(Deck):
 
 
 class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
+    maxDiff = None
+
     def setUp(self) -> None:
         self.t: TestClient = _test_client()
         # disable random-picker for the first round
@@ -167,6 +169,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                     {
                         "card": "衛兵",
                         "to": "player-b",
+                        "took_effect": True,
                         "turn_player": "player-a",
                         "type": "card_action",
                         "with_card": "神父",
@@ -174,7 +177,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                     {"type": "round_started", "winner": "player-a"},
                 ],
                 "players": [
-                    {"name": "player-a", "score": 0},
+                    {"name": "player-a", "score": 1},
                     {"name": "player-b", "score": 0},
                 ],
                 "rounds": [
