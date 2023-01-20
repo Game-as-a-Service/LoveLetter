@@ -39,6 +39,7 @@ class RoundModel(BaseModel):
 
 class NamedPlayer(BaseModel):
     name: str | None
+    score: int
 
 
 class GameStatus(BaseModel):

@@ -4,6 +4,7 @@ export type ViewState = "pick-name" | "game-list" | "game-room";
 
 export interface NamedPlayer {
   name: string;
+  score: number;
 }
 
 export interface SeenCard {

@@ -1,7 +1,20 @@
 import { CardBack, CardFront } from "./Cards";
 import React from "react";
-import { GameStatus, HandCard } from "../types";
+import { GameStatus, HandCard, NamedPlayer } from "../types";
 import { useUsername } from "../hooks";
+
+function getCurrentPlayer(
+  username: string,
+  gameStatus: GameStatus
+): NamedPlayer {
+  let player: NamedPlayer = { name: "unknown", score: 0 };
+  gameStatus.players.forEach((p) => {
+    if (p.name == username) {
+      player = p;
+    }
+  });
+  return player;
+}
 
 export function PlayerHand(props: {
   index: number;
@@ -80,7 +93,7 @@ export function PlayerHand(props: {
         }`}
         style={{ position: "absolute", top: "-2.5rem", left: 5 }}
       >
-        {playerName}
+        {playerName} (#{getCurrentPlayer(playerName, gameStatus).score})
       </div>
     </div>
   );

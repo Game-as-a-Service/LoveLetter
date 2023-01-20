@@ -63,7 +63,10 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
             {
                 "game_id": game_id,
                 "events": [{"type": "round_started", "winner": None}],
-                "players": [{"name": "player-a"}, {"name": "player-b"}],
+                "players": [
+                    {"name": "player-a", "score": 0},
+                    {"name": "player-b", "score": 0},
+                ],
                 "rounds": [
                     {
                         "players": [
@@ -170,7 +173,10 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                     },
                     {"type": "round_started", "winner": "player-a"},
                 ],
-                "players": [{"name": "player-a"}, {"name": "player-b"}],
+                "players": [
+                    {"name": "player-a", "score": 0},
+                    {"name": "player-b", "score": 0},
+                ],
                 "rounds": [
                     {
                         "players": [

@@ -349,6 +349,7 @@ class Player:
             out=self.am_i_out,
             seen_cards=[x.to_dict() for x in self.seen_cards],
             cards=[x.to_dict() for x in self.cards],
+            score=self.tokens_of_affection,
         )
 
     def __eq__(self, other):
