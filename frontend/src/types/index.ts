@@ -52,9 +52,16 @@ export interface CardEvent {
   turn_player: string;
 }
 
+export interface RoundEvent {
+  type: "round_started";
+  winner?: string;
+}
+
+export type GameEvent = CardEvent | RoundEvent;
+
 export interface GameStatus {
   game_id: string;
   players: Array<NamedPlayer>;
   rounds: Array<Round>;
-  events: Array<CardEvent>;
+  events: Array<GameEvent>;
 }

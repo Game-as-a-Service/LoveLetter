@@ -152,6 +152,7 @@ class Game:
                     player.tokens_of_affection += 1
         round = Round(deepcopy(self.players))
         round.next_turn_player(last_winner)
+        self.post_event({"type": "round_started", "winner": last_winner})
         self.rounds.append(round)
 
     def to_dict(self):

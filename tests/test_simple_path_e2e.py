@@ -62,7 +62,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         self.assertEqual(
             {
                 "game_id": game_id,
-                "events": [],
+                "events": [{"type": "round_started", "winner": None}],
                 "players": [{"name": "player-a"}, {"name": "player-b"}],
                 "rounds": [
                     {
@@ -160,13 +160,15 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
             {
                 "game_id": game_id,
                 "events": [
+                    {"type": "round_started", "winner": None},
                     {
                         "card": "衛兵",
                         "to": "player-b",
                         "turn_player": "player-a",
                         "type": "card_action",
                         "with_card": "神父",
-                    }
+                    },
+                    {"type": "round_started", "winner": "player-a"},
                 ],
                 "players": [{"name": "player-a"}, {"name": "player-b"}],
                 "rounds": [

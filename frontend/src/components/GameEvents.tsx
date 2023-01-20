@@ -1,7 +1,8 @@
 import React from "react";
-import { CardEvent } from "../types";
-import { Badge } from "@chakra-ui/react";
+import { CardEvent, GameEvent } from "../types";
+import { Badge, Box } from "@chakra-ui/react";
 import new_icon from "./icons8-new-60.png";
+import { CardBack } from "./Cards";
 
 function NewIcon(props: { display: boolean }) {
   // source: https://icons8.com/icons/set/new
@@ -18,8 +19,36 @@ function NewIcon(props: { display: boolean }) {
   );
 }
 
-function EventView(props: { event: CardEvent; index: number }) {
+function RoundEventView(props: { event: GameEvent; index: number }) {
   const { event, index } = props;
+
+  if (event.type !== "round_started") {
+    return <></>;
+  }
+
+  return (
+    <div className="m-1 p-2 min-h-[1rem] pl-3 rounded-xl flex items-center text-[12px]">
+      <Badge variant="solid" colorScheme="green">
+        round started
+      </Badge>
+      {event.winner && (
+        <>
+          <Badge variant="solid" colorScheme="messenger" ml={2}>
+            {event.winner}
+          </Badge>
+          <Box ml={2}>成功送信給公主</Box>
+        </>
+      )}
+    </div>
+  );
+}
+
+function CardEventView(props: { event: GameEvent; index: number }) {
+  const { event, index } = props;
+
+  if (event.type !== "card_action") {
+    return <></>;
+  }
 
   if (event.with_card != null) {
     return (
@@ -59,7 +88,7 @@ function EventView(props: { event: CardEvent; index: number }) {
   );
 }
 
-function lastN(n: number, events: Array<CardEvent>): Array<CardEvent> {
+function lastN(n: number, events: Array<GameEvent>): Array<GameEvent> {
   if (events === undefined) {
     return [];
   }
@@ -68,7 +97,7 @@ function lastN(n: number, events: Array<CardEvent>): Array<CardEvent> {
   return elems;
 }
 
-export function GameEvents(props: { events?: Array<CardEvent> }) {
+export function GameEvents(props: { events?: Array<GameEvent> }) {
   const { events } = props;
   if (events === null || events?.length === 0) {
     return (
@@ -85,8 +114,11 @@ export function GameEvents(props: { events?: Array<CardEvent> }) {
     <div className="flex-auto">
       <h1>遊戲事件</h1>
       <div className="overflow-y-auto border-2 border-black shadow-2xl">
-        {lastN(8, events as Array<CardEvent>).map((evt, index) => (
-          <EventView event={evt} index={index} />
+        {lastN(8, events as Array<GameEvent>).map((evt, index) => (
+          <>
+            <RoundEventView event={evt} index={index} />
+            <CardEventView event={evt} index={index} />
+          </>
         ))}
       </div>
     </div>
