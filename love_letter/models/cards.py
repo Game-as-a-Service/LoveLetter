@@ -226,7 +226,11 @@ class PrinceCard(Card):
             if "公主" == card.name:
                 chosen_player.out()
 
-        event = dict(trigger_by=self.name, card=chosen_player.cards[0].name)
+        event = dict(
+            trigger_by=self.name,
+            card=chosen_player.cards[0].name,
+            who=chosen_player.name,
+        )
         # TODO the game system should send a new card to the player who did discard
         chosen_player.cards = []
         return event

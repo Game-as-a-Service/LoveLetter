@@ -3,6 +3,7 @@ import { CardEvent, GameEvent } from "../types";
 import { Badge, Box } from "@chakra-ui/react";
 import new_icon from "./icons8-new-60.png";
 import { CardBack } from "./Cards";
+import { divide } from "lodash";
 
 function NewIcon(props: { display: boolean }) {
   // source: https://icons8.com/icons/set/new
@@ -50,6 +51,56 @@ function CardEventView(props: { event: GameEvent; index: number }) {
     return <></>;
   }
 
+  let extra: JSX.Element = <></>;
+  if (event.took_effect.event !== null) {
+    const evt = event.took_effect.event;
+    if (evt?.out) {
+      extra = (
+        <div className="m-1 p-2 min-h-[1rem] pl-3 rounded-xl flex items-center text-[12px] bg-slate-300">
+          <div className="font-extrabold mr-2">{evt.out}</div>
+          出局
+        </div>
+      );
+    } else if (evt?.who) {
+      extra = (
+        <div className="m-1 p-2 min-h-[1rem] pl-3 rounded-xl flex items-center text-[12px] bg-slate-300">
+          <div className="font-extrabold mr-2">{evt.who}</div>
+          <div className="mr-2">丟棄</div>
+          <div className="font-extrabold">{evt.card}</div>
+        </div>
+      );
+    } else if (evt?.protected) {
+      extra = (
+        <div className="m-1 p-2 min-h-[1rem] pl-3 rounded-xl flex items-center text-[12px] bg-slate-300">
+          <div className="font-extrabold mr-2">{evt.protected}</div>
+          <div className="mr-2">被侍女保護中</div>
+          <div className="font-extrabold mr-2">{evt.trigger_by}</div>
+          <div className="mr-2">無效</div>
+        </div>
+      );
+    } else {
+      extra = (
+        <div>
+          {"wip::"}
+          {JSON.stringify(evt)}
+        </div>
+      );
+    }
+  }
+
+  return (
+    <>
+      {extra}
+      <CardActionItem {...props} />
+    </>
+  );
+}
+
+function CardActionItem(props: { event: GameEvent; index: number }) {
+  const { event, index } = props;
+  if (event.type !== "card_action") {
+    return <></>;
+  }
   if (event.with_card != null) {
     return (
       <div className="m-1 p-2 min-h-[1rem] pl-3 rounded-xl flex items-center text-[12px]">

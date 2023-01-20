@@ -324,7 +324,7 @@ class Player:
     ):
         # Precondition: the player must hold 2 cards
         if len(self.cards) != 2:
-            return False, None
+            return dict(took=False, event=None)
 
         # Precondition: Check will_be_played_card is in the hands
         if not any([True for c in self.cards if c.name == discarded_card.name]):
@@ -336,15 +336,16 @@ class Player:
             trigger_event = discarded_card.trigger_effect(
                 self, chosen_player=chosen_player, with_card=with_card
             )
-        if (chosen_player and chosen_player.protected) and trigger_event is None:
-            trigger_event = dict(trigger_by=PriestCard.name, player=chosen_player.name)
+        elif (chosen_player and chosen_player.protected) and trigger_event is None:
+            trigger_event = dict(
+                trigger_by=discarded_card.name, protected=chosen_player.name
+            )
 
         if len(self.cards) != 1:
-            return False, trigger_event
+            return dict(took=False, event=trigger_event)
 
         self.total_value_of_card += discarded_card.value
-
-        return True, trigger_event
+        return dict(took=True, event=trigger_event)
 
     def out(self):
         self.am_i_out = True
