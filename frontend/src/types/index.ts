@@ -18,6 +18,13 @@ export interface Seen {
 export interface RoundPlayer {
   name: string;
   seen_cards: Array<Seen>;
+  cards: Array<HandCard>;
+}
+
+export interface TurnPlayer {
+  name: string;
+  out: boolean;
+  cards: Array<HandCard>;
 }
 
 export interface CardUsage {
@@ -31,12 +38,6 @@ export interface HandCard {
   description: string;
   value: number;
   usage: CardUsage;
-}
-
-export interface TurnPlayer {
-  name: string;
-  out: boolean;
-  cards: Array<HandCard>;
 }
 
 export interface Round {

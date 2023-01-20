@@ -1,6 +1,6 @@
 import { CardBack, CardFront } from "./Cards";
 import React from "react";
-import { GameStatus } from "../types";
+import { GameStatus, HandCard } from "../types";
 import { useUsername } from "../hooks";
 
 export function PlayerHand(props: {
@@ -38,13 +38,27 @@ export function PlayerHand(props: {
     is_turn_player = playerName === current_round.turn_player.name;
   }
 
+  let hand_cards: Array<HandCard> = [];
+  if (is_turn_player && is_current_user) {
+    hand_cards = current_round.turn_player.cards;
+  } else if (is_current_user) {
+    current_round.players.forEach((r) => {
+      if (r.name == playerName) {
+        hand_cards = r.cards;
+      }
+    });
+  }
+
   return (
     <div className="container relative">
       <div>
-        {!is_turn_player && <CardBack enabled={true} />}
+        {!is_turn_player && !is_current_user && <CardBack enabled={true} />}
+        {!is_turn_player && is_current_user && (
+          <CardFront handCard={hand_cards[0]} />
+        )}
         {is_turn_player && is_current_user && (
           <div className="flex">
-            {current_round.turn_player.cards.map((x) => (
+            {hand_cards.map((x) => (
               <CardFront
                 key={`${x.name}${playerName}`}
                 handCard={x}

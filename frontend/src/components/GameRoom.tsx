@@ -58,8 +58,6 @@ export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
     };
   }, []);
 
-  // TODO 需要有 "開始遊戲" 的功能
-
   return (
     <>
       <div className="flex h-screen bg-slate-200">
