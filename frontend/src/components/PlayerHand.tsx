@@ -42,7 +42,7 @@ export function PlayerHand(props: {
   if (is_turn_player && is_current_user) {
     hand_cards = current_round.turn_player.cards;
   } else if (is_current_user) {
-    current_round.players.forEach((r) => {
+    current_round?.players?.forEach((r) => {
       if (r.name == playerName) {
         hand_cards = r.cards;
       }

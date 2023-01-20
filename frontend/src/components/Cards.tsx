@@ -91,6 +91,10 @@ function Action(props: { handCard: HandCard }) {
 export function CardFront(props: { handCard: HandCard }) {
   const { handCard } = props;
 
+  if (handCard === undefined) {
+    return <CardBack enabled={true} />;
+  }
+
   return (
     <div className="w-[118px] h-[172px] shadow-xl shadow-zinc-500 container relative">
       <img src={card_front} className="bg-white rounded-xl" />
