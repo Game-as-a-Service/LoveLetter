@@ -257,12 +257,13 @@ class Game:
         :return:
         """
         if action is None:
-            turn_player.discard_card(turn_player, discarded_card)
+            took_effect = turn_player.discard_card(turn_player, discarded_card)
             self.post_event(
                 dict(
                     type="card_action",
                     turn_player=turn_player.name,
                     card=discarded_card.name,
+                    took_effect=took_effect,
                 )
             )
             return
@@ -272,7 +273,7 @@ class Game:
             with_card = find_card_by_name(action.guess_card)
 
         chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
-        turn_player.discard_card(chosen_player, discarded_card, with_card)
+        took_effect = turn_player.discard_card(chosen_player, discarded_card, with_card)
         if with_card:
             self.post_event(
                 dict(
@@ -281,6 +282,7 @@ class Game:
                     card=discarded_card.name,
                     to=chosen_player.name,
                     with_card=with_card.name,
+                    took_effect=took_effect,
                 )
             )
         else:
@@ -290,6 +292,7 @@ class Game:
                     turn_player=turn_player.name,
                     card=discarded_card.name,
                     to=chosen_player.name,
+                    took_effect=took_effect,
                 )
             )
 
@@ -321,24 +324,27 @@ class Player:
     ):
         # Precondition: the player must hold 2 cards
         if len(self.cards) != 2:
-            return False
+            return False, None
 
         # Precondition: Check will_be_played_card is in the hands
         if not any([True for c in self.cards if c.name == discarded_card.name]):
             raise GameException("Cannot discard cards not in your hand")
 
         self.drop_card(discarded_card)
+        trigger_event = None
         if not (chosen_player and chosen_player.protected):
-            discarded_card.trigger_effect(
+            trigger_event = discarded_card.trigger_effect(
                 self, chosen_player=chosen_player, with_card=with_card
             )
+        if (chosen_player and chosen_player.protected) and trigger_event is None:
+            trigger_event = dict(trigger_by=PriestCard.name, player=chosen_player.name)
 
         if len(self.cards) != 1:
-            return False
+            return False, trigger_event
 
         self.total_value_of_card += discarded_card.value
 
-        return True
+        return True, trigger_event
 
     def out(self):
         self.am_i_out = True

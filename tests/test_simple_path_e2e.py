@@ -169,7 +169,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                     {
                         "card": "衛兵",
                         "to": "player-b",
-                        "took_effect": True,
+                        "took_effect": [True, None],
                         "turn_player": "player-a",
                         "type": "card_action",
                         "with_card": "神父",
