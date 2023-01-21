@@ -1,13 +1,13 @@
-import { GameStatus, ViewState } from "../types";
-import { useGameId, useUsername } from "../hooks";
 import React, { useEffect, useState } from "react";
-import { GetGameStatus, StartGame } from "../apis";
 import { isEqual } from "lodash";
-import { PlayerHand } from "./PlayerHand";
-import { Deck } from "./Deck";
-import { GameStatusBoard } from "./GameStatusBoard";
-import { GameEvents } from "./GameEvents";
 import { Box, Button } from "@chakra-ui/react";
+import { GameStatus, ViewState } from "@/types";
+import { GetGameStatus, StartGame } from "@/apis";
+import { useGameId, useUsername } from "@/hooks";
+import { GameStatusBoard } from "@/components/GameStatusBoard";
+import { GameEvents } from "@/components/GameEvents";
+import { PlayerHand } from "@/components/PlayerHand";
+import { Deck } from "@/components/Deck";
 
 function StartGameFunc(props: { gameStatus: GameStatus | null }) {
   const { gameStatus } = props;

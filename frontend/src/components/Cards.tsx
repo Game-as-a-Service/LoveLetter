@@ -1,10 +1,12 @@
 import card_front from "./card-front.png";
 import card_back from "./card-back.png";
-import { HandCard } from "../types";
+
 import { Button, Select } from "@chakra-ui/react";
 import { useRef } from "react";
-import { PlayCard } from "../apis";
-import { useGameId, useUsername } from "../hooks";
+
+import { useGameId, useUsername } from "@/hooks";
+import { HandCard } from "@/types";
+import { PlayCard } from "@/apis";
 
 export function CardBack(props: { enabled: boolean }) {
   let cssConfig = {};

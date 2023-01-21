@@ -1,5 +1,5 @@
-import { CardBack } from "./Cards";
 import React from "react";
+import { CardBack } from "@/components/Cards";
 
 export function Deck() {
   return (

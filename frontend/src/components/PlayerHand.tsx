@@ -1,7 +1,7 @@
-import { CardBack, CardFront } from "./Cards";
 import React from "react";
-import { GameStatus, HandCard, NamedPlayer } from "../types";
-import { useUsername } from "../hooks";
+import { GameStatus, HandCard, NamedPlayer } from "@/types";
+import { CardBack, CardFront } from "@/components/Cards";
+import { useUsername } from "@/hooks";
 
 function getCurrentPlayer(
   username: string,
@@ -9,7 +9,7 @@ function getCurrentPlayer(
 ): NamedPlayer {
   let player: NamedPlayer = { name: "unknown", score: 0 };
   gameStatus.players.forEach((p) => {
-    if (p.name == username) {
+    if (p.name === username) {
       player = p;
     }
   });
@@ -37,7 +37,7 @@ export function PlayerHand(props: {
 
   let playerName = "";
   // TODO turn player should show two cards
-  if (gameStatus.rounds.length == 0) {
+  if (gameStatus.rounds.length === 0) {
     playerName = gameStatus.players[index].name;
   } else {
     // TODO use the rounds data
@@ -56,7 +56,7 @@ export function PlayerHand(props: {
     hand_cards = current_round.turn_player.cards;
   } else if (is_current_user) {
     current_round?.players?.forEach((r) => {
-      if (r.name == playerName) {
+      if (r.name === playerName) {
         hand_cards = r.cards;
       }
     });

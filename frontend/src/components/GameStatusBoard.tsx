@@ -1,7 +1,6 @@
 import React from "react";
-import { GameStatus, Seen } from "../types";
-import { useGameId, useUsername } from "../hooks";
-import exp from "constants";
+import { GameStatus, Seen } from "@/types";
+import { useUsername } from "@/hooks";
 
 function PlayerItem(props: { index: number; name: string }) {
   if (props.name === "-") {

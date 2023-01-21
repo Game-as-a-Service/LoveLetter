@@ -1,5 +1,3 @@
-import exp from "constants";
-
 export type ViewState = "pick-name" | "game-list" | "game-room";
 
 export interface NamedPlayer {

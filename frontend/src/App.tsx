@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "./App.css";
-import { CreateOrJoinGame } from "./components/CreateOrJoinGame";
-import { ViewState } from "./types";
-import { GameRoom } from "./components/GameRoom";
+
+import { CreateOrJoinGame, GameRoom } from "@/components";
+import { ViewState } from "@/types";
 
 function GameUI() {
   const [flow, setFlow] = useState<ViewState>("pick-name");

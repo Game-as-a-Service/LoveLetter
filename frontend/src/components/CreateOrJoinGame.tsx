@@ -1,9 +1,9 @@
 import { Button, Flex, Input, Spacer } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 
-import { useGameId, useUsername } from "../hooks";
-import { ViewState } from "../types";
-import { CreateGame, IsGameAvailable, JoinGame } from "../apis";
+import { useGameId, useUsername } from "@/hooks";
+import { ViewState } from "@/types";
+import { CreateGame, IsGameAvailable, JoinGame } from "@/apis";
 
 export function CreateOrJoinGame(props: {
   visitFunc: (view: ViewState) => void;

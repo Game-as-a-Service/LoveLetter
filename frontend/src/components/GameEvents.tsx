@@ -1,9 +1,7 @@
 import React from "react";
-import { CardEvent, GameEvent } from "../types";
 import { Badge, Box } from "@chakra-ui/react";
 import new_icon from "./icons8-new-60.png";
-import { CardBack } from "./Cards";
-import { divide } from "lodash";
+import { GameEvent } from "@/types";
 
 function NewIcon(props: { display: boolean }) {
   // source: https://icons8.com/icons/set/new
