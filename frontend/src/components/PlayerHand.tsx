@@ -1,7 +1,8 @@
-import React from "react";
+import React, {useContext} from "react";
 import { GameStatus, HandCard, NamedPlayer } from "@/types";
 import { CardBack, CardFront } from "@/components/Cards";
 import { useUsername } from "@/hooks";
+import {GameContext} from "@/providers";
 
 function getCurrentPlayer(
   username: string,
@@ -18,10 +19,16 @@ function getCurrentPlayer(
 
 export function PlayerHand(props: {
   index: number;
-  gameStatus: GameStatus | null;
 }) {
   const [username] = useUsername();
-  const { index, gameStatus } = props;
+  const { index } = props;
+  const context = useContext(GameContext);
+  if (!context.IsReady) {
+    return <CardBack enabled={false} />;
+  }
+
+  const gameStatus = context.gameStatus;
+
 
   if (gameStatus == null) {
     return <CardBack enabled={false} />;

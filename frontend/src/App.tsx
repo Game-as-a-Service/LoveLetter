@@ -3,6 +3,7 @@ import "./App.css";
 
 import { CreateOrJoinGame, GameRoom } from "@/components";
 import { ViewState } from "@/types";
+import { GameDataProvider } from "@/providers";
 
 function GameUI() {
   const [flow, setFlow] = useState<ViewState>("pick-name");
@@ -10,7 +11,11 @@ function GameUI() {
   return (
     <>
       {flow === "pick-name" && <CreateOrJoinGame visitFunc={setFlow} />}
-      {flow === "game-room" && <GameRoom visitFunc={setFlow} />}
+      {flow === "game-room" && (
+        <GameDataProvider>
+          <GameRoom visitFunc={setFlow} />
+        </GameDataProvider>
+      )}
     </>
   );
 }

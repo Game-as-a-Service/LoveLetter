@@ -1,6 +1,6 @@
-import React from "react";
-import { GameStatus, Seen } from "@/types";
-import { useUsername } from "@/hooks";
+import React, { useContext } from "react";
+import { Seen } from "@/types";
+import { GameContext } from "@/providers";
 
 function PlayerItem(props: { index: number; name: string }) {
   if (props.name === "-") {
@@ -29,9 +29,13 @@ export function SeenItem(props: { seen: Seen }) {
   );
 }
 
-export function GameStatusBoard(props: { gameStatus: GameStatus | null }) {
-  const { gameStatus } = props;
-  const [username] = useUsername();
+export function GameStatusBoard() {
+  const context = useContext(GameContext);
+  if (!context.IsReady) {
+    return <></>;
+  }
+
+  const gameStatus = context.gameStatus;
   let gameProgress = "...(未知)...";
 
   const data = [
@@ -63,7 +67,7 @@ export function GameStatusBoard(props: { gameStatus: GameStatus | null }) {
     gameProgress = `等待 ${current_round.turn_player.name} 出牌...`;
 
     current_round.players.map((p) => {
-      if (p.name === username) {
+      if (p.name === context.GetUsername()) {
         seens = p.seen_cards;
       }
     });

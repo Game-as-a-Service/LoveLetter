@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { isEqual } from "lodash";
+import React, { useContext } from "react";
 import { Box, Button } from "@chakra-ui/react";
 import { GameStatus, ViewState } from "@/types";
-import { GetGameStatus, StartGame } from "@/apis";
-import { useGameId, useUsername } from "@/hooks";
+import { StartGame } from "@/apis";
 import { GameStatusBoard } from "@/components/GameStatusBoard";
 import { GameEvents } from "@/components/GameEvents";
 import { PlayerHand } from "@/components/PlayerHand";
 import { Deck } from "@/components/Deck";
+import { GameContext } from "@/providers";
 
 function StartGameFunc(props: { gameStatus: GameStatus | null }) {
   const { gameStatus } = props;
@@ -32,31 +31,12 @@ function StartGameFunc(props: { gameStatus: GameStatus | null }) {
 }
 
 export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
-  const [username] = useUsername();
-  const [gameId] = useGameId();
-  const [gameStatus, setGameStatus] = useState<GameStatus | null>(null);
+  const context = useContext(GameContext);
+  if (!context.IsReady) {
+    return <></>;
+  }
 
-  // refresh GameStatus every 1 seconds.
-  useEffect(() => {
-    // set GameStatus before the refresher triggered
-    GetGameStatus(gameId, username).then((status: GameStatus) => {
-      if (!isEqual(gameStatus, status)) {
-        setGameStatus(status);
-      }
-    });
-
-    const intervalId = setInterval(() => {
-      // auto-refresh GameStatus
-      GetGameStatus(gameId, username).then((status: GameStatus) => {
-        if (!isEqual(gameStatus, status)) {
-          setGameStatus(status);
-        }
-      });
-    }, 1 * 1000);
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
+  const gameStatus = context.gameStatus;
 
   return (
     <>
@@ -64,23 +44,23 @@ export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
         <div className="w-[75vw] p-4 flex flex-col mx-auto">
           <div className="flex flex-grow items-center justify-center">
             <div className="flex h-[20vh]">
-              <PlayerHand index={0} gameStatus={gameStatus} />
+              <PlayerHand index={0} />
             </div>
           </div>
           <div className="flex min-h-[38vh] items-center justify-center">
             <div className="flex h-[20vh] m-4">
-              <PlayerHand index={3} gameStatus={gameStatus} />
+              <PlayerHand index={3} />
             </div>
             <div className="flex h-[20vh] w-[300px] m-4 ml-16 mr-16">
               <Deck></Deck>
             </div>
             <div className="flex h-[20vh] m-4">
-              <PlayerHand index={1} gameStatus={gameStatus} />
+              <PlayerHand index={1} />
             </div>
           </div>
           <div className="flex flex-grow items-center justify-center">
             <div className="flex h-[20vh]">
-              <PlayerHand index={2} gameStatus={gameStatus} />
+              <PlayerHand index={2} />
             </div>
           </div>
           <Box position="absolute" top={5} right="28vw">
@@ -89,7 +69,7 @@ export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
         </div>
         {/*<!-- Game Status-->*/}
         <div className="w-[25vw] p-4 border-l-2 border-slate-400 shadow-amber-300 max-h-[100vh]">
-          <GameStatusBoard gameStatus={gameStatus} />
+          <GameStatusBoard />
           {/* <!-- Game events --> */}
           <GameEvents events={gameStatus?.events} />
         </div>
