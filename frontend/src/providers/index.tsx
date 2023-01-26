@@ -10,9 +10,14 @@ export interface GameInformation {
   gameStatus: GameStatus | null;
   IsReady: () => boolean;
   GetUsername: () => string;
+
+  GetTurnPlayer: () => string;
 }
 
 export const GameContext = createContext<GameInformation>({
+  GetTurnPlayer(): string {
+    return "";
+  },
   GetUsername(): string {
     return "";
   },
@@ -61,6 +66,17 @@ export function GameDataProvider(props: GameDataProviderProps) {
       return gameStatus != null;
     },
     GetUsername: () => username,
+    GetTurnPlayer(): string {
+      if (!this.IsReady()) {
+        return "<unknown>";
+      }
+      if (this.gameStatus != null && this.gameStatus.rounds.length != 0) {
+        const lastRound =
+          this.gameStatus?.rounds[this.gameStatus?.rounds.length - 1];
+        return lastRound?.turn_player.name as string;
+      }
+      return "<unknown>";
+    },
   };
   return (
     <GameContext.Provider value={value}>{props.children}</GameContext.Provider>

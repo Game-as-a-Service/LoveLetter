@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Badge, Box } from "@chakra-ui/react";
 import new_icon from "./icons8-new-60.png";
 import { GameEvent } from "@/types";
+import { GameContext } from "@/providers";
 
 function NewIcon(props: { display: boolean }) {
   // source: https://icons8.com/icons/set/new
@@ -19,10 +20,36 @@ function NewIcon(props: { display: boolean }) {
 }
 
 function RoundEventView(props: { event: GameEvent; index: number }) {
+  const context = useContext(GameContext);
+  if (!context.IsReady) {
+    return <></>;
+  }
   const { event, index } = props;
 
   if (event.type !== "round_started") {
     return <></>;
+  }
+
+  let annotated: JSX.Element = <></>;
+
+  if (event.winner) {
+    annotated = (
+      <>
+        <Badge variant="solid" colorScheme="messenger" ml={2}>
+          {event.winner}
+        </Badge>
+        <Box ml={2}>成功送信給公主</Box>
+      </>
+    );
+  } else {
+    annotated = (
+      <>
+        <Badge variant="solid" colorScheme="messenger" ml={2}>
+          {context.GetTurnPlayer()}
+        </Badge>
+        <Box ml={2}>為起始玩家</Box>
+      </>
+    );
   }
 
   return (
@@ -30,14 +57,7 @@ function RoundEventView(props: { event: GameEvent; index: number }) {
       <Badge variant="solid" colorScheme="green">
         round started
       </Badge>
-      {event.winner && (
-        <>
-          <Badge variant="solid" colorScheme="messenger" ml={2}>
-            {event.winner}
-          </Badge>
-          <Box ml={2}>成功送信給公主</Box>
-        </>
-      )}
+      {annotated}
     </div>
   );
 }
@@ -146,8 +166,12 @@ function lastN(n: number, events: Array<GameEvent>): Array<GameEvent> {
   return elems;
 }
 
-export function GameEvents(props: { events?: Array<GameEvent> }) {
-  const { events } = props;
+export function GameEvents() {
+  const context = useContext(GameContext);
+  if (!context.IsReady) {
+    return <></>;
+  }
+  const events = context.gameStatus?.events;
   if (events === null || events?.length === 0) {
     return (
       <div>
