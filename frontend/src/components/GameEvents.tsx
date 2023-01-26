@@ -45,7 +45,7 @@ function RoundEventView(props: { event: GameEvent; index: number }) {
     annotated = (
       <>
         <Badge variant="solid" colorScheme="messenger" ml={2}>
-          {context.GetTurnPlayer()}
+          {context.GetTurnPlayer().name}
         </Badge>
         <Box ml={2}>為起始玩家</Box>
       </>
@@ -171,7 +171,7 @@ export function GameEvents() {
   if (!context.IsReady) {
     return <></>;
   }
-  const events = context.gameStatus?.events;
+  const events = context.GameStatus().events;
   if (events === null || events?.length === 0) {
     return (
       <div>

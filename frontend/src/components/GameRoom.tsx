@@ -36,7 +36,7 @@ export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
     return <></>;
   }
 
-  const gameStatus = context.gameStatus;
+  const gameStatus = context.GameStatus();
 
   return (
     <>

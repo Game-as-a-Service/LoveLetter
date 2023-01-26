@@ -35,7 +35,7 @@ export function GameStatusBoard() {
     return <></>;
   }
 
-  const gameStatus = context.gameStatus;
+  const gameStatus = context.GameStatus();
   let gameProgress = "...(未知)...";
 
   const data = [

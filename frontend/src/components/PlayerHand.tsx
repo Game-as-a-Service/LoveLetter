@@ -27,7 +27,7 @@ export function PlayerHand(props: {
     return <CardBack enabled={false} />;
   }
 
-  const gameStatus = context.gameStatus;
+  const gameStatus = context.GameStatus();
 
 
   if (gameStatus == null) {
