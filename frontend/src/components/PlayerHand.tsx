@@ -23,7 +23,7 @@ export function PlayerHand(props: {
   const [username] = useUsername();
   const { index } = props;
   const context = useContext(GameContext);
-  if (!context.IsReady) {
+  if (!context.IsReady()) {
     return <CardBack enabled={false} />;
   }
 

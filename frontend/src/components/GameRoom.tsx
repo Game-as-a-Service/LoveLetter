@@ -32,7 +32,7 @@ function StartGameFunc(props: { gameStatus: GameStatus | null }) {
 
 export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
   const context = useContext(GameContext);
-  if (!context.IsReady) {
+  if (!context.IsReady()) {
     return <></>;
   }
 
@@ -51,8 +51,9 @@ export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
             <div className="flex h-[20vh] m-4">
               <PlayerHand index={3} />
             </div>
-            <div className="flex h-[20vh] w-[300px] m-4 ml-16 mr-16">
-              <Deck></Deck>
+
+            <div className="flex h-[20vh] w-[350px] m-4 ml-16 mr-16 flex-row">
+              <Deck />
             </div>
             <div className="flex h-[20vh] m-4">
               <PlayerHand index={1} />

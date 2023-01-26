@@ -21,7 +21,7 @@ function NewIcon(props: { display: boolean }) {
 
 function RoundEventView(props: { event: GameEvent; index: number }) {
   const context = useContext(GameContext);
-  if (!context.IsReady) {
+  if (!context.IsReady()) {
     return <></>;
   }
   const { event, index } = props;
@@ -168,7 +168,7 @@ function lastN(n: number, events: Array<GameEvent>): Array<GameEvent> {
 
 export function GameEvents() {
   const context = useContext(GameContext);
-  if (!context.IsReady) {
+  if (!context.IsReady()) {
     return <></>;
   }
   const events = context.GameStatus().events;

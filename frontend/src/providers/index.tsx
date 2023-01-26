@@ -13,6 +13,8 @@ export interface GameInformation {
   GetUsername: () => string;
 
   GetTurnPlayer: () => TurnPlayer;
+
+  IsMyTurn: () => boolean;
 }
 
 class BeforeReadyGameInformation implements GameInformation {
@@ -36,6 +38,10 @@ class BeforeReadyGameInformation implements GameInformation {
 
   GameStatus(): GameStatus {
     return { events: [], game_id: "", players: [], rounds: [] };
+  }
+
+  IsMyTurn(): boolean {
+    return false;
   }
 }
 
@@ -68,6 +74,10 @@ class ConcreteGameInformation implements GameInformation {
 
   IsReady(): boolean {
     return this.gameStatus != null;
+  }
+
+  IsMyTurn(): boolean {
+    return this.GetTurnPlayer().name === this.username;
   }
 
   gameId: string;

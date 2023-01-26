@@ -31,7 +31,7 @@ export function SeenItem(props: { seen: Seen }) {
 
 export function GameStatusBoard() {
   const context = useContext(GameContext);
-  if (!context.IsReady) {
+  if (!context.IsReady()) {
     return <></>;
   }
 

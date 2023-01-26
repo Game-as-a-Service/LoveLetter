@@ -25,7 +25,7 @@ export function CardBack(props: { enabled: boolean }) {
   );
 }
 
-function Action(props: { handCard: HandCard }) {
+export function CardAction(props: { handCard: HandCard }) {
   const [gameId] = useGameId();
   const [username] = useUsername();
   const { handCard } = props;
@@ -43,6 +43,7 @@ function Action(props: { handCard: HandCard }) {
     <>
       {has_player_options && (
         <Select
+          size="xs"
           defaultValue={handCard.usage.choose_players[0]}
           ref={ref_chosen_player}
           onChange={(e) => {
@@ -56,6 +57,7 @@ function Action(props: { handCard: HandCard }) {
       )}
       {has_guess_card_options && (
         <Select
+          size="xs"
           defaultValue={handCard.usage.can_guess_cards[0]}
           ref={ref_guessed_card}
           onChange={(e) => {
@@ -68,6 +70,7 @@ function Action(props: { handCard: HandCard }) {
         </Select>
       )}
       <Button
+        size="xs"
         onClick={() => {
           const payload: { [prop: string]: string } = {};
           if (ref_chosen_player.current) {
@@ -105,9 +108,7 @@ export function CardFront(props: { handCard: HandCard }) {
         <div className="text-2xl">{handCard.name}</div>
         <div className="text-[8pt] mt-2 p-1">{handCard.description}</div>
       </div>
-      <div>
-        <Action handCard={handCard} />
-      </div>
+      <div>{/*<CardAction handCard={handCard} />*/}</div>
     </div>
   );
 }
