@@ -1,14 +1,16 @@
+import os
 from typing import Union
 
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.staticfiles import StaticFiles
 
 from love_letter.repository import create_default_repository
 from love_letter.service import GameService
 from love_letter.web.dto import GameStatus, GuessCard, ToSomeoneCard
 
-app = FastAPI()
+app = FastAPI(root_path="/api/v1")
 service = GameService(create_default_repository())
 origins = ["*", "http://localhost:3000", "http://localhost:8080"]
 app.add_middleware(
@@ -24,6 +26,12 @@ app.add_middleware(
         "Access-Control-Allow-Origin",
         "Access-Control-Allow-Credentials",
     ],
+)
+
+app.mount(
+    "/static",
+    StaticFiles(directory=os.environ.get("static_files", "frontend/build")),
+    name="static",
 )
 
 
