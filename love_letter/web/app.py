@@ -29,8 +29,12 @@ app.add_middleware(
 )
 
 app.mount(
-    "/static",
-    StaticFiles(directory=os.environ.get("static_files", "frontend/build")),
+    "/",
+    StaticFiles(
+        directory=os.environ.get(
+            "static_files", "/Users/qrtt1/PycharmProjects/LoveLetter/frontend/build"
+        )
+    ),
     name="static",
 )
 
