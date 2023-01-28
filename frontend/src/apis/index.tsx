@@ -8,7 +8,10 @@ export const defaultHeaders: RawAxiosRequestHeaders = {
   "Content-Type": "application/json",
 };
 
-const BACKEND_URL = "http://127.0.0.1:8080";
+// const BACKEND_URL = process.env.REACT_APP_URL;
+const BACKEND_URL = "https://beta-love-letter.qrtt1.io/api";
+
+console.log(`BACKEND_URL: ${BACKEND_URL}; process.env.REACT_APP_URL ${process.env.REACT_APP_URL}`);
 export const backendAxios = axios.create({
   baseURL: BACKEND_URL,
   // TODO how to set CORS correctly?
