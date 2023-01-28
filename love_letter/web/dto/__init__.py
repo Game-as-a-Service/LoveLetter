@@ -19,10 +19,16 @@ class CardModel(BaseModel):
     usage: Dict[str, Any]
 
 
+class SeenData(BaseModel):
+    opponent_name: str
+    card: CardModel
+
+
 class PlayerModel(BaseModel):
     name: str | None
     out: bool
     cards: List[CardModel]
+    seen_cards: List[SeenData]
 
 
 class RoundModel(BaseModel):
@@ -31,6 +37,13 @@ class RoundModel(BaseModel):
     turn_player: PlayerModel
 
 
+class NamedPlayer(BaseModel):
+    name: str | None
+    score: int
+
+
 class GameStatus(BaseModel):
     game_id: str
+    players: List[NamedPlayer]
+    events: List[Dict]
     rounds: List[RoundModel]

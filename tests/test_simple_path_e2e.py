@@ -26,6 +26,8 @@ class TestDeckForSimpleE2E(Deck):
 
 
 class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
+    maxDiff = None
+
     def setUp(self) -> None:
         self.t: TestClient = _test_client()
         # disable random-picker for the first round
@@ -62,10 +64,16 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         self.assertEqual(
             {
                 "game_id": game_id,
+                "events": [{"type": "round_started", "winner": None}],
+                "players": [
+                    {"name": "player-a", "score": 0},
+                    {"name": "player-b", "score": 0},
+                ],
                 "rounds": [
                     {
                         "players": [
                             {
+                                "seen_cards": [],
                                 "cards": [
                                     {
                                         "description": "猜測一名對手的手牌(不可猜衛兵)，猜測正確對方立刻出局。",
@@ -99,9 +107,15 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                                 "name": "player-a",
                                 "out": False,
                             },
-                            {"cards": [], "name": "player-b", "out": False},
+                            {
+                                "cards": [],
+                                "seen_cards": [],
+                                "name": "player-b",
+                                "out": False,
+                            },
                         ],
                         "turn_player": {
+                            "seen_cards": [],
                             "cards": [
                                 {
                                     "description": "猜測一名對手的手牌(不可猜衛兵)，猜測正確對方立刻出局。",
@@ -150,10 +164,27 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         self.assertEqual(
             {
                 "game_id": game_id,
+                "events": [
+                    {"type": "round_started", "winner": None},
+                    {
+                        "card": "衛兵",
+                        "to": "player-b",
+                        "took_effect": {"event": None, "took": True},
+                        "turn_player": "player-a",
+                        "type": "card_action",
+                        "with_card": "神父",
+                    },
+                    {"type": "round_started", "winner": "player-a"},
+                ],
+                "players": [
+                    {"name": "player-a", "score": 1},
+                    {"name": "player-b", "score": 0},
+                ],
                 "rounds": [
                     {
                         "players": [
                             {
+                                "seen_cards": [],
                                 "cards": [
                                     {
                                         "description": "如果把公主打出在桌面，就會立刻出局。",
@@ -183,10 +214,12 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                                     }
                                 ],
                                 "name": "player-b",
+                                "seen_cards": [],
                                 "out": True,
                             },
                         ],
                         "turn_player": {
+                            "seen_cards": [],
                             "cards": [
                                 {
                                     "description": "如果把公主打出在桌面，就會立刻出局。",
@@ -207,6 +240,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                     {
                         "players": [
                             {
+                                "seen_cards": [],
                                 "cards": [
                                     {
                                         "description": "猜測一名對手的手牌(不可猜衛兵)，猜測正確對方立刻出局。",
@@ -240,9 +274,15 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                                 "name": "player-a",
                                 "out": False,
                             },
-                            {"cards": [], "name": "player-b", "out": False},
+                            {
+                                "cards": [],
+                                "seen_cards": [],
+                                "name": "player-b",
+                                "out": False,
+                            },
                         ],
                         "turn_player": {
+                            "seen_cards": [],
                             "cards": [
                                 {
                                     "description": "猜測一名對手的手牌(不可猜衛兵)，猜測正確對方立刻出局。",

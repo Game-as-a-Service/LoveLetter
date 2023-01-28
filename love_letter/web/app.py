@@ -10,13 +10,20 @@ from love_letter.web.dto import GameStatus, GuessCard, ToSomeoneCard
 
 app = FastAPI()
 service = GameService(create_default_repository())
-origins = ["*"]
+origins = ["*", "http://localhost:3000", "http://localhost:8080"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "HEAD", "POST", "OPTIONS"],
+    allow_headers=[
+        "accept",
+        "content-type",
+        "content-language",
+        "accept-language",
+        "Access-Control-Allow-Origin",
+        "Access-Control-Allow-Credentials",
+    ],
 )
 
 
