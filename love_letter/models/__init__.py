@@ -16,6 +16,7 @@ def deck_factory() -> Deck:
 class Round:
     winner: Optional[str] = None
     turn_player: Optional["Player"] = None
+    start_player: str
 
     def __init__(self, players: List["Player"]):
         self.players: List["Player"] = players
@@ -54,11 +55,13 @@ class Round:
             for player in self.players:
                 if player.name == last_winner:
                     self.turn_player = player
+                    self.start_player = self.turn_player.name
                     return
 
         # pick up a player for the first round
         if self.turn_player is None:
             self.turn_player = Round.choose_one_randomly(self.players)
+            self.start_player = self.turn_player.name
             return
 
         from_index = self.players.index(self.turn_player)
@@ -106,6 +109,7 @@ class Round:
             players=[x.to_dict() for x in self.players],
             winner=self.winner,
             turn_player=turn_player,
+            start_player=self.start_player,
         )
 
 
