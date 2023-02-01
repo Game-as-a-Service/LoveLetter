@@ -22,10 +22,9 @@ jobs:
 
       - name: Run unit tests
         run: |
-          pip install --upgrade pip
-          pip install poetry
-          poetry update
+          ./tests/run-tests.sh
 
-          export PYTHONPATH=$(pwd)
-          poetry run py.test --cov=love_letter --cov-report term tests
-          poetry run behave
+      - name: Run unit tests with real storage
+        run: |
+          export repository_impl=pickle
+          ./tests/run-tests.sh

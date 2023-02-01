@@ -169,10 +169,14 @@ class BaronCard(Card):
         chosen_player: Optional["Player"] = None,
         with_card: Optional["Card"] = None,
     ):
+        event = dict(trigger_by=self.name)
         if card_holder > chosen_player:
             chosen_player.out()
+            event["out"] = chosen_player.name
         elif card_holder < chosen_player:
             card_holder.out()
+            event["out"] = card_holder.name
+        return event
 
     def choose_players(
         self, current_player_name: str, alive_player_names: List[str]
@@ -222,8 +226,14 @@ class PrinceCard(Card):
             if "公主" == card.name:
                 chosen_player.out()
 
+        event = dict(
+            trigger_by=self.name,
+            card=chosen_player.cards[0].name,
+            who=chosen_player.name,
+        )
         # TODO the game system should send a new card to the player who did discard
         chosen_player.cards = []
+        return event
 
     def can_discard(self, hand_cards: List[str]) -> bool:
         return CountessCard.name not in hand_cards

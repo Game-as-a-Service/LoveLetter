@@ -12,7 +12,7 @@ def _test_client() -> TestClient:
     return TestClient(app)
 
 
-class _TestDeck(Deck):
+class TestDeckForSimpleE2E(Deck):
     def shuffle(self, player_num: int):
         super().shuffle(player_num)
         from love_letter.models import find_card_by_name as c
@@ -26,6 +26,8 @@ class _TestDeck(Deck):
 
 
 class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
+    maxDiff = None
+
     def setUp(self) -> None:
         self.t: TestClient = _test_client()
         # disable random-picker for the first round
@@ -44,7 +46,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         # 將牌庫換成測試用牌庫
         import love_letter.models
 
-        love_letter.models.deck_factory = lambda: _TestDeck()
+        love_letter.models.deck_factory = lambda: TestDeckForSimpleE2E()
 
         # 建立遊戲
         game_id = self.t.post(f"/games/create/by_player/{player_a}").json()
@@ -62,10 +64,16 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         self.assertEqual(
             {
                 "game_id": game_id,
+                "events": [{"type": "round_started", "winner": None}],
+                "players": [
+                    {"name": "player-a", "score": 0},
+                    {"name": "player-b", "score": 0},
+                ],
                 "rounds": [
                     {
                         "players": [
                             {
+                                "seen_cards": [],
                                 "cards": [
                                     {
                                         "description": "猜測一名對手的手牌(不可猜衛兵)，猜測正確對方立刻出局。",
@@ -99,9 +107,15 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                                 "name": "player-a",
                                 "out": False,
                             },
-                            {"cards": [], "name": "player-b", "out": False},
+                            {
+                                "cards": [],
+                                "seen_cards": [],
+                                "name": "player-b",
+                                "out": False,
+                            },
                         ],
                         "turn_player": {
+                            "seen_cards": [],
                             "cards": [
                                 {
                                     "description": "猜測一名對手的手牌(不可猜衛兵)，猜測正確對方立刻出局。",
@@ -136,6 +150,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                             "out": False,
                         },
                         "winner": None,
+                        "start_player": "player-a",
                     }
                 ],
             },
@@ -150,10 +165,27 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
         self.assertEqual(
             {
                 "game_id": game_id,
+                "events": [
+                    {"type": "round_started", "winner": None},
+                    {
+                        "card": "衛兵",
+                        "to": "player-b",
+                        "took_effect": {"event": None, "took": True},
+                        "turn_player": "player-a",
+                        "type": "card_action",
+                        "with_card": "神父",
+                    },
+                    {"type": "round_started", "winner": "player-a"},
+                ],
+                "players": [
+                    {"name": "player-a", "score": 1},
+                    {"name": "player-b", "score": 0},
+                ],
                 "rounds": [
                     {
                         "players": [
                             {
+                                "seen_cards": [],
                                 "cards": [
                                     {
                                         "description": "如果把公主打出在桌面，就會立刻出局。",
@@ -183,10 +215,12 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                                     }
                                 ],
                                 "name": "player-b",
+                                "seen_cards": [],
                                 "out": True,
                             },
                         ],
                         "turn_player": {
+                            "seen_cards": [],
                             "cards": [
                                 {
                                     "description": "如果把公主打出在桌面，就會立刻出局。",
@@ -203,10 +237,12 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                             "out": False,
                         },
                         "winner": "player-a",
+                        "start_player": "player-a",
                     },
                     {
                         "players": [
                             {
+                                "seen_cards": [],
                                 "cards": [
                                     {
                                         "description": "猜測一名對手的手牌(不可猜衛兵)，猜測正確對方立刻出局。",
@@ -240,9 +276,15 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                                 "name": "player-a",
                                 "out": False,
                             },
-                            {"cards": [], "name": "player-b", "out": False},
+                            {
+                                "cards": [],
+                                "seen_cards": [],
+                                "name": "player-b",
+                                "out": False,
+                            },
                         ],
                         "turn_player": {
+                            "seen_cards": [],
                             "cards": [
                                 {
                                     "description": "猜測一名對手的手牌(不可猜衛兵)，猜測正確對方立刻出局。",
@@ -277,6 +319,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                             "out": False,
                         },
                         "winner": None,
+                        "start_player": "player-a",
                     },
                 ],
             },

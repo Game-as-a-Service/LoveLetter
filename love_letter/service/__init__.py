@@ -10,16 +10,21 @@ class GameService:
     def __init__(self, repository: GameRepository):
         self.repository = repository
 
+    def _save(self, game: Game):
+        return self.repository.save_or_update(game)
+
     def create_game(self, player_id: str) -> str:
         game = Game()
         # TODO for now, we dont have the registration process,
         # TODO just create the player when they are creating or joining the game
         game.join(Player(player_id))
-        return self.repository.save_or_update(game)
+        return self._save(game)
 
     def join_game(self, game_id: str, player_id: str) -> bool:
         try:
-            self.repository.get(game_id).join(Player(player_id))
+            game = self.repository.get(game_id)
+            game.join(Player(player_id))
+            self._save(game)
             return True
         except BaseException as e:
             traceback.print_exception(e)
@@ -30,6 +35,7 @@ class GameService:
         if game is None:
             return False
         game.start()
+        self._save(game)
         return True
 
     def play_card(
@@ -44,6 +50,7 @@ class GameService:
         if game is None:
             return
         game.play(player_id, card_name, card_action)
+        self._save(game)
         return self.convert_to_player_view(game, player_id)
 
     def get_status(self, game_id: str, player_id: str):
@@ -59,6 +66,8 @@ class GameService:
         raw_result = game.to_dict()
         if len(raw_result["rounds"]) < 1:
             return raw_result
+
+        # TODO fix the seen_cards for the player privacy
 
         last_round = raw_result["rounds"][-1]
         turn_player = last_round["turn_player"]

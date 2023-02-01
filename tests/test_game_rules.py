@@ -6,17 +6,21 @@ from love_letter.models import Deck, Game, Player, Round
 from love_letter.web.dto import GuessCard
 
 
+class _TestDeckForGameRules(Deck):
+    def __init__(self, card_name_list):
+        self.card_name_list = card_name_list
+
+    def shuffle(self, player_num: int):
+        super().shuffle(player_num)
+        from love_letter.models import find_card_by_name as c
+
+        self.cards = [c(x) for x in self.card_name_list]
+
+
 def reset_deck(card_name_list: List[str]):
-    class _TestDeck(Deck):
-        def shuffle(self, player_num: int):
-            super().shuffle(player_num)
-            from love_letter.models import find_card_by_name as c
-
-            self.cards = [c(x) for x in card_name_list]
-
     import love_letter.models
 
-    love_letter.models.deck_factory = lambda: _TestDeck()
+    love_letter.models.deck_factory = lambda: _TestDeckForGameRules(card_name_list)
 
 
 class CatchableTestCase(TestCase):

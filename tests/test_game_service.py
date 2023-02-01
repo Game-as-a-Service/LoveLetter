@@ -1,7 +1,7 @@
 import unittest
 
 from love_letter.models import Game, Player, Round
-from love_letter.repository import GameRepositoryInMemoryImpl
+from love_letter.repository import create_default_repository
 from love_letter.service import GameService
 from love_letter.web.dto import GameStatus
 from tests.test_card_behave import reset_deck
@@ -9,7 +9,7 @@ from tests.test_card_behave import reset_deck
 
 class GameServiceTests(unittest.TestCase):
     def test_create_and_join_game(self):
-        service = GameService(GameRepositoryInMemoryImpl())
+        service = GameService(create_default_repository())
 
         # create a new game
         game_id = service.create_game(Player("1").name)
@@ -42,7 +42,7 @@ class GameServiceTests(unittest.TestCase):
         self.assertEqual("['1', '2']", str(names))
 
     def test_get_status(self):
-        repo = GameRepositoryInMemoryImpl()
+        repo = create_default_repository()
 
         # given a started game with two players
         service = GameService(repo)
@@ -90,8 +90,8 @@ class PlayerContextTest(unittest.TestCase):
         self.game.join(Player("1"))
         self.game.join(Player("2"))
         self.game.join(Player("3"))
-        repo = GameRepositoryInMemoryImpl()
-        repo.in_memory_data[self.game_id] = self.game
+        repo = create_default_repository()
+        repo.save_or_update(self.game)
         self.game_service: GameService = GameService(repo)
 
         # disable random-picker for the first round

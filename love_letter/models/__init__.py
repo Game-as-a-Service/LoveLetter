@@ -2,7 +2,7 @@ import secrets
 from copy import deepcopy
 from dataclasses import dataclass
 from operator import attrgetter
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.exceptions import GameException
@@ -18,6 +18,7 @@ def deck_factory() -> Deck:
 class Round:
     winner: Optional[str] = None
     turn_player: Optional["Player"] = None
+    start_player: str
 
     def __init__(self, players: List["Player"]):
         self.players: List["Player"] = players
@@ -56,11 +57,13 @@ class Round:
             for player in self.players:
                 if player.name == last_winner:
                     self.turn_player = player
+                    self.start_player = self.turn_player.name
                     return
 
         # pick up a player for the first round
         if self.turn_player is None:
             self.turn_player = Round.choose_one_randomly(self.players)
+            self.start_player = self.turn_player.name
             return
 
         from_index = self.players.index(self.turn_player)
@@ -108,6 +111,7 @@ class Round:
             players=[x.to_dict() for x in self.players],
             winner=self.winner,
             turn_player=turn_player,
+            start_player=self.start_player,
         )
 
 
@@ -116,12 +120,23 @@ class Game:
         self.id: Optional[str] = None  # TODO: assign id to a game.
         self.players: List["Player"] = []
         self.rounds: List["Round"] = []
+
         self.num_of_tokens_to_win: int = 0
         self.final_winner: Optional[str] = None
+        self.events: List[Dict] = []
+
+    def post_event(self, message: Dict):
+        self.events.append(message)
+
 
     def join(self, player: "Player"):
         if self.has_started():
             raise GameException("Game Has Started")
+
+        # TODO it is no way to verify two players with same name, just pass it
+        join_before = [p for p in self.players if p.name == player.name]
+        if join_before:
+            return
 
         if len(self.players) < 4:
             self.players.append(player)
@@ -151,11 +166,13 @@ class Game:
                 return
         round = Round(deepcopy(self.players))
         round.next_turn_player(last_winner)
+        self.post_event({"type": "round_started", "winner": last_winner})
         self.rounds.append(round)
 
     def to_dict(self):
         return dict(
             game_id=self.id,
+            events=self.events,
             players=[x.to_dict() for x in self.players],
             rounds=[x.to_dict() for x in self.rounds],
         )
@@ -254,7 +271,15 @@ class Game:
         :return:
         """
         if action is None:
-            turn_player.discard_card(turn_player, discarded_card)
+            took_effect = turn_player.discard_card(turn_player, discarded_card)
+            self.post_event(
+                dict(
+                    type="card_action",
+                    turn_player=turn_player.name,
+                    card=discarded_card.name,
+                    took_effect=took_effect,
+                )
+            )
             return
 
         with_card = None
@@ -262,13 +287,37 @@ class Game:
             with_card = find_card_by_name(action.guess_card)
 
         chosen_player: "Player" = self.find_player_by_id(action.chosen_player)
-        turn_player.discard_card(chosen_player, discarded_card, with_card)
+        took_effect = turn_player.discard_card(chosen_player, discarded_card, with_card)
+        if with_card:
+            self.post_event(
+                dict(
+                    type="card_action",
+                    turn_player=turn_player.name,
+                    card=discarded_card.name,
+                    to=chosen_player.name,
+                    with_card=with_card.name,
+                    took_effect=took_effect,
+                )
+            )
+        else:
+            self.post_event(
+                dict(
+                    type="card_action",
+                    turn_player=turn_player.name,
+                    card=discarded_card.name,
+                    to=chosen_player.name,
+                    took_effect=took_effect,
+                )
+            )
 
 
 @dataclass
 class Seen:
     opponent_name: str
     card: Card
+
+    def to_dict(self):
+        return dict(opponent_name=self.opponent_name, card=self.card.to_dict())
 
 
 class Player:
@@ -289,31 +338,39 @@ class Player:
     ):
         # Precondition: the player must hold 2 cards
         if len(self.cards) != 2:
-            return False
+            return dict(took=False, event=None)
 
         # Precondition: Check will_be_played_card is in the hands
         if not any([True for c in self.cards if c.name == discarded_card.name]):
             raise GameException("Cannot discard cards not in your hand")
 
         self.drop_card(discarded_card)
+        trigger_event = None
         if not (chosen_player and chosen_player.protected):
-            discarded_card.trigger_effect(
+            trigger_event = discarded_card.trigger_effect(
                 self, chosen_player=chosen_player, with_card=with_card
+            )
+        elif (chosen_player and chosen_player.protected) and trigger_event is None:
+            trigger_event = dict(
+                trigger_by=discarded_card.name, protected=chosen_player.name
             )
 
         if len(self.cards) != 1:
-            return False
+            return dict(took=False, event=trigger_event)
 
         self.total_value_of_card += discarded_card.value
-
-        return True
+        return dict(took=True, event=trigger_event)
 
     def out(self):
         self.am_i_out = True
 
     def to_dict(self):
         return dict(
-            name=self.name, out=self.am_i_out, cards=[x.to_dict() for x in self.cards]
+            name=self.name,
+            out=self.am_i_out,
+            seen_cards=[x.to_dict() for x in self.seen_cards],
+            cards=[x.to_dict() for x in self.cards],
+            score=self.tokens_of_affection,
         )
 
     def __eq__(self, other):

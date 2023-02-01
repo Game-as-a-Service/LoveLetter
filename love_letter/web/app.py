@@ -4,20 +4,26 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from love_letter.repository import GameRepositoryInMemoryImpl
+from love_letter.repository import create_default_repository
 from love_letter.service import GameService
 from love_letter.web.dto import GameStatus, GuessCard, ToSomeoneCard
 
 app = FastAPI()
-repo = GameRepositoryInMemoryImpl()
-service = GameService(repo)
-origins = ["*"]
+service = GameService(create_default_repository())
+origins = ["*", "http://localhost:3000", "http://localhost:8080"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "HEAD", "POST", "OPTIONS"],
+    allow_headers=[
+        "accept",
+        "content-type",
+        "content-language",
+        "accept-language",
+        "Access-Control-Allow-Origin",
+        "Access-Control-Allow-Credentials",
+    ],
 )
 
 
