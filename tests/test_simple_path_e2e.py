@@ -150,6 +150,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                             "out": False,
                         },
                         "winner": None,
+                        "start_player": "player-a",
                     }
                 ],
             },
@@ -236,6 +237,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                             "out": False,
                         },
                         "winner": "player-a",
+                        "start_player": "player-a",
                     },
                     {
                         "players": [
@@ -317,6 +319,7 @@ class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
                             "out": False,
                         },
                         "winner": None,
+                        "start_player": "player-a",
                     },
                 ],
             },

@@ -40,4 +40,5 @@ export interface HandCard {
 export interface Round {
   turn_player: TurnPlayer;
   players: Array<RoundPlayer>;
+  start_player: string;
 }

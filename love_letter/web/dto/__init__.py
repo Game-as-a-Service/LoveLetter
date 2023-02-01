@@ -35,6 +35,7 @@ class RoundModel(BaseModel):
     players: List[PlayerModel]
     winner: str | None
     turn_player: PlayerModel
+    start_player: str
 
 
 class NamedPlayer(BaseModel):
