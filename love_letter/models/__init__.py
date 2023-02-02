@@ -120,7 +120,6 @@ class Game:
         self.id: Optional[str] = None  # TODO: assign id to a game.
         self.players: List["Player"] = []
         self.rounds: List["Round"] = []
-
         self.num_of_tokens_to_win: int = 0
         self.final_winner: Optional[str] = None
         self.events: List[Dict] = []
@@ -128,11 +127,9 @@ class Game:
     def post_event(self, message: Dict):
         self.events.append(message)
 
-
     def join(self, player: "Player"):
         if self.has_started():
             raise GameException("Game Has Started")
-
         # TODO it is no way to verify two players with same name, just pass it
         join_before = [p for p in self.players if p.name == player.name]
         if join_before:
