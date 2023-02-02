@@ -144,7 +144,9 @@ class Game:
     def start(self):
         if len(self.players) < 2:
             raise GameException("Too Few Players")
-        self.num_of_tokens_to_win = num_of_player_with_tokens_to_win.get(len(self.players))
+        self.num_of_tokens_to_win = num_of_player_with_tokens_to_win.get(
+            len(self.players)
+        )
         self.next_round()
 
     def next_round(self, last_winner: Optional[str] = None):
