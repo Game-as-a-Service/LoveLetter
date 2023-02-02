@@ -67,17 +67,17 @@ class GameService:
         if len(raw_result["rounds"]) < 1:
             return raw_result
 
-        # TODO fix the seen_cards for the player privacy
-
         last_round = raw_result["rounds"][-1]
         turn_player = last_round["turn_player"]
 
         for p in last_round["players"]:
             if p["name"] != player_id:
                 p["cards"] = []
+                p["seen_cards"] = []
 
         if turn_player["name"] != player_id:
             turn_player["cards"] = []
+            turn_player["seen_cards"] = []
 
         return self.decorate_with_card_usage(raw_result, player_id)
 
