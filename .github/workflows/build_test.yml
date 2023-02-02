@@ -1,0 +1,26 @@
+name: Build test
+
+on:
+  push:
+    branches:
+      - master
+      - feature/add_frontend_some_issue
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+
+      - name: Install and Build
+        working-directory: frontend
+        run: |
+          export DISABLE_ESLINT_PLUGIN=true
+          yarn install
+          yarn build
