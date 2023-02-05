@@ -390,3 +390,44 @@ class EndRoundTests(unittest.TestCase):
         self.assertEqual(
             "1", self.game.rounds[-1].turn_player.name
         )  # turn player of this round
+
+
+class EndGameTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.game: Game = Game()
+        self.game.join(Player("1"))
+        self.game.join(Player("2"))
+
+        # disable random-picker for the first round
+        # it always returns the first player
+        self.origin_choose_one_randomly = Round.choose_one_randomly
+        Round.choose_one_randomly = lambda x: x[0]
+
+    def tearDown(self) -> None:
+        Round.choose_one_randomly = self.origin_choose_one_randomly
+
+    def test_with_no_card_in_deck_more_than_one_player_has_biggest_card(self):
+        """
+        遊戲開始後，牌庫的牌抽完，此局結束，手牌較大者獲勝，手牌較大的玩家有兩位以上時，比較棄牌堆大小，勝者拿到一枚好感指示物
+        玩家1 出牌 獲得侍女保護
+        此局結束 玩家1的棄牌堆總和較大 獲得一枚好感指示物
+        :return:
+        """
+
+        # given the arranged deck
+        reset_deck(["神父", "神父", "侍女"])
+
+        # given a started game
+        self.game.start()
+
+        for _ in range(7):
+            # when there is no card in deck, compare player's card
+            # when two or more than two player have the biggest card in hand, compare the total_value_of_card
+            self.game.play("1", "侍女", None)
+
+        # then player1 gets 7 token of affection
+        self.assertEqual(7, self.game.players[0].tokens_of_affection)
+        # then there are 7 rounds in total
+        self.assertEqual(7, len(self.game.rounds))  # there are seven rounds
+        # then the player-1 will be the winner
+        self.assertEqual("1", self.game.final_winner)  # the last round winner

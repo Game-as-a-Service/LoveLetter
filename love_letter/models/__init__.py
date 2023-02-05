@@ -8,6 +8,8 @@ from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.exceptions import GameException
 from love_letter.web.dto import GuessCard, ToSomeoneCard
 
+num_of_player_with_tokens_to_win = {2: 7, 3: 5, 4: 4}
+
 
 def deck_factory() -> Deck:
     return Deck()
@@ -118,6 +120,8 @@ class Game:
         self.id: Optional[str] = None  # TODO: assign id to a game.
         self.players: List["Player"] = []
         self.rounds: List["Round"] = []
+        self.num_of_tokens_to_win: int = 0
+        self.final_winner: Optional[str] = None
         self.events: List[Dict] = []
 
     def post_event(self, message: Dict):
@@ -126,7 +130,6 @@ class Game:
     def join(self, player: "Player"):
         if self.has_started():
             raise GameException("Game Has Started")
-
         # TODO it is no way to verify two players with same name, just pass it
         join_before = [p for p in self.players if p.name == player.name]
         if join_before:
@@ -141,7 +144,9 @@ class Game:
     def start(self):
         if len(self.players) < 2:
             raise GameException("Too Few Players")
-
+        self.num_of_tokens_to_win = num_of_player_with_tokens_to_win.get(
+            len(self.players)
+        )
         self.next_round()
 
     def next_round(self, last_winner: Optional[str] = None):
@@ -154,6 +159,10 @@ class Game:
             for player in players:
                 if player.name == last_winner:
                     player.tokens_of_affection += 1
+        for player in self.players:
+            if player.tokens_of_affection == self.num_of_tokens_to_win:
+                self.final_winner = player.name
+                return
         round = Round(deepcopy(self.players))
         round.next_turn_player(last_winner)
         self.post_event({"type": "round_started", "winner": last_winner})
