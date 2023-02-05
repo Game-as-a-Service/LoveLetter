@@ -70,9 +70,9 @@ export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
         </div>
         {/*<!-- Game Status-->*/}
         <div className="w-[25vw] p-4 border-l-2 border-slate-400 shadow-amber-300 max-h-[100vh]">
-          <GameStatusBoard />
+          <GameStatusBoard key={0}/>
           {/* <!-- Game events --> */}
-          <GameEvents />
+          <GameEvents key={0}/>
         </div>
       </div>
     </>
