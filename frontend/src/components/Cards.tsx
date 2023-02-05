@@ -51,7 +51,7 @@ export function CardAction(props: { handCard: HandCard }) {
           }}
         >
           {handCard.usage.choose_players.map((x) => (
-            <option value={x}>{x}</option>
+            <option value={x} key={x}>{x}</option>
           ))}
         </Select>
       )}
@@ -65,7 +65,7 @@ export function CardAction(props: { handCard: HandCard }) {
           }}
         >
           {handCard.usage.can_guess_cards.map((x) => (
-            <option value={x}>{x}</option>
+            <option value={x} key={x}>{x}</option>
           ))}
         </Select>
       )}

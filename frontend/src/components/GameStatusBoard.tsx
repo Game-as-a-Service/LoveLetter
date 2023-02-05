@@ -88,7 +88,7 @@ export function GameStatusBoard() {
                 </div>
                 <h1>玩家列表</h1>
                 {data.map((x) => (
-                    <PlayerItem index={x.index} name={x.name}></PlayerItem>
+                    <PlayerItem index={x.index} name={x.name} key={`PlayerItem_${x.index}`}></PlayerItem>
                 ))}
             </div>
             <div className="absolute top-2 left-2 border-2 border-black p-1 text-[10pt]">
