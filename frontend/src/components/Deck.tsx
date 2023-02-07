@@ -12,6 +12,10 @@ export function Deck() {
     return empty;
   }
 
+  if (context.IsGameOver()) {
+    return empty;
+  }
+
   if (!context.IsMyTurn()) {
     return empty;
   }

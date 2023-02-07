@@ -76,7 +76,9 @@ export function GameStatusBoard() {
         });
     }
 
-    // TODO 如果可以知道遊戲結束的狀態時，要能顯示遊戲結束的贏家
+    if (context.IsGameOver()) {
+        gameProgress = "遊戲結束";
+    }
 
     return (
         <>

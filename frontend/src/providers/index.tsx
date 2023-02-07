@@ -15,6 +15,7 @@ export interface GameInformation {
 
   IsMyTurn: () => boolean;
   GetStartPlayer: () => string;
+  IsGameOver: () => boolean;
 }
 
 class BeforeReadyGameInformation implements GameInformation {
@@ -37,7 +38,7 @@ class BeforeReadyGameInformation implements GameInformation {
   }
 
   GameStatus(): GameStatus {
-    return { events: [], game_id: "", players: [], rounds: [] };
+    return { events: [], game_id: "", players: [], rounds: [], final_winner: ""};
   }
 
   IsMyTurn(): boolean {
@@ -46,6 +47,10 @@ class BeforeReadyGameInformation implements GameInformation {
 
   GetStartPlayer(): string {
     return this.unknown;
+  }
+
+  IsGameOver(): boolean {
+    return false;
   }
 }
 
@@ -68,8 +73,7 @@ class ConcreteGameInformation implements GameInformation {
     if (this.gameStatus.rounds.length === 0) {
       return { cards: [], name: "unknown", out: false };
     }
-    return this.gameStatus.rounds[this.gameStatus.rounds.length - 1]
-      .turn_player;
+    return this.gameStatus.rounds[this.gameStatus.rounds.length - 1].turn_player;
   }
 
   GetUsername(): string {
@@ -90,6 +94,10 @@ class ConcreteGameInformation implements GameInformation {
     }
 
     return this.gameStatus.rounds[this.gameStatus.rounds.length - 1].start_player;
+  }
+
+  IsGameOver(): boolean {
+    return this.gameStatus.final_winner != "" && this.gameStatus.final_winner != null;
   }
 
   gameId: string;

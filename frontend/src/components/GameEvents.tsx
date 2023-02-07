@@ -114,6 +114,26 @@ function CardEventView(props: { event: GameEvent; index: number }) {
   );
 }
 
+function GameOverView(props: { event: GameEvent; index: number }) {
+    const { event, index } = props;
+
+    if (event.type !== "game_over") {
+        return <></>;
+    }
+
+    return (
+        <div className="m-1 p-2 min-h-[1rem] pl-3 rounded-xl flex items-center text-[12px]">
+            <Badge variant="solid" colorScheme="blackAlpha">
+                game over
+            </Badge>
+            <Badge variant="solid" colorScheme="red" ml={2}>
+                {event.final_winner}
+            </Badge>
+            <Box ml={2}>成為最終贏家</Box>
+        </div>
+    )
+}
+
 function CardActionItem(props: { event: GameEvent; index: number }) {
   const { event, index } = props;
   if (event.type !== "card_action") {
@@ -191,6 +211,7 @@ export function GameEvents() {
           <div key={`GameEvents_${index}`}>
             <RoundEventView event={evt} index={index} />
             <CardEventView event={evt} index={index} />
+            <GameOverView event={evt} index={index} />
           </div>
         ))}
       </div>
