@@ -174,6 +174,7 @@ class Game:
             events=self.events,
             players=[x.to_dict() for x in self.players],
             rounds=[x.to_dict() for x in self.rounds],
+            final_winner=self.final_winner,
         )
 
     def play(

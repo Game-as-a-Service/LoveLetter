@@ -1,7 +1,8 @@
 import axios, { RawAxiosRequestHeaders } from "axios";
 
-import { isEmpty } from "lodash";
+import {isEmpty, isEqual} from "lodash";
 import { GameStatus } from "@/types";
+import {useEffect} from "react";
 
 export const defaultHeaders: RawAxiosRequestHeaders = {
   Accept: "application/json",
@@ -9,6 +10,8 @@ export const defaultHeaders: RawAxiosRequestHeaders = {
 };
 
 const BACKEND_URL = "http://127.0.0.1:8080";
+const BACKEND_SSE_URL = "http://127.0.0.1:8081";
+
 export const backendAxios = axios.create({
   baseURL: BACKEND_URL,
   // TODO how to set CORS correctly?
@@ -79,4 +82,44 @@ export async function PlayCard(
     isEmpty(payload) ? null : payload
   );
   return response.data;
+}
+
+export function SetGameStatusSSE(
+    gameId: string,
+    playerId: string,
+    gameStatus: GameStatus | null,
+    setGameStatus: any
+) {
+    let evtSource: EventSource | null = new EventSource(`${BACKEND_SSE_URL}/stream/${gameId}/player/${playerId}/status`);
+
+    useEffect(() => {
+        if (evtSource === null) {
+            return
+        }
+
+        evtSource.addEventListener("new_message", function (event) {
+            const data = JSON.parse(String(event.data));
+            if (!isEqual(gameStatus, data)) {
+                setGameStatus(data);
+            }
+        })
+
+        evtSource.addEventListener("end", function(event) {
+            console.log('Handling end....')
+            if (evtSource === null) {
+                return
+            }
+            evtSource.close();
+            evtSource = null;
+        });
+    }, [])
+
+    evtSource.onerror = () => {
+        console.log("on error!")
+        if (evtSource === null) {
+            return
+        }
+        evtSource.close();
+        evtSource = null;
+    };
 }

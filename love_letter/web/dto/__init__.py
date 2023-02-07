@@ -48,3 +48,4 @@ class GameStatus(BaseModel):
     players: List[NamedPlayer]
     events: List[Dict]
     rounds: List[RoundModel]
+    final_winner: str | None

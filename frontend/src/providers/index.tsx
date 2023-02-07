@@ -1,7 +1,7 @@
 import { GameStatus, TurnPlayer } from "@/types";
 import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
 import { useGameId, useUsername } from "@/hooks";
-import { GetGameStatus } from "@/apis";
+import {GetGameStatus, SetGameStatusSSE} from "@/apis";
 import { isEqual } from "lodash";
 
 export interface GameInformation {
@@ -109,6 +109,8 @@ export function GameDataProvider(props: GameDataProviderProps) {
   const [gameId] = useGameId();
   const [username] = useUsername();
   const [gameStatus, setGameStatus] = useState<GameStatus | null>(null);
+
+  // SetGameStatusSSE(gameId, username, gameStatus, setGameStatus);
 
   // refresh GameStatus every 1 second.
   useEffect(() => {

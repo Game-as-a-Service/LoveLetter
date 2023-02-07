@@ -544,6 +544,17 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "sse-starlette"
+version = "1.2.1"
+description = "\"SSE plugin for Starlette\""
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+starlette = "*"
+
+[[package]]
 name = "starlette"
 version = "0.21.0"
 description = "The little ASGI library that shines."
@@ -608,7 +619,7 @@ testing = ["coverage (>=6.2)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "9ae2ea552607999d587bde877545fa77e4a8f7d72fc9ce5099ce78da443503a8"
+content-hash = "817f1ac3c777073686f6ce5bc52a294cb8fb2fb13df515edb51d7ebe669d46cb"
 
 [metadata.files]
 anyio = [
@@ -919,6 +930,10 @@ six = [
 sniffio = [
     {file = "sniffio-1.3.0-py3-none-any.whl", hash = "sha256:eecefdce1e5bbfb7ad2eeaabf7c1eeb404d7757c379bd1f7e5cce9d8bf425384"},
     {file = "sniffio-1.3.0.tar.gz", hash = "sha256:e60305c5e5d314f5389259b7f22aaa33d8f7dee49763119234af3755c55b9101"},
+]
+sse-starlette = [
+    {file = "sse-starlette-1.2.1.tar.gz", hash = "sha256:52760a16ed6380be53a2acca9173de17442f4165716f93679182e82ddd5c8a01"},
+    {file = "sse_starlette-1.2.1-py3-none-any.whl", hash = "sha256:22116035906cb332ed3c5cb2d495af58fd55350de20866ecdc247db7fd69f2ef"},
 ]
 starlette = [
     {file = "starlette-0.21.0-py3-none-any.whl", hash = "sha256:0efc058261bbcddeca93cad577efd36d0c8a317e44376bcfc0e097a2b3dc24a7"},
