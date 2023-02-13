@@ -107,8 +107,8 @@ export function GameStatusBoard() {
                 </div>
                 <div>
                     看到的牌：
-                    {seens.map((x) => (
-                        <SeenItem seen={x}/>
+                    {seens.map((x, index) => (
+                        <SeenItem seen={x} key={`SeenItem_${x.card}`}/>
                     ))}
                 </div>
             </div>
