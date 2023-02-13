@@ -9,6 +9,7 @@ from starlette.requests import Request
 
 from love_letter.repository import create_default_repository
 from love_letter.service import GameService
+from love_letter.web.dto import GameStatus
 
 STREAM_DELAY = 2  # second
 RETRY_TIMEOUT = 15000  # milisecond
@@ -42,15 +43,18 @@ async def message_stream(request: Request, game_id: str, player_id: str):
                 break
 
             # Checks for new messages and return them to client if any
-            status = service.get_status(game_id, player_id)
+            status: GameStatus = GameStatus.parse_obj(
+                service.get_status(game_id, player_id)
+            )
             status_str = ""
             try:
-                status_str = json.dumps(status)
+                status_str = GameStatus.json(status)
             except TypeError as e:
                 print(status, e)
                 yield {"event": "end", "retry": RETRY_TIMEOUT, "data": e.args[0]}
 
-            if not status.get("final_player", None):
+            # Game is progress
+            if status.final_winner is None:
                 yield {
                     "event": "new_message",
                     "id": "message_id",

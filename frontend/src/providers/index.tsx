@@ -110,29 +110,29 @@ export function GameDataProvider(props: GameDataProviderProps) {
   const [username] = useUsername();
   const [gameStatus, setGameStatus] = useState<GameStatus | null>(null);
 
-  // SetGameStatusSSE(gameId, username, gameStatus, setGameStatus);
+  SetGameStatusSSE(gameId, username, gameStatus, setGameStatus);
 
   // refresh GameStatus every 1 second.
-  useEffect(() => {
-    // set GameStatus before the refresher triggered
-    GetGameStatus(gameId, username).then((status: GameStatus) => {
-      if (!isEqual(gameStatus, status)) {
-        setGameStatus(status);
-      }
-    });
-
-    const intervalId = setInterval(() => {
-      // auto-refresh GameStatus
-      GetGameStatus(gameId, username).then((status: GameStatus) => {
-        if (!isEqual(gameStatus, status)) {
-          setGameStatus(status);
-        }
-      });
-    }, 1 * 1000);
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
+  // useEffect(() => {
+  //   // set GameStatus before the refresher triggered
+  //   GetGameStatus(gameId, username).then((status: GameStatus) => {
+  //     if (!isEqual(gameStatus, status)) {
+  //       setGameStatus(status);
+  //     }
+  //   });
+  //
+  //   const intervalId = setInterval(() => {
+  //     // auto-refresh GameStatus
+  //     GetGameStatus(gameId, username).then((status: GameStatus) => {
+  //       if (!isEqual(gameStatus, status)) {
+  //         setGameStatus(status);
+  //       }
+  //     });
+  //   }, 1 * 1000);
+  //   return () => {
+  //     clearInterval(intervalId);
+  //   };
+  // }, []);
 
   let value: GameInformation = new BeforeReadyGameInformation();
   if (gameStatus !== null) {
