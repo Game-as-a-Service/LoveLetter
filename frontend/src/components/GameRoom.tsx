@@ -13,7 +13,7 @@ function StartGameFunc(props: { gameStatus: GameStatus | null }) {
   if (gameStatus == null) {
     return <></>;
   }
-  if (gameStatus.players.length >= 2 && gameStatus.rounds.length == 0) {
+  if (gameStatus.players.length >= 2 && gameStatus.rounds.length === 0) {
     return (
       <Button
         colorScheme="twitter"

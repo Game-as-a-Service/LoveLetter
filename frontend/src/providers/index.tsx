@@ -3,7 +3,6 @@ import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
 import { useGameId, useUsername } from "@/hooks";
 import { GetGameStatus } from "@/apis";
 import { isEqual } from "lodash";
-import { border } from "@chakra-ui/react";
 
 export interface GameInformation {
   GameId: () => string;

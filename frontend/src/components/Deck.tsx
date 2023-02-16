@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
-import { CardAction, CardBack } from "@/components/Cards";
+import { CardAction } from "@/components/Cards";
 import { GameContext } from "@/providers";
-import { Box, Flex } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 
 export function Deck() {
   const context = useContext(GameContext);
@@ -30,7 +30,6 @@ export function Deck() {
         <Flex>
           <div>
             <div className="text-xs">{cards[0].name}</div>
-
             <CardAction handCard={cards[0]} />
           </div>
           <div className="min-w-[15px]"></div>

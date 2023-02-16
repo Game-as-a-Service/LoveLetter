@@ -188,10 +188,10 @@ export function GameEvents() {
       <h1>遊戲事件</h1>
       <div className="overflow-y-auto border-2 border-black shadow-2xl">
         {lastN(8, events as Array<GameEvent>).map((evt, index) => (
-          <>
+          <div key={`GameEvents_${index}`}>
             <RoundEventView event={evt} index={index} />
             <CardEventView event={evt} index={index} />
-          </>
+          </div>
         ))}
       </div>
     </div>

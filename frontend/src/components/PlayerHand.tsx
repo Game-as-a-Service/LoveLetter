@@ -78,9 +78,9 @@ export function PlayerHand(props: {
         )}
         {is_turn_player && is_current_user && (
           <div className="flex">
-            {hand_cards.map((x) => (
+            {hand_cards.map((x, index) => (
               <CardFront
-                key={`${x.name}${playerName}`}
+                key={`${x.name}${playerName}_${index}`}
                 handCard={x}
               ></CardFront>
             ))}

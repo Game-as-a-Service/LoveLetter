@@ -3,7 +3,7 @@ import unittest
 from love_letter.models import Game, Player, Round
 from love_letter.repository import create_default_repository
 from love_letter.service import GameService
-from love_letter.web.dto import GameStatus
+from love_letter.web.dto import GameStatus, ToSomeoneCard
 from tests.test_card_behave import reset_deck
 
 
@@ -321,3 +321,37 @@ class PlayerContextTest(unittest.TestCase):
 
         # then assert the player status prompt
         self.assert_player_status_prompt(expected_card_mapping)
+
+    def test_just_1_can_see_opponent_card_by_priest_card(self):
+        """
+        測試丟棄神父牌後，只有自己可以看到"對方的牌"，其他人看不到
+        :return:
+        """
+        # given the arranged deck
+        reset_deck(["神父", "神父", "男爵", "衛兵", "衛兵"])
+
+        # given a started game
+        self.game_service.start_game(self.game_id)
+
+        # when: 1對3打出神父
+        self.game_service.play_card(
+            self.game_id, "1", "神父", ToSomeoneCard(chosen_player=3)
+        )
+
+        status_of_player1: GameStatus = GameStatus.parse_obj(
+            self.game_service.get_status(self.game_id, "1")
+        )
+        status_of_player2: GameStatus = GameStatus.parse_obj(
+            self.game_service.get_status(self.game_id, "2")
+        )
+        status_of_player3: GameStatus = GameStatus.parse_obj(
+            self.game_service.get_status(self.game_id, "3")
+        )
+
+        # then: 只有1才能看到對方的牌。2、3看不到
+        self.assertTrue(len(status_of_player1.rounds[-1].players[0].seen_cards) == 1)
+        self.assertTrue(len(status_of_player2.rounds[-1].players[0].seen_cards) == 0)
+        self.assertTrue(len(status_of_player3.rounds[-1].players[0].seen_cards) == 0)
+        self.assertTrue(
+            len(status_of_player2.rounds[-1].turn_player.seen_cards) == 0
+        )  # turn_player = 玩家2
