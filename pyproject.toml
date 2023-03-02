@@ -4,6 +4,10 @@ version = "0.1.0"
 description = ""
 authors = ["Eddy <eddy15201@gmail.com>"]
 readme = "README.md"
+packages = [{include = "love_letter"}]
+
+[tool.poetry.scripts]
+app = 'love_letter.web.app:run'
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -18,7 +22,6 @@ uvicorn = "^0.20.0"
 black = "^22.12.0"
 isort = "^5.11.4"
 pre-commit = "^2.21.0"
-
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"

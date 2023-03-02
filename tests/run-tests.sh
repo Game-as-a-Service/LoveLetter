@@ -7,5 +7,5 @@ poetry update
 set -e
 
 export PYTHONPATH=$(pwd)
-poetry run py.test -v -s --cov=love_letter --cov-report term tests
+poetry run pytest -v -s --cov=love_letter --cov-report term tests
 poetry run behave
