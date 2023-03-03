@@ -60,5 +60,9 @@ async def get_status(game_id: str, player_id: str):
     return service.get_status(game_id, player_id)
 
 
-if __name__ == "__main__":
+def run():
     uvicorn.run("love_letter.web.app:app", host="0.0.0.0", port=8080, reload=True)
+
+
+if __name__ == "__main__":
+    run()
