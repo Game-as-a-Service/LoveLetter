@@ -2,13 +2,16 @@ import axios, { RawAxiosRequestHeaders } from "axios";
 
 import { isEmpty } from "lodash";
 import { GameStatus } from "@/types";
+import * as process from "process";
 
 export const defaultHeaders: RawAxiosRequestHeaders = {
   Accept: "application/json",
   "Content-Type": "application/json",
 };
 
-const BACKEND_URL = "http://127.0.0.1:8080";
+const BACKEND_URL =
+  process.env.REACT_APP_BACKEND_API || "http://127.0.0.1:8080";
+
 export const backendAxios = axios.create({
   baseURL: BACKEND_URL,
   // TODO how to set CORS correctly?

@@ -16,9 +16,12 @@
     "@types/react-copy-to-clipboard": "^5.0.4",
     "@types/react-dom": "^18.0.10",
     "axios": "^1.2.2",
+    "dotenv": "^16.0.3",
+    "dotenv-cli": "^7.0.0",
     "framer-motion": "^8.4.3",
     "lodash": "^4.17.21",
     "prettier": "^2.8.3",
+    "process": "^0.11.10",
     "react": "^18.2.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
@@ -27,10 +30,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
-    "test": "craco test",
-    "eject": "craco eject"
+    "start": "dotenv -e .env.local craco start",
+    "build": "dotenv -e .env.local craco build",
+    "test": "dotenv -e .env.local craco test",
+    "eject": "dotenv -e .env.local craco eject"
   },
   "eslintConfig": {
     "extends": [
