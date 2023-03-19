@@ -2,8 +2,7 @@ from collections import Counter
 from typing import Callable, List
 from unittest import TestCase
 
-from love_letter.models import Deck, Game, Player, Round
-from love_letter.web.dto import GuessCard
+from love_letter.models import Deck, Game, GuessCard, Player, Round
 
 
 class _TestDeckForGameRules(Deck):

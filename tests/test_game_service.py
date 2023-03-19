@@ -1,10 +1,10 @@
 import unittest
 
-from love_letter.models import Game, Player, Round
+from love_letter.models import Game, Player, Round, ToSomeoneCard
 from love_letter.repository import create_default_repository
 from love_letter.service import GameService
-from love_letter.usecase import CreateGame, JoinGame, StartGame
-from love_letter.web.dto import GameStatus, ToSomeoneCard
+from love_letter.usecase import CreateGame, JoinGame, PlayCard, StartGame
+from love_letter.web.dto import GameStatus
 from tests.test_card_behave import reset_deck
 
 
@@ -194,7 +194,9 @@ class PlayerContextTest(unittest.TestCase):
         self.assert_player_status_prompt(expected_card_mapping)
 
         # when player-1 discard countess
-        self.game_service.play_card(self.game_id, "1", "伯爵夫人", None)
+        PlayCard().execute(
+            PlayCard.input(self.game_id, "1", "伯爵夫人", None), PlayCard.output()
+        )
 
         expected_card_mapping = {
             "1": (
@@ -350,8 +352,9 @@ class PlayerContextTest(unittest.TestCase):
         self.start_game(self.game_id)
 
         # when: 1對3打出神父
-        self.game_service.play_card(
-            self.game_id, "1", "神父", ToSomeoneCard(chosen_player=3)
+        PlayCard().execute(
+            PlayCard.input(self.game_id, "1", "神父", ToSomeoneCard(chosen_player=3)),
+            PlayCard.output(),
         )
 
         status_of_player1: GameStatus = GameStatus.parse_obj(

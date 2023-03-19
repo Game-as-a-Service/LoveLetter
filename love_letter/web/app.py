@@ -4,10 +4,12 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from love_letter.models import GuessCard, ToSomeoneCard
 from love_letter.repository import create_default_repository
 from love_letter.service import GameService
-from love_letter.usecase import CreateGame, JoinGame, StartGame
-from love_letter.web.dto import GameStatus, GuessCard, ToSomeoneCard
+from love_letter.usecase import CreateGame, JoinGame, PlayCard, StartGame
+from love_letter.web.dto import GameStatus
+from love_letter.web.presenter import build_player_view
 
 app = FastAPI()
 service = GameService(create_default_repository())
@@ -59,7 +61,12 @@ async def play_card(
     card_name: str,
     card_action: Union[GuessCard, ToSomeoneCard, None] = None,
 ):
-    return service.play_card(game_id, player_id, card_name, card_action)
+    output = PlayCard.output()
+    PlayCard().execute(
+        PlayCard.input(game_id, player_id, card_name, card_action), output
+    )
+    return build_player_view(output.game, player_id)
+    # return service.play_card(game_id, player_id, card_name, card_action)
 
 
 @app.get("/games/{game_id}/player/{player_id}/status", response_model=GameStatus)

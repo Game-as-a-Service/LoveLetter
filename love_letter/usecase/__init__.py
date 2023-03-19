@@ -1,6 +1,7 @@
 import traceback
+from typing import Dict, Union
 
-from love_letter.models import Game, Player
+from love_letter.models import Game, GuessCard, Player, ToSomeoneCard
 from love_letter.repository import create_default_repository
 
 game_repository = create_default_repository()
@@ -95,3 +96,45 @@ class StartGame:
         game.start()
         game_repository.save_or_update(game)
         output.success = True
+
+
+class PlayCardInput:
+    game_id: str
+    player_id: str
+    card_name: str
+    card_action: Union[GuessCard, ToSomeoneCard, None]
+
+
+class PlayCardOutput:
+    game: Game
+
+
+class PlayCard:
+    @classmethod
+    def output(cls) -> PlayCardOutput:
+        return PlayCardOutput()
+
+    @classmethod
+    def input(
+        cls,
+        game_id: str,
+        player_id: str,
+        card_name: str,
+        card_action: Union[GuessCard, ToSomeoneCard, None],
+    ) -> PlayCardInput:
+        input = PlayCardInput()
+        input.game_id = game_id
+        input.player_id = player_id
+        input.card_name = card_name
+        input.card_action = card_action
+        return input
+
+    def execute(self, input: PlayCardInput, output: PlayCardOutput):
+        game: Game = game_repository.get(input.game_id)
+        if game is None:
+            output.game = None
+            return
+
+        game.play(input.player_id, input.card_name, input.card_action)
+        game_repository.save_or_update(game)
+        output.game = game

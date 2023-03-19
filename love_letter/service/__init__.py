@@ -1,8 +1,7 @@
 from typing import Any, Dict, List, Optional, Union
 
-from love_letter.models import Game
+from love_letter.models import Game, GuessCard, ToSomeoneCard
 from love_letter.repository import GameRepository
-from love_letter.web.dto import GuessCard, ToSomeoneCard
 
 
 class GameService:
@@ -11,21 +10,6 @@ class GameService:
 
     def _save(self, game: Game):
         return self.repository.save_or_update(game)
-
-    def play_card(
-        self,
-        game_id,
-        player_id: str,
-        card_name: str,
-        card_action: Union[GuessCard, ToSomeoneCard, None],
-    ) -> Optional[Dict]:
-
-        game: Game = self.repository.get(game_id)
-        if game is None:
-            return
-        game.play(player_id, card_name, card_action)
-        self._save(game)
-        return self.convert_to_player_view(game, player_id)
 
     def get_status(self, game_id: str, player_id: str):
         game: Game = self.repository.get(game_id)
