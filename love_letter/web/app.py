@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from love_letter.models import GuessCard, ToSomeoneCard
 from love_letter.repository import create_default_repository
 from love_letter.service import GameService
-from love_letter.usecase import CreateGame, JoinGame, PlayCard, StartGame
+from love_letter.usecase import CreateGame, GetStatus, JoinGame, PlayCard, StartGame
 from love_letter.web.dto import GameStatus
 from love_letter.web.presenter import build_player_view
 
@@ -66,12 +66,13 @@ async def play_card(
         PlayCard.input(game_id, player_id, card_name, card_action), output
     )
     return build_player_view(output.game, player_id)
-    # return service.play_card(game_id, player_id, card_name, card_action)
 
 
 @app.get("/games/{game_id}/player/{player_id}/status", response_model=GameStatus)
 async def get_status(game_id: str, player_id: str):
-    return service.get_status(game_id, player_id)
+    output = GetStatus.output()
+    GetStatus().execute(GetStatus.input(game_id, player_id), output)
+    return build_player_view(output.game, player_id)
 
 
 def run():

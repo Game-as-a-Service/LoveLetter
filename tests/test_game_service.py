@@ -3,9 +3,17 @@ import unittest
 from love_letter.models import Game, Player, Round, ToSomeoneCard
 from love_letter.repository import create_default_repository
 from love_letter.service import GameService
-from love_letter.usecase import CreateGame, JoinGame, PlayCard, StartGame
+from love_letter.usecase import CreateGame, GetStatus, JoinGame, PlayCard, StartGame
 from love_letter.web.dto import GameStatus
+from love_letter.web.presenter import build_player_view
 from tests.test_card_behave import reset_deck
+
+
+def get_status(game_id, player_id):
+    output = GetStatus.output()
+    GetStatus().execute(GetStatus.input(game_id, player_id), output)
+    result = build_player_view(output.game, player_id)
+    return result
 
 
 class GameServiceTests(unittest.TestCase):
@@ -18,7 +26,7 @@ class GameServiceTests(unittest.TestCase):
 
         # join the second player
         self.assertTrue(self.join_game(game_id).success)
-        result = service.get_status(game_id, "1")
+        result = get_status(game_id, "1")
 
         self.assertIsNotNone(result)
         # # check the game status
@@ -68,12 +76,8 @@ class GameServiceTests(unittest.TestCase):
         self.assertTrue(output.success)
 
         # when get game status
-        status_of_player1: GameStatus = GameStatus.parse_obj(
-            service.get_status(game_id, "1")
-        )
-        status_of_player2: GameStatus = GameStatus.parse_obj(
-            service.get_status(game_id, "2")
-        )
+        status_of_player1: GameStatus = GameStatus.parse_obj(get_status(game_id, "1"))
+        status_of_player2: GameStatus = GameStatus.parse_obj(get_status(game_id, "2"))
 
         # then players should only know their own information
         def check_private_not_leaky(player_id, last_round):
@@ -140,13 +144,13 @@ class PlayerContextTest(unittest.TestCase):
         """
         # when get game status
         status_of_player1: GameStatus = GameStatus.parse_obj(
-            self.game_service.get_status(self.game_id, "1")
+            get_status(self.game_id, "1")
         )
         status_of_player2: GameStatus = GameStatus.parse_obj(
-            self.game_service.get_status(self.game_id, "2")
+            get_status(self.game_id, "2")
         )
         status_of_player3: GameStatus = GameStatus.parse_obj(
-            self.game_service.get_status(self.game_id, "3")
+            get_status(self.game_id, "3")
         )
 
         # then player get the expected cards
@@ -358,13 +362,13 @@ class PlayerContextTest(unittest.TestCase):
         )
 
         status_of_player1: GameStatus = GameStatus.parse_obj(
-            self.game_service.get_status(self.game_id, "1")
+            get_status(self.game_id, "1")
         )
         status_of_player2: GameStatus = GameStatus.parse_obj(
-            self.game_service.get_status(self.game_id, "2")
+            get_status(self.game_id, "2")
         )
         status_of_player3: GameStatus = GameStatus.parse_obj(
-            self.game_service.get_status(self.game_id, "3")
+            get_status(self.game_id, "3")
         )
 
         # then: 只有1才能看到對方的牌。2、3看不到

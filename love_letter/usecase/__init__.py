@@ -138,3 +138,32 @@ class PlayCard:
         game.play(input.player_id, input.card_name, input.card_action)
         game_repository.save_or_update(game)
         output.game = game
+
+
+class GetStatusInput:
+    game_id: str
+    player_id: str
+
+
+class GetStatusOutput:
+    game: Game
+
+
+class GetStatus:
+    @classmethod
+    def output(cls) -> GetStatusOutput:
+        return GetStatusOutput()
+
+    @classmethod
+    def input(cls, game_id: str, player_id: str) -> GetStatusInput:
+        input = GetStatusInput()
+        input.game_id = game_id
+        input.player_id = player_id
+        return input
+
+    def execute(self, input: GetStatusInput, output: GetStatusOutput):
+        game: Game = game_repository.get(input.game_id)
+        if game is None:
+            output.game = None
+            return
+        output.game = game

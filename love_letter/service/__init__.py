@@ -11,13 +11,6 @@ class GameService:
     def _save(self, game: Game):
         return self.repository.save_or_update(game)
 
-    def get_status(self, game_id: str, player_id: str):
-        game: Game = self.repository.get(game_id)
-        if game is None:
-            return
-
-        return self.convert_to_player_view(game, player_id)
-
     def convert_to_player_view(self, game, player_id):
         # we should remove private data for each player
         # players only know their own cards
