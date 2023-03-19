@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from love_letter.repository import create_default_repository
 from love_letter.service import GameService
-from love_letter.usecase import CreateGame
+from love_letter.usecase import CreateGame, JoinGame
 from love_letter.web.dto import GameStatus, GuessCard, ToSomeoneCard
 
 app = FastAPI()
@@ -37,7 +37,9 @@ async def create_game(player_id: str) -> str:
 
 @app.post("/games/{game_id}/player/{player_id}/join")
 async def join_game(game_id: str, player_id: str) -> bool:
-    return service.join_game(game_id, player_id)
+    output = JoinGame.output()
+    JoinGame().execute(JoinGame.input(game_id, player_id), output)
+    return output.success
 
 
 @app.post("/games/{game_id}/start")

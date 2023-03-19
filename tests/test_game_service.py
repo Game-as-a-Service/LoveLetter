@@ -3,7 +3,7 @@ import unittest
 from love_letter.models import Game, Player, Round
 from love_letter.repository import create_default_repository
 from love_letter.service import GameService
-from love_letter.usecase import CreateGame
+from love_letter.usecase import CreateGame, JoinGame
 from love_letter.web.dto import GameStatus, ToSomeoneCard
 from tests.test_card_behave import reset_deck
 
@@ -13,14 +13,11 @@ class GameServiceTests(unittest.TestCase):
         service = GameService(create_default_repository())
 
         # create a new game by usecase
-        output = CreateGame.output()
-        CreateGame().execute(CreateGame.input("1"), output)
-
-        game_id = output.game_id
+        game_id = self.create_game()
         self.assertIsNotNone(game_id)
 
         # join the second player
-        self.assertTrue(service.join_game(game_id, Player("2").name))
+        self.assertTrue(self.join_game(game_id).success)
         result = service.get_status(game_id, "1")
 
         self.assertIsNotNone(result)
@@ -45,6 +42,17 @@ class GameServiceTests(unittest.TestCase):
         # TODO figure out why it becomes Player(<id>,[]) form?
         self.assertEqual("['1', '2']", str(names))
 
+    def join_game(self, game_id):
+        output = JoinGame.output()
+        JoinGame().execute(JoinGame.input(game_id, "2"), output)
+        return output
+
+    def create_game(self):
+        output = CreateGame.output()
+        CreateGame().execute(CreateGame.input("1"), output)
+        game_id = output.game_id
+        return game_id
+
     def test_get_status(self):
         repo = create_default_repository()
 
@@ -52,11 +60,10 @@ class GameServiceTests(unittest.TestCase):
         service = GameService(repo)
 
         # create a new game by usecase
-        output = CreateGame.output()
-        CreateGame().execute(CreateGame.input("1"), output)
-        game_id = output.game_id
+        game_id = self.create_game()
 
-        service.join_game(game_id, Player("2").name)
+        output = self.join_game(game_id)
+
         result = service.start_game(game_id)
         self.assertTrue(result)
 

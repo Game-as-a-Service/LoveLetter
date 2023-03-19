@@ -1,7 +1,6 @@
-import traceback
 from typing import Any, Dict, List, Optional, Union
 
-from love_letter.models import Game, Player
+from love_letter.models import Game
 from love_letter.repository import GameRepository
 from love_letter.web.dto import GuessCard, ToSomeoneCard
 
@@ -12,16 +11,6 @@ class GameService:
 
     def _save(self, game: Game):
         return self.repository.save_or_update(game)
-
-    def join_game(self, game_id: str, player_id: str) -> bool:
-        try:
-            game = self.repository.get(game_id)
-            game.join(Player(player_id))
-            self._save(game)
-            return True
-        except BaseException as e:
-            traceback.print_exception(e)
-            return False
 
     def start_game(self, game_id: str) -> bool:
         game: Game = self.repository.get(game_id)
