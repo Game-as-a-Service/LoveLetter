@@ -162,6 +162,9 @@ class Game:
         for player in self.players:
             if player.tokens_of_affection == self.num_of_tokens_to_win:
                 self.final_winner = player.name
+                self.post_event(
+                    {"type": "game_over", "final_winner": self.final_winner}
+                )
                 return
         round = Round(deepcopy(self.players))
         round.next_turn_player(last_winner)
@@ -174,6 +177,7 @@ class Game:
             events=self.events,
             players=[x.to_dict() for x in self.players],
             rounds=[x.to_dict() for x in self.rounds],
+            final_winner=self.final_winner,
         )
 
     def play(

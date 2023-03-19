@@ -29,7 +29,6 @@ export function PlayerHand(props: {
 
   const gameStatus = context.GameStatus();
 
-
   if (gameStatus == null) {
     return <CardBack enabled={false} />;
   }
@@ -71,28 +70,33 @@ export function PlayerHand(props: {
 
   return (
     <div className="container relative">
-      <div>
-        {!is_turn_player && !is_current_user && <CardBack enabled={true} />}
-        {!is_turn_player && is_current_user && (
-          <CardFront handCard={hand_cards[0]} />
-        )}
-        {is_turn_player && is_current_user && (
-          <div className="flex">
-            {hand_cards.map((x, index) => (
-              <CardFront
-                key={`${x.name}${playerName}_${index}`}
-                handCard={x}
-              ></CardFront>
-            ))}
+      { context.IsGameOver() && (
+          <CardBack enabled={true} />
+      )}
+      { !context.IsGameOver() && (
+          <div>
+            {!is_turn_player && !is_current_user && <CardBack enabled={true} />}
+            {!is_turn_player && is_current_user && (
+                <CardFront handCard={hand_cards[0]} />
+            )}
+            {is_turn_player && is_current_user && (
+                <div className="flex">
+                  {hand_cards.map((x, index) => (
+                      <CardFront
+                          key={`${x.name}${playerName}_${index}`}
+                          handCard={x}
+                      ></CardFront>
+                  ))}
+                </div>
+            )}
+            {is_turn_player && !is_current_user && (
+                <div className="flex border-8 border-lime-400 rounded-xl">
+                  <CardBack enabled={true}></CardBack>
+                  <CardBack enabled={true}></CardBack>
+                </div>
+            )}
           </div>
-        )}
-        {is_turn_player && !is_current_user && (
-          <div className="flex border-8 border-lime-400 rounded-xl">
-            <CardBack enabled={true}></CardBack>
-            <CardBack enabled={true}></CardBack>
-          </div>
-        )}
-      </div>
+      )}
 
       <div
         className={`text-xs rounded-xl bg-amber-100 p-2 font-bold ${

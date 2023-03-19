@@ -8,6 +8,7 @@ export interface GameStatus {
   players: Array<NamedPlayer>;
   rounds: Array<Round>;
   events: Array<GameEvent>;
+  final_winner: string;
 }
 
 export * from "./events";

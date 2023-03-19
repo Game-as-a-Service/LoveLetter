@@ -26,4 +26,9 @@ export interface RoundEvent {
   winner?: string;
 }
 
-export type GameEvent = CardEvent | RoundEvent;
+export interface GameOverEvent {
+  type: "game_over";
+  final_winner?: string;
+}
+
+export type GameEvent = CardEvent | RoundEvent | GameOverEvent;
