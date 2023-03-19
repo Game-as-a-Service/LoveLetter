@@ -1,7 +1,11 @@
 import unittest
 from typing import List, Optional
 
+# isort: off
 from love_letter.models import Deck, Game, GuessCard, Player, Round, ToSomeoneCard
+
+
+# isort: on
 
 
 class _TestDeckForCardBehave(Deck):

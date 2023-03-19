@@ -6,13 +6,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from love_letter.models import GuessCard, ToSomeoneCard
 from love_letter.repository import create_default_repository
-from love_letter.service import GameService
+
+# isort: off
 from love_letter.usecase import CreateGame, GetStatus, JoinGame, PlayCard, StartGame
+
+# isort: on
 from love_letter.web.dto import GameStatus
 from love_letter.web.presenter import build_player_view
 
 app = FastAPI()
-service = GameService(create_default_repository())
 origins = ["*", "http://localhost:3000", "http://localhost:8080"]
 app.add_middleware(
     CORSMiddleware,

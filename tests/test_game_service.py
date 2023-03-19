@@ -2,8 +2,11 @@ import unittest
 
 from love_letter.models import Game, Player, Round, ToSomeoneCard
 from love_letter.repository import create_default_repository
-from love_letter.service import GameService
+
+# isort: off
 from love_letter.usecase import CreateGame, GetStatus, JoinGame, PlayCard, StartGame
+
+# isort: on
 from love_letter.web.dto import GameStatus
 from love_letter.web.presenter import build_player_view
 from tests.test_card_behave import reset_deck
@@ -18,8 +21,6 @@ def get_status(game_id, player_id):
 
 class GameServiceTests(unittest.TestCase):
     def test_create_and_join_game(self):
-        service = GameService(create_default_repository())
-
         # create a new game by usecase
         game_id = self.create_game()
         self.assertIsNotNone(game_id)
@@ -65,8 +66,6 @@ class GameServiceTests(unittest.TestCase):
         repo = create_default_repository()
 
         # given a started game with two players
-        service = GameService(repo)
-
         # create a new game by usecase
         game_id = self.create_game()
         output = self.join_game(game_id)
@@ -112,7 +111,6 @@ class PlayerContextTest(unittest.TestCase):
         self.game.join(Player("3"))
         repo = create_default_repository()
         repo.save_or_update(self.game)
-        self.game_service: GameService = GameService(repo)
 
         # disable random-picker for the first round
         # it always returns the first player
