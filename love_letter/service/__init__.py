@@ -13,13 +13,6 @@ class GameService:
     def _save(self, game: Game):
         return self.repository.save_or_update(game)
 
-    def create_game(self, player_id: str) -> str:
-        game = Game()
-        # TODO for now, we dont have the registration process,
-        # TODO just create the player when they are creating or joining the game
-        game.join(Player(player_id))
-        return self._save(game)
-
     def join_game(self, game_id: str, player_id: str) -> bool:
         try:
             game = self.repository.get(game_id)

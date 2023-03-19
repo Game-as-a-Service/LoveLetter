@@ -3,6 +3,7 @@ import unittest
 from love_letter.models import Game, Player, Round
 from love_letter.repository import create_default_repository
 from love_letter.service import GameService
+from love_letter.usecase import CreateGame
 from love_letter.web.dto import GameStatus, ToSomeoneCard
 from tests.test_card_behave import reset_deck
 
@@ -11,8 +12,11 @@ class GameServiceTests(unittest.TestCase):
     def test_create_and_join_game(self):
         service = GameService(create_default_repository())
 
-        # create a new game
-        game_id = service.create_game(Player("1").name)
+        # create a new game by usecase
+        output = CreateGame.output()
+        CreateGame().execute(CreateGame.input("1"), output)
+
+        game_id = output.game_id
         self.assertIsNotNone(game_id)
 
         # join the second player
@@ -46,7 +50,12 @@ class GameServiceTests(unittest.TestCase):
 
         # given a started game with two players
         service = GameService(repo)
-        game_id = service.create_game(Player("1").name)
+
+        # create a new game by usecase
+        output = CreateGame.output()
+        CreateGame().execute(CreateGame.input("1"), output)
+        game_id = output.game_id
+
         service.join_game(game_id, Player("2").name)
         result = service.start_game(game_id)
         self.assertTrue(result)

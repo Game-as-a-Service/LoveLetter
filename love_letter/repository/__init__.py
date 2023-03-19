@@ -65,8 +65,18 @@ class GameRepositoryInMemoryImpl(GameRepository):
         return game
 
 
-def create_default_repository():
-    if os.environ.get("repository_impl") == "pickle":
-        return GameRepositoryPickleImpl()
+_created_game_repo = None
 
-    return GameRepositoryInMemoryImpl()
+
+def create_default_repository():
+    global _created_game_repo
+
+    if _created_game_repo is not None:
+        return _created_game_repo
+
+    if os.environ.get("repository_impl") == "pickle":
+        _created_game_repo = GameRepositoryPickleImpl()
+        return _created_game_repo
+
+    _created_game_repo = GameRepositoryInMemoryImpl()
+    return _created_game_repo
