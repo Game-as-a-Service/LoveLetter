@@ -12,14 +12,6 @@ class GameService:
     def _save(self, game: Game):
         return self.repository.save_or_update(game)
 
-    def start_game(self, game_id: str) -> bool:
-        game: Game = self.repository.get(game_id)
-        if game is None:
-            return False
-        game.start()
-        self._save(game)
-        return True
-
     def play_card(
         self,
         game_id,

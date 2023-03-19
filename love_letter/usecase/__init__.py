@@ -63,3 +63,35 @@ class JoinGame:
         input.game_id = game_id
         input.player_id = player_id
         return input
+
+
+class StartGameInput:
+    game_id: str
+
+
+class StartGameOutput:
+    success: bool
+
+    pass
+
+
+class StartGame:
+    @classmethod
+    def output(cls) -> StartGameOutput:
+        return StartGameOutput()
+
+    @classmethod
+    def input(cls, game_id) -> StartGameInput:
+        input = StartGameInput()
+        input.game_id = game_id
+        return input
+
+    def execute(self, input: StartGameInput, output: StartGameOutput):
+        game: Game = game_repository.get(input.game_id)
+        if game is None:
+            output.success = False
+            return
+
+        game.start()
+        game_repository.save_or_update(game)
+        output.success = True

@@ -3,7 +3,7 @@ import unittest
 from love_letter.models import Game, Player, Round
 from love_letter.repository import create_default_repository
 from love_letter.service import GameService
-from love_letter.usecase import CreateGame, JoinGame
+from love_letter.usecase import CreateGame, JoinGame, StartGame
 from love_letter.web.dto import GameStatus, ToSomeoneCard
 from tests.test_card_behave import reset_deck
 
@@ -61,11 +61,11 @@ class GameServiceTests(unittest.TestCase):
 
         # create a new game by usecase
         game_id = self.create_game()
-
         output = self.join_game(game_id)
 
-        result = service.start_game(game_id)
-        self.assertTrue(result)
+        output = StartGame.output()
+        StartGame().execute(StartGame.input(game_id), output)
+        self.assertTrue(output.success)
 
         # when get game status
         status_of_player1: GameStatus = GameStatus.parse_obj(
@@ -170,7 +170,7 @@ class PlayerContextTest(unittest.TestCase):
         reset_deck(["王子", "國王", "伯爵夫人", "伯爵夫人", "伯爵夫人", "伯爵夫人"])
 
         # given a started game
-        self.game_service.start_game(self.game_id)
+        self.start_game(self.game_id)
 
         expected_card_mapping = {
             "1": (
@@ -226,7 +226,7 @@ class PlayerContextTest(unittest.TestCase):
         reset_deck(["國王", "男爵", "王子", "神父", "衛兵"])
 
         # given a started game
-        self.game_service.start_game(self.game_id)
+        self.start_game(self.game_id)
 
         # then player get the expected cards
         expected_card_mapping = {
@@ -267,7 +267,7 @@ class PlayerContextTest(unittest.TestCase):
         reset_deck(["男爵", "國王", "神父", "王子", "衛兵"])
 
         # given a started game
-        self.game_service.start_game(self.game_id)
+        self.start_game(self.game_id)
 
         expected_card_mapping = {
             "1": (
@@ -307,7 +307,7 @@ class PlayerContextTest(unittest.TestCase):
         reset_deck(["衛兵", "國王", "神父", "王子", "衛兵"])
 
         # given a started game
-        self.game_service.start_game(self.game_id)
+        self.start_game(self.game_id)
 
         expected_card_mapping = {
             "1": (
@@ -347,7 +347,7 @@ class PlayerContextTest(unittest.TestCase):
         reset_deck(["神父", "神父", "男爵", "衛兵", "衛兵"])
 
         # given a started game
-        self.game_service.start_game(self.game_id)
+        self.start_game(self.game_id)
 
         # when: 1對3打出神父
         self.game_service.play_card(
@@ -371,3 +371,7 @@ class PlayerContextTest(unittest.TestCase):
         self.assertTrue(
             len(status_of_player2.rounds[-1].turn_player.seen_cards) == 0
         )  # turn_player = 玩家2
+
+    def start_game(self, game_id):
+        output = StartGame.output()
+        StartGame().execute(StartGame.input(game_id), output)
