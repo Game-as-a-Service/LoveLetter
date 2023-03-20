@@ -73,8 +73,6 @@ class StartGameInput:
 class StartGameOutput:
     success: bool
 
-    pass
-
 
 class StartGame:
     @classmethod
