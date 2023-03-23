@@ -1,8 +1,11 @@
 import unittest
 from typing import List, Optional
 
-from love_letter.models import Deck, Game, Player, Round
-from love_letter.web.dto import GuessCard, ToSomeoneCard
+# isort: off
+from love_letter.models import Deck, Game, GuessCard, Player, Round, ToSomeoneCard
+
+
+# isort: on
 
 
 class _TestDeckForCardBehave(Deck):

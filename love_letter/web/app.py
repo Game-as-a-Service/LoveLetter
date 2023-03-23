@@ -4,12 +4,17 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from love_letter.models import GuessCard, ToSomeoneCard
 from love_letter.repository import create_default_repository
-from love_letter.service import GameService
-from love_letter.web.dto import GameStatus, GuessCard, ToSomeoneCard
+
+# isort: off
+from love_letter.usecase import CreateGame, GetStatus, JoinGame, PlayCard, StartGame
+
+# isort: on
+from love_letter.web.dto import GameStatus
+from love_letter.web.presenter import build_player_view
 
 app = FastAPI()
-service = GameService(create_default_repository())
 origins = ["*", "http://localhost:3000", "http://localhost:8080"]
 app.add_middleware(
     CORSMiddleware,
@@ -29,17 +34,23 @@ app.add_middleware(
 
 @app.post("/games/create/by_player/{player_id}")
 async def create_game(player_id: str) -> str:
-    return service.create_game(player_id)
+    output = CreateGame.output()
+    CreateGame().execute(CreateGame.input(player_id), output)
+    return output.game_id
 
 
 @app.post("/games/{game_id}/player/{player_id}/join")
 async def join_game(game_id: str, player_id: str) -> bool:
-    return service.join_game(game_id, player_id)
+    output = JoinGame.output()
+    JoinGame().execute(JoinGame.input(game_id, player_id), output)
+    return output.success
 
 
 @app.post("/games/{game_id}/start")
 async def start_game(game_id: str):
-    return service.start_game(game_id)
+    output = StartGame.output()
+    StartGame().execute(StartGame.input(game_id), output)
+    return output.success
 
 
 @app.post(
@@ -52,12 +63,18 @@ async def play_card(
     card_name: str,
     card_action: Union[GuessCard, ToSomeoneCard, None] = None,
 ):
-    return service.play_card(game_id, player_id, card_name, card_action)
+    output = PlayCard.output()
+    PlayCard().execute(
+        PlayCard.input(game_id, player_id, card_name, card_action), output
+    )
+    return build_player_view(output.game, player_id)
 
 
 @app.get("/games/{game_id}/player/{player_id}/status", response_model=GameStatus)
 async def get_status(game_id: str, player_id: str):
-    return service.get_status(game_id, player_id)
+    output = GetStatus.output()
+    GetStatus().execute(GetStatus.input(game_id, player_id), output)
+    return build_player_view(output.game, player_id)
 
 
 def run():

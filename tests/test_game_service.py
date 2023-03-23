@@ -1,23 +1,33 @@
 import unittest
 
-from love_letter.models import Game, Player, Round
+from love_letter.models import Game, Player, Round, ToSomeoneCard
 from love_letter.repository import create_default_repository
-from love_letter.service import GameService
-from love_letter.web.dto import GameStatus, ToSomeoneCard
+
+# isort: off
+from love_letter.usecase import CreateGame, GetStatus, JoinGame, PlayCard, StartGame
+
+# isort: on
+from love_letter.web.dto import GameStatus
+from love_letter.web.presenter import build_player_view
 from tests.test_card_behave import reset_deck
+
+
+def get_status(game_id, player_id):
+    output = GetStatus.output()
+    GetStatus().execute(GetStatus.input(game_id, player_id), output)
+    result = build_player_view(output.game, player_id)
+    return result
 
 
 class GameServiceTests(unittest.TestCase):
     def test_create_and_join_game(self):
-        service = GameService(create_default_repository())
-
-        # create a new game
-        game_id = service.create_game(Player("1").name)
+        # create a new game by usecase
+        game_id = self.create_game()
         self.assertIsNotNone(game_id)
 
         # join the second player
-        self.assertTrue(service.join_game(game_id, Player("2").name))
-        result = service.get_status(game_id, "1")
+        self.assertTrue(self.join_game(game_id).success)
+        result = get_status(game_id, "1")
 
         self.assertIsNotNone(result)
         # # check the game status
@@ -41,23 +51,32 @@ class GameServiceTests(unittest.TestCase):
         # TODO figure out why it becomes Player(<id>,[]) form?
         self.assertEqual("['1', '2']", str(names))
 
+    def join_game(self, game_id):
+        output = JoinGame.output()
+        JoinGame().execute(JoinGame.input(game_id, "2"), output)
+        return output
+
+    def create_game(self):
+        output = CreateGame.output()
+        CreateGame().execute(CreateGame.input("1"), output)
+        game_id = output.game_id
+        return game_id
+
     def test_get_status(self):
         repo = create_default_repository()
 
         # given a started game with two players
-        service = GameService(repo)
-        game_id = service.create_game(Player("1").name)
-        service.join_game(game_id, Player("2").name)
-        result = service.start_game(game_id)
-        self.assertTrue(result)
+        # create a new game by usecase
+        game_id = self.create_game()
+        output = self.join_game(game_id)
+
+        output = StartGame.output()
+        StartGame().execute(StartGame.input(game_id), output)
+        self.assertTrue(output.success)
 
         # when get game status
-        status_of_player1: GameStatus = GameStatus.parse_obj(
-            service.get_status(game_id, "1")
-        )
-        status_of_player2: GameStatus = GameStatus.parse_obj(
-            service.get_status(game_id, "2")
-        )
+        status_of_player1: GameStatus = GameStatus.parse_obj(get_status(game_id, "1"))
+        status_of_player2: GameStatus = GameStatus.parse_obj(get_status(game_id, "2"))
 
         # then players should only know their own information
         def check_private_not_leaky(player_id, last_round):
@@ -92,7 +111,6 @@ class PlayerContextTest(unittest.TestCase):
         self.game.join(Player("3"))
         repo = create_default_repository()
         repo.save_or_update(self.game)
-        self.game_service: GameService = GameService(repo)
 
         # disable random-picker for the first round
         # it always returns the first player
@@ -124,13 +142,13 @@ class PlayerContextTest(unittest.TestCase):
         """
         # when get game status
         status_of_player1: GameStatus = GameStatus.parse_obj(
-            self.game_service.get_status(self.game_id, "1")
+            get_status(self.game_id, "1")
         )
         status_of_player2: GameStatus = GameStatus.parse_obj(
-            self.game_service.get_status(self.game_id, "2")
+            get_status(self.game_id, "2")
         )
         status_of_player3: GameStatus = GameStatus.parse_obj(
-            self.game_service.get_status(self.game_id, "3")
+            get_status(self.game_id, "3")
         )
 
         # then player get the expected cards
@@ -154,7 +172,7 @@ class PlayerContextTest(unittest.TestCase):
         reset_deck(["王子", "國王", "伯爵夫人", "伯爵夫人", "伯爵夫人", "伯爵夫人"])
 
         # given a started game
-        self.game_service.start_game(self.game_id)
+        self.start_game(self.game_id)
 
         expected_card_mapping = {
             "1": (
@@ -178,7 +196,9 @@ class PlayerContextTest(unittest.TestCase):
         self.assert_player_status_prompt(expected_card_mapping)
 
         # when player-1 discard countess
-        self.game_service.play_card(self.game_id, "1", "伯爵夫人", None)
+        PlayCard().execute(
+            PlayCard.input(self.game_id, "1", "伯爵夫人", None), PlayCard.output()
+        )
 
         expected_card_mapping = {
             "1": (
@@ -210,7 +230,7 @@ class PlayerContextTest(unittest.TestCase):
         reset_deck(["國王", "男爵", "王子", "神父", "衛兵"])
 
         # given a started game
-        self.game_service.start_game(self.game_id)
+        self.start_game(self.game_id)
 
         # then player get the expected cards
         expected_card_mapping = {
@@ -251,7 +271,7 @@ class PlayerContextTest(unittest.TestCase):
         reset_deck(["男爵", "國王", "神父", "王子", "衛兵"])
 
         # given a started game
-        self.game_service.start_game(self.game_id)
+        self.start_game(self.game_id)
 
         expected_card_mapping = {
             "1": (
@@ -291,7 +311,7 @@ class PlayerContextTest(unittest.TestCase):
         reset_deck(["衛兵", "國王", "神父", "王子", "衛兵"])
 
         # given a started game
-        self.game_service.start_game(self.game_id)
+        self.start_game(self.game_id)
 
         expected_card_mapping = {
             "1": (
@@ -331,21 +351,22 @@ class PlayerContextTest(unittest.TestCase):
         reset_deck(["神父", "神父", "男爵", "衛兵", "衛兵"])
 
         # given a started game
-        self.game_service.start_game(self.game_id)
+        self.start_game(self.game_id)
 
         # when: 1對3打出神父
-        self.game_service.play_card(
-            self.game_id, "1", "神父", ToSomeoneCard(chosen_player=3)
+        PlayCard().execute(
+            PlayCard.input(self.game_id, "1", "神父", ToSomeoneCard(chosen_player=3)),
+            PlayCard.output(),
         )
 
         status_of_player1: GameStatus = GameStatus.parse_obj(
-            self.game_service.get_status(self.game_id, "1")
+            get_status(self.game_id, "1")
         )
         status_of_player2: GameStatus = GameStatus.parse_obj(
-            self.game_service.get_status(self.game_id, "2")
+            get_status(self.game_id, "2")
         )
         status_of_player3: GameStatus = GameStatus.parse_obj(
-            self.game_service.get_status(self.game_id, "3")
+            get_status(self.game_id, "3")
         )
 
         # then: 只有1才能看到對方的牌。2、3看不到
@@ -355,3 +376,7 @@ class PlayerContextTest(unittest.TestCase):
         self.assertTrue(
             len(status_of_player2.rounds[-1].turn_player.seen_cards) == 0
         )  # turn_player = 玩家2
+
+    def start_game(self, game_id):
+        output = StartGame.output()
+        StartGame().execute(StartGame.input(game_id), output)

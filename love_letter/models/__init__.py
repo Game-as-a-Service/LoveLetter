@@ -4,15 +4,25 @@ from dataclasses import dataclass
 from operator import attrgetter
 from typing import Dict, List, Optional, Union
 
+from pydantic import BaseModel
+
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.exceptions import GameException
-from love_letter.web.dto import GuessCard, ToSomeoneCard
 
 num_of_player_with_tokens_to_win = {2: 7, 3: 5, 4: 4}
 
 
 def deck_factory() -> Deck:
     return Deck()
+
+
+class GuessCard(BaseModel):
+    chosen_player: str
+    guess_card: str
+
+
+class ToSomeoneCard(BaseModel):
+    chosen_player: str
 
 
 class Round:
