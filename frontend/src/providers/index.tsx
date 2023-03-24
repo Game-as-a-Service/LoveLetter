@@ -1,7 +1,7 @@
 import { GameStatus, TurnPlayer } from "@/types";
 import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
 import { useGameId, useUsername } from "@/hooks";
-import { GetGameStatus } from "@/apis";
+import { getGameStatus } from "@/apis";
 import { isEqual } from "lodash";
 
 export interface GameInformation {
@@ -131,7 +131,7 @@ export function GameDataProvider(props: GameDataProviderProps) {
   // refresh GameStatus every 1 second.
   useEffect(() => {
     // set GameStatus before the refresher triggered
-    GetGameStatus(gameId, username).then((status: GameStatus) => {
+    getGameStatus(gameId, username).then((status: GameStatus) => {
       if (!isEqual(gameStatus, status)) {
         setGameStatus(status);
       }
@@ -139,7 +139,7 @@ export function GameDataProvider(props: GameDataProviderProps) {
 
     const intervalId = setInterval(() => {
       // auto-refresh GameStatus
-      GetGameStatus(gameId, username).then((status: GameStatus) => {
+      getGameStatus(gameId, username).then((status: GameStatus) => {
         if (!isEqual(gameStatus, status)) {
           setGameStatus(status);
         }

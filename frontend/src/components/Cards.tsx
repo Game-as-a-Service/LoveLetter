@@ -6,7 +6,7 @@ import { useRef } from "react";
 
 import { useGameId, useUsername } from "@/hooks";
 import { HandCard } from "@/types";
-import { PlayCard } from "@/apis";
+import { playCard } from "@/apis";
 
 export function CardBack(props: { enabled: boolean }) {
   let cssConfig = {};
@@ -84,7 +84,7 @@ export function CardAction(props: { handCard: HandCard }) {
             ).value;
           }
 
-          PlayCard(gameId, username, handCard.name, payload);
+          playCard(gameId, username, handCard.name, payload);
         }}
       >
         出牌
