@@ -32,11 +32,11 @@ function StartGameFunc(props: { gameStatus: GameStatus | null }) {
 
 export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
   const context = useContext(GameContext);
-  if (!context.IsReady()) {
+  if (!context.isReady()) {
     return <></>;
   }
 
-  const gameStatus = context.GameStatus();
+  const gameStatus = context.getGameStatus();
 
   return (
     <>

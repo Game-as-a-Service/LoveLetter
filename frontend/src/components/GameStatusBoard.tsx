@@ -34,11 +34,11 @@ export function SeenItem(props: { seen: Seen }) {
 export function GameStatusBoard() {
     const [copied, setCopied] = useState(false);
     const context = useContext(GameContext);
-    if (!context.IsReady()) {
+    if (!context.isReady()) {
         return <></>;
     }
 
-    const gameStatus = context.GameStatus();
+    const gameStatus = context.getGameStatus();
     let gameProgress = "...(未知)...";
 
     const data = [
@@ -70,13 +70,13 @@ export function GameStatusBoard() {
         gameProgress = `等待 ${current_round.turn_player.name} 出牌...`;
 
         current_round.players.map((p) => {
-            if (p.name === context.GetUsername()) {
+            if (p.name === context.getUsername()) {
                 seens = p.seen_cards;
             }
         });
     }
 
-    if (context.IsGameOver()) {
+    if (context.isGameOver()) {
         gameProgress = "遊戲結束";
     }
 
