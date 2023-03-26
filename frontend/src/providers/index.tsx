@@ -1,55 +1,61 @@
 import { GameStatus, TurnPlayer } from "@/types";
 import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
 import { useGameId, useUsername } from "@/hooks";
-import { GetGameStatus } from "@/apis";
+import { getGameStatus } from "@/apis";
 import { isEqual } from "lodash";
 
 export interface GameInformation {
-  GameId: () => string;
-  GameStatus: () => GameStatus;
+  getGameId: () => string;
+  getGameStatus: () => GameStatus;
 
-  IsReady: () => boolean;
-  GetUsername: () => string;
+  isReady: () => boolean;
+  getUsername: () => string;
 
-  GetTurnPlayer: () => TurnPlayer;
+  getTurnPlayer: () => TurnPlayer;
 
-  IsMyTurn: () => boolean;
-  GetStartPlayer: () => string;
-  IsGameOver: () => boolean;
+  isMyTurn: () => boolean;
+  getStartPlayer: () => string;
+  isGameOver: () => boolean;
 }
 
 class BeforeReadyGameInformation implements GameInformation {
   unknown = "<unknown>";
 
-  GetTurnPlayer(): TurnPlayer {
+  getTurnPlayer(): TurnPlayer {
     return { cards: [], name: "unknown", out: false };
   }
 
-  GetUsername(): string {
+  getUsername(): string {
     return this.unknown;
   }
 
-  IsReady(): boolean {
+  isReady(): boolean {
     return false;
   }
 
-  GameId(): string {
+  getGameId(): string {
     return this.unknown;
   }
 
-  GameStatus(): GameStatus {
-    return { events: [], game_id: "", players: [], rounds: [], final_winner: ""};
+  getGameStatus(): GameStatus {
+    return {
+      events: [],
+      game_id: "",
+      players: [],
+      rounds: [],
+      final_winner: "",
+    };
   }
 
-  IsMyTurn(): boolean {
+  isMyTurn(): boolean {
     return false;
   }
 
-  GetStartPlayer(): string {
+  getStartPlayer(): string {
     return this.unknown;
   }
 
-  IsGameOver(): boolean {
+  isGameOver(): boolean {
     return false;
   }
 }
@@ -61,43 +67,47 @@ class ConcreteGameInformation implements GameInformation {
     this.gameStatus = gameStatus;
   }
 
-  GameId(): string {
+  getGameId(): string {
     return this.gameId;
   }
 
-  GameStatus(): GameStatus {
+  getGameStatus(): GameStatus {
     return this.gameStatus;
   }
 
-  GetTurnPlayer(): TurnPlayer {
+  getTurnPlayer(): TurnPlayer {
     if (this.gameStatus.rounds.length === 0) {
       return { cards: [], name: "unknown", out: false };
     }
-    return this.gameStatus.rounds[this.gameStatus.rounds.length - 1].turn_player;
+    return this.gameStatus.rounds[this.gameStatus.rounds.length - 1]
+      .turn_player;
   }
 
-  GetUsername(): string {
+  getUsername(): string {
     return this.username;
   }
 
-  IsReady(): boolean {
+  isReady(): boolean {
     return this.gameStatus != null;
   }
 
-  IsMyTurn(): boolean {
-    return this.GetTurnPlayer().name === this.username;
+  isMyTurn(): boolean {
+    return this.getTurnPlayer().name === this.username;
   }
 
-  GetStartPlayer(): string {
+  getStartPlayer(): string {
     if (this.gameStatus.rounds.length === 0) {
       return "<unknown>";
     }
 
-    return this.gameStatus.rounds[this.gameStatus.rounds.length - 1].start_player;
+    return this.gameStatus.rounds[this.gameStatus.rounds.length - 1]
+      .start_player;
   }
 
-  IsGameOver(): boolean {
-    return this.gameStatus.final_winner != "" && this.gameStatus.final_winner != null;
+  isGameOver(): boolean {
+    return (
+      this.gameStatus.final_winner != "" && this.gameStatus.final_winner != null
+    );
   }
 
   gameId: string;
@@ -121,7 +131,7 @@ export function GameDataProvider(props: GameDataProviderProps) {
   // refresh GameStatus every 1 second.
   useEffect(() => {
     // set GameStatus before the refresher triggered
-    GetGameStatus(gameId, username).then((status: GameStatus) => {
+    getGameStatus(gameId, username).then((status: GameStatus) => {
       if (!isEqual(gameStatus, status)) {
         setGameStatus(status);
       }
@@ -129,7 +139,7 @@ export function GameDataProvider(props: GameDataProviderProps) {
 
     const intervalId = setInterval(() => {
       // auto-refresh GameStatus
-      GetGameStatus(gameId, username).then((status: GameStatus) => {
+      getGameStatus(gameId, username).then((status: GameStatus) => {
         if (!isEqual(gameStatus, status)) {
           setGameStatus(status);
         }

@@ -8,19 +8,19 @@ export function Deck() {
   const width = 300;
 
   const empty = <Flex width={width}></Flex>;
-  if (!context.IsReady()) {
+  if (!context.isReady()) {
     return empty;
   }
 
-  if (context.IsGameOver()) {
+  if (context.isGameOver()) {
     return empty;
   }
 
-  if (!context.IsMyTurn()) {
+  if (!context.isMyTurn()) {
     return empty;
   }
 
-  const cards = context.GetTurnPlayer().cards;
+  const cards = context.getTurnPlayer().cards;
 
   return (
     <>

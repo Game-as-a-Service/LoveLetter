@@ -16,7 +16,7 @@ export const backendAxios = axios.create({
   headers: defaultHeaders,
 });
 
-export async function IsGameAvailable(
+export async function isGameAvailable(
   gameId: string,
   playerId: string
 ): Promise<boolean> {
@@ -31,7 +31,7 @@ export async function IsGameAvailable(
   }
 }
 
-export async function JoinGame(
+export async function joinGame(
   gameId: string,
   playerId: string
 ): Promise<boolean> {
@@ -46,7 +46,7 @@ export async function JoinGame(
   }
 }
 
-export async function GetGameStatus(
+export async function getGameStatus(
   gameId: string,
   playerId: string
 ): Promise<GameStatus> {
@@ -56,19 +56,19 @@ export async function GetGameStatus(
   return response.data;
 }
 
-export async function StartGame(gameId: string): Promise<boolean> {
+export async function startGame(gameId: string): Promise<boolean> {
   const response = await backendAxios.post<boolean>(`/games/${gameId}/start`);
   return response.data;
 }
 
-export async function CreateGame(username: string): Promise<string> {
+export async function createGame(username: string): Promise<string> {
   const response = await backendAxios.post<string>(
     `/games/create/by_player/${username}`
   );
   return response.data;
 }
 
-export async function PlayCard(
+export async function playCard(
   gameId: string,
   username: string,
   card: string,

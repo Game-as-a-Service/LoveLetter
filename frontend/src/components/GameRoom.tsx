@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Box, Button } from "@chakra-ui/react";
 import { GameStatus, ViewState } from "@/types";
-import { StartGame } from "@/apis";
+import { startGame } from "@/apis";
 import { GameStatusBoard } from "@/components/GameStatusBoard";
 import { GameEvents } from "@/components/GameEvents";
 import { PlayerHand } from "@/components/PlayerHand";
@@ -18,7 +18,7 @@ function StartGameFunc(props: { gameStatus: GameStatus | null }) {
       <Button
         colorScheme="twitter"
         onClick={() => {
-          StartGame(gameStatus?.game_id).then((result) =>
+          startGame(gameStatus?.game_id).then((result) =>
             console.log(`${gameStatus?.game_id} started? => ${result}`)
           );
         }}
@@ -32,11 +32,11 @@ function StartGameFunc(props: { gameStatus: GameStatus | null }) {
 
 export function GameRoom(props: { visitFunc: (view: ViewState) => void }) {
   const context = useContext(GameContext);
-  if (!context.IsReady()) {
+  if (!context.isReady()) {
     return <></>;
   }
 
-  const gameStatus = context.GameStatus();
+  const gameStatus = context.getGameStatus();
 
   return (
     <>

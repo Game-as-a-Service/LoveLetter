@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 import { useGameId, useUsername } from "@/hooks";
 import { ViewState } from "@/types";
-import { CreateGame, IsGameAvailable, JoinGame } from "@/apis";
+import { createGame, isGameAvailable, joinGame } from "@/apis";
 
 export function CreateOrJoinGame(props: {
   visitFunc: (view: ViewState) => void;
@@ -15,7 +15,7 @@ export function CreateOrJoinGame(props: {
   useEffect(() => {
     // clean up the roomId at the beginning when it is not available.
     if (roomId !== "") {
-      IsGameAvailable(roomId, username).then((result: boolean) => {
+      isGameAvailable(roomId, username).then((result: boolean) => {
         setAvailable(result);
         if (!result) {
           setRoomId("");
@@ -73,7 +73,7 @@ export function CreateOrJoinGame(props: {
               color="blue.50"
               _hover={{ color: "yellow.500" }}
               onClick={() => {
-                JoinGame(roomId, username).then((result: boolean) => {
+                joinGame(roomId, username).then((result: boolean) => {
                   if (result === false) {
                     if (available) {
                       props.visitFunc("game-room");
@@ -94,7 +94,7 @@ export function CreateOrJoinGame(props: {
               color="blue.50"
               _hover={{ color: "yellow.500" }}
               onClick={() => {
-                CreateGame(username).then((gameId) => {
+                createGame(username).then((gameId) => {
                   setRoomId(gameId);
                   props.visitFunc("game-room");
                 });

@@ -23,11 +23,11 @@ export function PlayerHand(props: {
   const [username] = useUsername();
   const { index } = props;
   const context = useContext(GameContext);
-  if (!context.IsReady()) {
+  if (!context.isReady()) {
     return <CardBack enabled={false} />;
   }
 
-  const gameStatus = context.GameStatus();
+  const gameStatus = context.getGameStatus();
 
   if (gameStatus == null) {
     return <CardBack enabled={false} />;
@@ -70,10 +70,10 @@ export function PlayerHand(props: {
 
   return (
     <div className="container relative">
-      { context.IsGameOver() && (
+      { context.isGameOver() && (
           <CardBack enabled={true} />
       )}
-      { !context.IsGameOver() && (
+      { !context.isGameOver() && (
           <div>
             {!is_turn_player && !is_current_user && <CardBack enabled={true} />}
             {!is_turn_player && is_current_user && (

@@ -21,7 +21,7 @@ function NewIcon(props: { display: boolean }) {
 
 function RoundEventView(props: { event: GameEvent; index: number }) {
   const context = useContext(GameContext);
-  if (!context.IsReady()) {
+  if (!context.isReady()) {
     return <></>;
   }
   const { event, index } = props;
@@ -45,7 +45,7 @@ function RoundEventView(props: { event: GameEvent; index: number }) {
     annotated = (
       <>
         <Badge variant="solid" colorScheme="messenger" ml={2}>
-          {context.GetStartPlayer()}
+          {context.getStartPlayer()}
         </Badge>
         <Box ml={2}>為起始玩家</Box>
       </>
@@ -188,10 +188,10 @@ function lastN(n: number, events: Array<GameEvent>): Array<GameEvent> {
 
 export function GameEvents() {
   const context = useContext(GameContext);
-  if (!context.IsReady()) {
+  if (!context.isReady()) {
     return <></>;
   }
-  const events = context.GameStatus().events;
+  const events = context.getGameStatus().events;
   if (events === null || events?.length === 0) {
     return (
       <div>
