@@ -1,8 +1,7 @@
-import { getGameStatus } from "@/apis";
 import { useGameId, useUsername } from "@/hooks";
+import { usePollGameStatus } from "@/hooks/usePollGameStatus";
 import { GameStatus, TurnPlayer } from "@/types";
-import { isEqual } from "lodash";
-import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
+import { createContext, ReactNode, useMemo } from "react";
 
 export interface GameInformation {
   getGameId: () => string;
@@ -61,14 +60,13 @@ class BeforeReadyGameInformation implements GameInformation {
 }
 
 class ConcreteGameInformation implements GameInformation {
-  constructor(gameId: string, username: string, gameStatus: GameStatus) {
-    this.gameId = gameId;
+  constructor(username: string, gameStatus: GameStatus) {
     this.username = username;
     this.gameStatus = gameStatus;
   }
 
   getGameId(): string {
-    return this.gameId;
+    return this.gameStatus.game_id;
   }
 
   getGameStatus(): GameStatus {
@@ -110,7 +108,6 @@ class ConcreteGameInformation implements GameInformation {
     );
   }
 
-  gameId: string;
   username: string;
   gameStatus: GameStatus;
 }
@@ -126,37 +123,14 @@ interface GameDataProviderProps {
 export function GameDataProvider(props: GameDataProviderProps) {
   const [gameId] = useGameId();
   const [username] = useUsername();
-  const [gameStatus, setGameStatus] = useState<GameStatus | null>(null);
-
-  // refresh GameStatus every 1 second.
-  useEffect(() => {
-    // set GameStatus before the refresher triggered
-    getGameStatus(gameId, username).then((status: GameStatus) => {
-      if (!isEqual(gameStatus, status)) {
-        setGameStatus(status);
-      }
-    });
-
-    const intervalId = setInterval(() => {
-      // auto-refresh GameStatus
-      getGameStatus(gameId, username).then((status: GameStatus) => {
-        if (!isEqual(gameStatus, status)) {
-          setGameStatus(status);
-        }
-      });
-    }, 1 * 1000);
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
+  const gameStatus = usePollGameStatus(gameId, username);
 
   const value = useMemo(
     () =>
       gameStatus !== null
-        ? new ConcreteGameInformation(gameId, username, gameStatus)
+        ? new ConcreteGameInformation(username, gameStatus)
         : new BeforeReadyGameInformation(),
-
-    [gameStatus, gameId, username]
+    [gameStatus, username]
   );
 
   return (
