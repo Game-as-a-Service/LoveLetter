@@ -24,7 +24,7 @@ function RoundEventView(props: { event: GameEvent; index: number }) {
   if (!context.isReady()) {
     return <></>;
   }
-  const { event, index } = props;
+  const { event } = props;
 
   if (event.type !== "round_started") {
     return <></>;
@@ -63,7 +63,7 @@ function RoundEventView(props: { event: GameEvent; index: number }) {
 }
 
 function CardEventView(props: { event: GameEvent; index: number }) {
-  const { event, index } = props;
+  const { event } = props;
 
   if (event.type !== "card_action") {
     return <></>;
@@ -115,7 +115,7 @@ function CardEventView(props: { event: GameEvent; index: number }) {
 }
 
 function GameOverView(props: { event: GameEvent; index: number }) {
-  const { event, index } = props;
+  const { event } = props;
 
   if (event.type !== "game_over") {
     return <></>;

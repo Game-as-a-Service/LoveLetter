@@ -49,7 +49,7 @@ export function GameStatusBoard() {
   ];
 
   if (gameStatus != null) {
-    gameStatus.players.map((p, idx) => {
+    gameStatus.players.forEach((p, idx) => {
       data[idx] = { name: p.name, index: idx + 1 };
     });
   }
@@ -69,7 +69,7 @@ export function GameStatusBoard() {
     const current_round = gameStatus.rounds[gameStatus.rounds.length - 1];
     gameProgress = `等待 ${current_round.turn_player.name} 出牌...`;
 
-    current_round.players.map((p) => {
+    current_round.players.forEach((p) => {
       if (p.name === context.getUsername()) {
         seens = p.seen_cards;
       }
