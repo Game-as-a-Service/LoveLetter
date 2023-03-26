@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 
 /** Keep game status updated by polling. */
 export function usePollGameStatus(gameId: string, username: string) {
-  // TODO: break down GameStatus to separate states.
   const [gameStatus, setGameStatus] = useState<GameStatus | null>(null);
 
   const getCurrentGameStatus = useCallback(() => {

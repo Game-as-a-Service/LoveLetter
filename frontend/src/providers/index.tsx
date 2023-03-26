@@ -126,6 +126,7 @@ export function GameDataProvider(props: GameDataProviderProps) {
   const [username] = useUsername();
   const gameStatus = usePollGameStatus(gameId, username);
 
+  // Re-render only if the value of gameStatus and username got re-assigned.
   const value = useMemo(
     () =>
       gameStatus !== null

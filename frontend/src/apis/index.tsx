@@ -1,7 +1,7 @@
 import axios, { RawAxiosRequestHeaders } from "axios";
 
-import { isEmpty } from "lodash";
 import { GameStatus } from "@/types";
+import isEmpty from "lodash/isEmpty";
 
 export const defaultHeaders: RawAxiosRequestHeaders = {
   Accept: "application/json",
