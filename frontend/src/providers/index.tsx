@@ -1,8 +1,8 @@
-import { GameStatus, TurnPlayer } from "@/types";
-import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
-import { useGameId, useUsername } from "@/hooks";
 import { getGameStatus } from "@/apis";
+import { useGameId, useUsername } from "@/hooks";
+import { GameStatus, TurnPlayer } from "@/types";
 import { isEqual } from "lodash";
+import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
 
 export interface GameInformation {
   getGameId: () => string;
@@ -150,10 +150,15 @@ export function GameDataProvider(props: GameDataProviderProps) {
     };
   }, []);
 
-  let value: GameInformation = new BeforeReadyGameInformation();
-  if (gameStatus !== null) {
-    value = new ConcreteGameInformation(gameId, username, gameStatus);
-  }
+  const value = useMemo(
+    () =>
+      gameStatus !== null
+        ? new ConcreteGameInformation(gameId, username, gameStatus)
+        : new BeforeReadyGameInformation(),
+
+    [gameStatus, gameId, username]
+  );
+
   return (
     <GameContext.Provider value={value}>{props.children}</GameContext.Provider>
   );
