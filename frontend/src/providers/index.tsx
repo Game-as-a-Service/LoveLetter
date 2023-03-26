@@ -86,7 +86,7 @@ class ConcreteGameInformation implements GameInformation {
   }
 
   isReady(): boolean {
-    return this.gameStatus != null;
+    return this.gameStatus !== null;
   }
 
   isMyTurn(): boolean {
@@ -104,7 +104,8 @@ class ConcreteGameInformation implements GameInformation {
 
   isGameOver(): boolean {
     return (
-      this.gameStatus.final_winner != "" && this.gameStatus.final_winner != null
+      this.gameStatus.final_winner !== "" &&
+      this.gameStatus.final_winner != null
     );
   }
 
