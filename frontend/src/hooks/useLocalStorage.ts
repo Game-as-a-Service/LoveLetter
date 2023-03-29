@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function useStorage(key: string): [string, (name: string) => void] {
+export function useLocalStorage(key: string) {
   const initial_value =
     window.localStorage.getItem(key) == null
       ? ""
@@ -13,13 +13,5 @@ function useStorage(key: string): [string, (name: string) => void] {
       window.localStorage.setItem(key, newValue);
       setValue(newValue);
     },
-  ];
-}
-
-export function useUsername(): [string, (name: string) => void] {
-  return useStorage("username");
-}
-
-export function useGameId(): [string, (name: string) => void] {
-  return useStorage("gameId");
+  ] as const;
 }

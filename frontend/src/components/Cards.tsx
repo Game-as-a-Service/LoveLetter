@@ -1,12 +1,12 @@
-import card_front from "./card-front.png";
 import card_back from "./card-back.png";
+import card_front from "./card-front.png";
 
 import { Button, Select } from "@chakra-ui/react";
 import { useRef } from "react";
 
+import { playCard } from "@/apis";
 import { useGameId, useUsername } from "@/hooks";
 import { HandCard } from "@/types";
-import { playCard } from "@/apis";
 
 export function CardBack(props: { enabled: boolean }) {
   let cssConfig = {};
@@ -33,7 +33,7 @@ export function CardAction(props: { handCard: HandCard }) {
   const ref_guessed_card = useRef(null);
 
   if (!handCard.usage.can_discard) {
-    return <></>;
+    return null;
   }
 
   const has_player_options = handCard.usage.choose_players.length > 0;
@@ -51,7 +51,9 @@ export function CardAction(props: { handCard: HandCard }) {
           }}
         >
           {handCard.usage.choose_players.map((x) => (
-            <option value={x} key={x}>{x}</option>
+            <option value={x} key={x}>
+              {x}
+            </option>
           ))}
         </Select>
       )}
@@ -65,7 +67,9 @@ export function CardAction(props: { handCard: HandCard }) {
           }}
         >
           {handCard.usage.can_guess_cards.map((x) => (
-            <option value={x} key={x}>{x}</option>
+            <option value={x} key={x}>
+              {x}
+            </option>
           ))}
         </Select>
       )}
@@ -102,7 +106,11 @@ export function CardFront(props: { handCard: HandCard }) {
 
   return (
     <div className="w-[118px] h-[172px] shadow-xl shadow-zinc-500 container relative">
-      <img src={card_front} className="bg-white rounded-xl" />
+      <img
+        alt={handCard.name}
+        src={card_front}
+        className="bg-white rounded-xl"
+      />
       <div className="flex flex-col absolute top-[15px] p-2 text-white items-center">
         <div className="text-xs mb-1">{handCard.value}</div>
         <div className="text-2xl">{handCard.name}</div>
