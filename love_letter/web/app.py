@@ -34,9 +34,9 @@ app.add_middleware(
 
 @app.post("/games/create/by_player/{player_id}")
 async def create_game(player_id: str) -> str:
-    output = CreateGame.output()
-    CreateGame().execute(CreateGame.input(player_id), output)
-    return output.game_id
+    presenter = CreateGame.presenter()
+    CreateGame().execute(CreateGame.input(player_id), presenter)
+    return presenter.as_view_model()
 
 
 @app.post("/games/{game_id}/player/{player_id}/join")

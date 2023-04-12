@@ -57,10 +57,9 @@ class GameServiceTests(unittest.TestCase):
         return output
 
     def create_game(self):
-        output = CreateGame.output()
-        CreateGame().execute(CreateGame.input("1"), output)
-        game_id = output.game_id
-        return game_id
+        presenter = CreateGame.presenter()
+        CreateGame().execute(CreateGame.input("1"), presenter)
+        return presenter.as_view_model()
 
     def test_get_status(self):
         repo = create_default_repository()

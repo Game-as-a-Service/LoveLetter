@@ -3,34 +3,9 @@ from typing import Dict, Union
 
 from love_letter.models import Game, GuessCard, Player, ToSomeoneCard
 from love_letter.repository import create_default_repository
+from love_letter.usecase.create_game import CreateGame
 
 game_repository = create_default_repository()
-
-
-class CreateGameInput:
-    player_id: str
-
-
-class CreateGameOutput:
-    game_id: str
-
-
-class CreateGame:
-    def execute(self, input: CreateGameInput, output: CreateGameOutput):
-        game = Game()
-        game.join(Player(input.player_id))
-        game_id = game_repository.save_or_update(game)
-        output.game_id = game_id
-
-    @classmethod
-    def input(cls, player_id: str) -> CreateGameInput:
-        input = CreateGameInput()
-        input.player_id = player_id
-        return input
-
-    @classmethod
-    def output(cls) -> CreateGameOutput:
-        return CreateGameOutput()
 
 
 class JoinGameInput:
