@@ -26,7 +26,7 @@ class GameServiceTests(unittest.TestCase):
         self.assertIsNotNone(game_id)
 
         # join the second player
-        self.assertTrue(self.join_game(game_id).success)
+        self.assertTrue(self.join_game(game_id))
         result = get_status(game_id, "1")
 
         self.assertIsNotNone(result)
@@ -52,9 +52,9 @@ class GameServiceTests(unittest.TestCase):
         self.assertEqual("['1', '2']", str(names))
 
     def join_game(self, game_id):
-        output = JoinGame.output()
-        JoinGame().execute(JoinGame.input(game_id, "2"), output)
-        return output
+        presenter = JoinGame.presenter()
+        JoinGame().execute(JoinGame.input(game_id, "2"), presenter)
+        return presenter.as_view_model()
 
     def create_game(self):
         presenter = CreateGame.presenter()
@@ -67,7 +67,7 @@ class GameServiceTests(unittest.TestCase):
         # given a started game with two players
         # create a new game by usecase
         game_id = self.create_game()
-        output = self.join_game(game_id)
+        self.join_game(game_id)
 
         output = StartGame.output()
         StartGame().execute(StartGame.input(game_id), output)

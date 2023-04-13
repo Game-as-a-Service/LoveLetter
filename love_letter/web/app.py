@@ -41,9 +41,9 @@ async def create_game(player_id: str) -> str:
 
 @app.post("/games/{game_id}/player/{player_id}/join")
 async def join_game(game_id: str, player_id: str) -> bool:
-    output = JoinGame.output()
-    JoinGame().execute(JoinGame.input(game_id, player_id), output)
-    return output.success
+    presenter = JoinGame.presenter()
+    JoinGame().execute(JoinGame.input(game_id, player_id), presenter)
+    return presenter.as_view_model()
 
 
 @app.post("/games/{game_id}/start")
