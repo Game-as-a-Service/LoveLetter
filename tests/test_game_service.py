@@ -69,9 +69,9 @@ class GameServiceTests(unittest.TestCase):
         game_id = self.create_game()
         self.join_game(game_id)
 
-        output = StartGame.output()
-        StartGame().execute(StartGame.input(game_id), output)
-        self.assertTrue(output.success)
+        presenter = StartGame.presenter()
+        StartGame().execute(StartGame.input(game_id), presenter)
+        self.assertTrue(presenter.as_view_model())
 
         # when get game status
         status_of_player1: GameStatus = GameStatus.parse_obj(get_status(game_id, "1"))
@@ -377,5 +377,5 @@ class PlayerContextTest(unittest.TestCase):
         )  # turn_player = 玩家2
 
     def start_game(self, game_id):
-        output = StartGame.output()
-        StartGame().execute(StartGame.input(game_id), output)
+        presenter = StartGame.presenter()
+        StartGame().execute(StartGame.input(game_id), presenter)

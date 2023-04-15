@@ -5,38 +5,9 @@ from love_letter.models import Game, GuessCard, Player, ToSomeoneCard
 from love_letter.repository import create_default_repository
 from love_letter.usecase.create_game import CreateGame
 from love_letter.usecase.join_game import JoinGame
+from love_letter.usecase.start_game import StartGame
 
 game_repository = create_default_repository()
-
-
-class StartGameInput:
-    game_id: str
-
-
-class StartGameOutput:
-    success: bool
-
-
-class StartGame:
-    @classmethod
-    def output(cls) -> StartGameOutput:
-        return StartGameOutput()
-
-    @classmethod
-    def input(cls, game_id) -> StartGameInput:
-        input = StartGameInput()
-        input.game_id = game_id
-        return input
-
-    def execute(self, input: StartGameInput, output: StartGameOutput):
-        game: Game = game_repository.get(input.game_id)
-        if game is None:
-            output.success = False
-            return
-
-        game.start()
-        game_repository.save_or_update(game)
-        output.success = True
 
 
 class PlayCardInput:
