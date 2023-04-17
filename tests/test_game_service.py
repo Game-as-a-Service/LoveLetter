@@ -12,10 +12,11 @@ from love_letter.web.presenter import build_player_view
 from tests.test_card_behave import reset_deck
 
 
-def get_status(game_id, player_id):
-    output = GetStatus.output()
-    GetStatus().execute(GetStatus.input(game_id, player_id), output)
-    result = build_player_view(output.game, player_id)
+def get_status(game_id: str, player_id: str):
+    presenter = GetStatus.presenter()
+    GetStatus().execute(GetStatus.input(game_id, player_id), presenter)
+    game = presenter.as_view_model()
+    result = build_player_view(game, player_id)
     return result
 
 
@@ -62,7 +63,7 @@ class GameServiceTests(unittest.TestCase):
         return presenter.as_view_model()
 
     def test_get_status(self):
-        repo = create_default_repository()
+        create_default_repository()
 
         # given a started game with two players
         # create a new game by usecase

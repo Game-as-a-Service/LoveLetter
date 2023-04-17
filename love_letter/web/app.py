@@ -4,8 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from love_letter.models import Game, GuessCard, ToSomeoneCard
-from love_letter.repository import create_default_repository
+from love_letter.models import GuessCard, ToSomeoneCard
 
 # isort: off
 from love_letter.usecase import CreateGame, GetStatus, JoinGame, PlayCard, StartGame
@@ -73,9 +72,10 @@ async def play_card(
 
 @app.get("/games/{game_id}/player/{player_id}/status", response_model=GameStatus)
 async def get_status(game_id: str, player_id: str):
-    output = GetStatus.output()
-    GetStatus().execute(GetStatus.input(game_id, player_id), output)
-    return build_player_view(output.game, player_id)
+    presenter = GetStatus.presenter()
+    GetStatus().execute(GetStatus.input(game_id, player_id), presenter)
+    game = presenter.as_view_model()
+    return build_player_view(game, player_id)
 
 
 def run():
