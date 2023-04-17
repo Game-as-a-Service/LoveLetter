@@ -4,7 +4,12 @@ from love_letter.models import Game, Player, Round, ToSomeoneCard
 from love_letter.repository import create_default_repository
 
 # isort: off
-from love_letter.usecase import CreateGame, GetStatus, JoinGame, PlayCard, StartGame
+
+from love_letter.usecase.create_game import CreateGame
+from love_letter.usecase.get_status import GetStatus
+from love_letter.usecase.join_game import JoinGame
+from love_letter.usecase.play_card import PlayCard
+from love_letter.usecase.start_game import StartGame
 
 # isort: on
 from love_letter.web.dto import GameStatus

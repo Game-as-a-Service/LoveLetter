@@ -19,6 +19,7 @@ class StartGamePresenter(Presenter):
         for event in self.events:
             if isinstance(event, StartGameEvent):
                 return event.success
+        raise BaseException("Game is unavailable.")
 
 
 class StartGame:

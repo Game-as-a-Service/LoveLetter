@@ -21,10 +21,11 @@ class JoinGamePresenter(Presenter):
         for event in self.events:
             if isinstance(event, PlayerJoinedEvent):
                 return event.success
+        raise BaseException("Game is unavailable.")
 
 
 class JoinGame:
-    def execute(self, input: PlayerJoinGameInput, presenter: Presenter):
+    def execute(self, input: PlayerJoinGameInput, presenter: JoinGamePresenter):
         try:
             game = game_repository.get(input.game_id)
             game.join(Player(input.player_id))
@@ -42,5 +43,5 @@ class JoinGame:
         return input
 
     @classmethod
-    def presenter(cls) -> Presenter:
+    def presenter(cls) -> JoinGamePresenter:
         return JoinGamePresenter()

@@ -19,6 +19,7 @@ class CreateGamePresenter(Presenter):
         for event in self.events:
             if isinstance(event, GameCreatedEvent):
                 return event.game_id
+        raise BaseException("Game is unavailable.")
 
 
 class CreateGame:
