@@ -5,10 +5,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from love_letter.models import GuessCard, ToSomeoneCard
-from love_letter.repository import create_default_repository
 
 # isort: off
-from love_letter.usecase import CreateGame, GetStatus, JoinGame, PlayCard, StartGame
+
+from love_letter.usecase.create_game import CreateGame
+from love_letter.usecase.get_status import GetStatus
+from love_letter.usecase.join_game import JoinGame
+from love_letter.usecase.play_card import PlayCard
+from love_letter.usecase.start_game import StartGame
 
 # isort: on
 from love_letter.web.dto import GameStatus
@@ -34,23 +38,23 @@ app.add_middleware(
 
 @app.post("/games/create/by_player/{player_id}")
 async def create_game(player_id: str) -> str:
-    output = CreateGame.output()
-    CreateGame().execute(CreateGame.input(player_id), output)
-    return output.game_id
+    presenter = CreateGame.presenter()
+    CreateGame().execute(CreateGame.input(player_id), presenter)
+    return presenter.as_view_model()
 
 
 @app.post("/games/{game_id}/player/{player_id}/join")
 async def join_game(game_id: str, player_id: str) -> bool:
-    output = JoinGame.output()
-    JoinGame().execute(JoinGame.input(game_id, player_id), output)
-    return output.success
+    presenter = JoinGame.presenter()
+    JoinGame().execute(JoinGame.input(game_id, player_id), presenter)
+    return presenter.as_view_model()
 
 
 @app.post("/games/{game_id}/start")
 async def start_game(game_id: str):
-    output = StartGame.output()
-    StartGame().execute(StartGame.input(game_id), output)
-    return output.success
+    presenter = StartGame.presenter()
+    StartGame().execute(StartGame.input(game_id), presenter)
+    return presenter.as_view_model()
 
 
 @app.post(
@@ -63,18 +67,20 @@ async def play_card(
     card_name: str,
     card_action: Union[GuessCard, ToSomeoneCard, None] = None,
 ):
-    output = PlayCard.output()
+    presenter = PlayCard.presenter()
     PlayCard().execute(
-        PlayCard.input(game_id, player_id, card_name, card_action), output
+        PlayCard.input(game_id, player_id, card_name, card_action), presenter
     )
-    return build_player_view(output.game, player_id)
+    game = presenter.as_view_model()
+    return build_player_view(game, player_id)
 
 
 @app.get("/games/{game_id}/player/{player_id}/status", response_model=GameStatus)
 async def get_status(game_id: str, player_id: str):
-    output = GetStatus.output()
-    GetStatus().execute(GetStatus.input(game_id, player_id), output)
-    return build_player_view(output.game, player_id)
+    presenter = GetStatus.presenter()
+    GetStatus().execute(GetStatus.input(game_id, player_id), presenter)
+    game = presenter.as_view_model()
+    return build_player_view(game, player_id)
 
 
 def run():

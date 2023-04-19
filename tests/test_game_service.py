@@ -4,7 +4,12 @@ from love_letter.models import Game, Player, Round, ToSomeoneCard
 from love_letter.repository import create_default_repository
 
 # isort: off
-from love_letter.usecase import CreateGame, GetStatus, JoinGame, PlayCard, StartGame
+
+from love_letter.usecase.create_game import CreateGame
+from love_letter.usecase.get_status import GetStatus
+from love_letter.usecase.join_game import JoinGame
+from love_letter.usecase.play_card import PlayCard
+from love_letter.usecase.start_game import StartGame
 
 # isort: on
 from love_letter.web.dto import GameStatus
@@ -12,10 +17,11 @@ from love_letter.web.presenter import build_player_view
 from tests.test_card_behave import reset_deck
 
 
-def get_status(game_id, player_id):
-    output = GetStatus.output()
-    GetStatus().execute(GetStatus.input(game_id, player_id), output)
-    result = build_player_view(output.game, player_id)
+def get_status(game_id: str, player_id: str):
+    presenter = GetStatus.presenter()
+    GetStatus().execute(GetStatus.input(game_id, player_id), presenter)
+    game = presenter.as_view_model()
+    result = build_player_view(game, player_id)
     return result
 
 
@@ -26,7 +32,7 @@ class GameServiceTests(unittest.TestCase):
         self.assertIsNotNone(game_id)
 
         # join the second player
-        self.assertTrue(self.join_game(game_id).success)
+        self.assertTrue(self.join_game(game_id))
         result = get_status(game_id, "1")
 
         self.assertIsNotNone(result)
@@ -52,27 +58,26 @@ class GameServiceTests(unittest.TestCase):
         self.assertEqual("['1', '2']", str(names))
 
     def join_game(self, game_id):
-        output = JoinGame.output()
-        JoinGame().execute(JoinGame.input(game_id, "2"), output)
-        return output
+        presenter = JoinGame.presenter()
+        JoinGame().execute(JoinGame.input(game_id, "2"), presenter)
+        return presenter.as_view_model()
 
     def create_game(self):
-        output = CreateGame.output()
-        CreateGame().execute(CreateGame.input("1"), output)
-        game_id = output.game_id
-        return game_id
+        presenter = CreateGame.presenter()
+        CreateGame().execute(CreateGame.input("1"), presenter)
+        return presenter.as_view_model()
 
     def test_get_status(self):
-        repo = create_default_repository()
+        create_default_repository()
 
         # given a started game with two players
         # create a new game by usecase
         game_id = self.create_game()
-        output = self.join_game(game_id)
+        self.join_game(game_id)
 
-        output = StartGame.output()
-        StartGame().execute(StartGame.input(game_id), output)
-        self.assertTrue(output.success)
+        presenter = StartGame.presenter()
+        StartGame().execute(StartGame.input(game_id), presenter)
+        self.assertTrue(presenter.as_view_model())
 
         # when get game status
         status_of_player1: GameStatus = GameStatus.parse_obj(get_status(game_id, "1"))
@@ -197,7 +202,7 @@ class PlayerContextTest(unittest.TestCase):
 
         # when player-1 discard countess
         PlayCard().execute(
-            PlayCard.input(self.game_id, "1", "伯爵夫人", None), PlayCard.output()
+            PlayCard.input(self.game_id, "1", "伯爵夫人", None), PlayCard.presenter()
         )
 
         expected_card_mapping = {
@@ -356,7 +361,7 @@ class PlayerContextTest(unittest.TestCase):
         # when: 1對3打出神父
         PlayCard().execute(
             PlayCard.input(self.game_id, "1", "神父", ToSomeoneCard(chosen_player=3)),
-            PlayCard.output(),
+            PlayCard.presenter(),
         )
 
         status_of_player1: GameStatus = GameStatus.parse_obj(
@@ -378,5 +383,5 @@ class PlayerContextTest(unittest.TestCase):
         )  # turn_player = 玩家2
 
     def start_game(self, game_id):
-        output = StartGame.output()
-        StartGame().execute(StartGame.input(game_id), output)
+        presenter = StartGame.presenter()
+        StartGame().execute(StartGame.input(game_id), presenter)
