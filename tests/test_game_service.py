@@ -2,18 +2,13 @@ import unittest
 
 from love_letter.models import Game, Player, Round, ToSomeoneCard
 from love_letter.repository import create_default_repository
-
-# isort: off
-
 from love_letter.usecase.create_game import CreateGame
 from love_letter.usecase.get_status import GetStatus
 from love_letter.usecase.join_game import JoinGame
 from love_letter.usecase.play_card import PlayCard
 from love_letter.usecase.start_game import StartGame
-
-# isort: on
 from love_letter.web.dto import GameStatus
-from love_letter.web.presenter import build_player_view
+from love_letter.web.presenter import CreateGamePresenter, build_player_view
 from tests.test_card_behave import reset_deck
 
 
@@ -63,7 +58,7 @@ class GameServiceTests(unittest.TestCase):
         return presenter.as_view_model()
 
     def create_game(self):
-        presenter = CreateGame.presenter()
+        presenter = CreateGamePresenter.presenter()
         CreateGame().execute(CreateGame.input("1"), presenter)
         return presenter.as_view_model()
 

@@ -1,4 +1,5 @@
 import secrets
+import uuid
 from copy import deepcopy
 from dataclasses import dataclass
 from operator import attrgetter
@@ -7,6 +8,7 @@ from typing import Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
+from love_letter.models.event import GameCreatedEvent
 from love_letter.models.exceptions import GameException
 
 num_of_player_with_tokens_to_win = {2: 7, 3: 5, 4: 4}
@@ -127,7 +129,7 @@ class Round:
 
 class Game:
     def __init__(self):
-        self.id: Optional[str] = None  # TODO: assign id to a game.
+        self.id: Optional[str] = uuid.uuid4().hex
         self.players: List["Player"] = []
         self.rounds: List["Round"] = []
         self.num_of_tokens_to_win: int = 0
@@ -137,17 +139,17 @@ class Game:
     def post_event(self, message: Dict):
         self.events.append(message)
 
-    def join(self, player: "Player"):
+    def join(self, player: "Player") -> Optional[GameCreatedEvent]:
         if self.has_started():
             raise GameException("Game Has Started")
         # TODO it is no way to verify two players with same name, just pass it
         join_before = [p for p in self.players if p.name == player.name]
         if join_before:
-            return
+            return None
 
         if len(self.players) < 4:
             self.players.append(player)
-            return
+            return GameCreatedEvent(game_id=self.id)
 
         raise GameException("Game Has No Capacity For New Players")
 

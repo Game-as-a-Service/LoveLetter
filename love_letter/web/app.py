@@ -5,18 +5,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from love_letter.models import GuessCard, ToSomeoneCard
-
-# isort: off
-
 from love_letter.usecase.create_game import CreateGame
 from love_letter.usecase.get_status import GetStatus
 from love_letter.usecase.join_game import JoinGame
 from love_letter.usecase.play_card import PlayCard
 from love_letter.usecase.start_game import StartGame
-
-# isort: on
 from love_letter.web.dto import GameStatus
-from love_letter.web.presenter import build_player_view
+from love_letter.web.presenter import CreateGamePresenter, build_player_view
 
 app = FastAPI()
 origins = ["*", "http://localhost:3000", "http://localhost:8080"]
@@ -38,7 +33,7 @@ app.add_middleware(
 
 @app.post("/games/create/by_player/{player_id}")
 async def create_game(player_id: str) -> str:
-    presenter = CreateGame.presenter()
+    presenter = CreateGamePresenter.presenter()
     CreateGame().execute(CreateGame.input(player_id), presenter)
     return presenter.as_view_model()
 

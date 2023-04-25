@@ -4,7 +4,6 @@ import os
 import os.path
 import pickle
 import tempfile
-import uuid
 from typing import Dict
 
 from love_letter.models import Game
@@ -16,8 +15,7 @@ logger.addHandler(logging.StreamHandler())
 
 class GameRepository(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def save_or_update(self, game: Game) -> str:
-        # TODO: Should return game id.
+    def save_or_update(self, game: Game):
         pass
 
     @abc.abstractmethod
@@ -30,15 +28,10 @@ class GameRepositoryPickleImpl(GameRepository):
         self.working_dir = tempfile.mkdtemp()
         logger.info(f"{GameRepositoryPickleImpl.__name__} {self.working_dir=}")
 
-    def save_or_update(self, game: Game) -> str:
-        if not game.id:
-            game.id = uuid.uuid4().hex
-
+    def save_or_update(self, game: Game):
         target = os.path.join(self.working_dir, game.id)
         with open(target, "wb") as fh:
             pickle.dump(game, fh)
-
-        return game.id
 
     def get(self, game_id) -> Game:
         target = os.path.join(self.working_dir, game_id)
@@ -50,13 +43,8 @@ class GameRepositoryInMemoryImpl(GameRepository):
     def __init__(self):
         self.in_memory_data: Dict[str, "Game"] = dict()
 
-    def save_or_update(self, game: Game) -> str:
-        if game.id:
-            self.in_memory_data[game.id] = game
-        else:
-            game.id = uuid.uuid4().hex
-            self.in_memory_data[game.id] = game
-        return game.id
+    def save_or_update(self, game: Game):
+        self.in_memory_data[game.id] = game
 
     def get(self, game_id: str) -> Game:
         game = self.in_memory_data.get(game_id)

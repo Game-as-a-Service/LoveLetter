@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional
 
-from love_letter.models import Game
+from love_letter.models import Game, GameCreatedEvent
+from love_letter.usecase.common import Presenter
 
 
 def build_player_view(game: Game, player_id: str):
@@ -84,3 +85,15 @@ def _add_cards_usage(
             )
         else:
             c["usage"]["choose_players"] = []
+
+
+class CreateGamePresenter(Presenter):
+    def as_view_model(self):
+        for event in self.events:
+            if isinstance(event, GameCreatedEvent):
+                return event.game_id
+        raise BaseException("Game is unavailable.")
+
+    @classmethod
+    def presenter(cls) -> "CreateGamePresenter":
+        return CreateGamePresenter()
