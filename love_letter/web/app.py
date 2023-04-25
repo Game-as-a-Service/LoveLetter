@@ -11,7 +11,15 @@ from love_letter.usecase.join_game import JoinGame
 from love_letter.usecase.play_card import PlayCard
 from love_letter.usecase.start_game import StartGame
 from love_letter.web.dto import GameStatus
-from love_letter.web.presenter import CreateGamePresenter, build_player_view
+
+# isort: off
+from love_letter.web.presenter import (
+    CreateGamePresenter,
+    JoinGamePresenter,
+    build_player_view,
+)
+
+# isort: on
 
 app = FastAPI()
 origins = ["*", "http://localhost:3000", "http://localhost:8080"]
@@ -40,7 +48,7 @@ async def create_game(player_id: str) -> str:
 
 @app.post("/games/{game_id}/player/{player_id}/join")
 async def join_game(game_id: str, player_id: str) -> bool:
-    presenter = JoinGame.presenter()
+    presenter = JoinGamePresenter.presenter()
     JoinGame().execute(JoinGame.input(game_id, player_id), presenter)
     return presenter.as_view_model()
 

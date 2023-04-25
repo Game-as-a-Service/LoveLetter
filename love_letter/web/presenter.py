@@ -97,3 +97,17 @@ class CreateGamePresenter(Presenter):
     @classmethod
     def presenter(cls) -> "CreateGamePresenter":
         return CreateGamePresenter()
+
+
+class JoinGamePresenter(Presenter):
+    def as_view_model(self):
+        for event in self.events:
+            if isinstance(event, GameCreatedEvent):
+                return event.success
+            elif isinstance(event, str):
+                return event
+        raise BaseException("Game is unavailable.")
+
+    @classmethod
+    def presenter(cls) -> "JoinGamePresenter":
+        return JoinGamePresenter()

@@ -8,7 +8,15 @@ from love_letter.usecase.join_game import JoinGame
 from love_letter.usecase.play_card import PlayCard
 from love_letter.usecase.start_game import StartGame
 from love_letter.web.dto import GameStatus
-from love_letter.web.presenter import CreateGamePresenter, build_player_view
+
+# isort: off
+from love_letter.web.presenter import (
+    CreateGamePresenter,
+    JoinGamePresenter,
+    build_player_view,
+)
+
+# isort: on
 from tests.test_card_behave import reset_deck
 
 
@@ -53,7 +61,7 @@ class GameServiceTests(unittest.TestCase):
         self.assertEqual("['1', '2']", str(names))
 
     def join_game(self, game_id):
-        presenter = JoinGame.presenter()
+        presenter = JoinGamePresenter.presenter()
         JoinGame().execute(JoinGame.input(game_id, "2"), presenter)
         return presenter.as_view_model()
 
