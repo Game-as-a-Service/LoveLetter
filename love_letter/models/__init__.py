@@ -139,17 +139,17 @@ class Game:
     def post_event(self, message: Dict):
         self.events.append(message)
 
-    def join(self, player: "Player") -> Optional[GameCreatedEvent]:
+    def join(self, player: "Player") -> List[GameCreatedEvent]:
         if self.has_started():
             raise GameException(ExceptionEvent(message="Game Has Started"))
         # TODO it is no way to verify two players with same name, just pass it
         join_before = [p for p in self.players if p.name == player.name]
         if join_before:
-            return None
+            return []
 
         if len(self.players) < 4:
             self.players.append(player)
-            return GameCreatedEvent(game_id=self.id, success=True)
+            return [GameCreatedEvent(game_id=self.id, success=True)]
 
         raise GameException(
             ExceptionEvent(message="Game Has No Capacity For New Players")

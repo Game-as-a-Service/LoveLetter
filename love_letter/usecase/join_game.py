@@ -15,7 +15,7 @@ class JoinGame:
             game = game_repository.get(input.game_id)
             events = game.join(Player(input.player_id))
             game_repository.save_or_update(game)
-            presenter.present([events])
+            presenter.present(events)
         except BaseException as e:
             traceback.print_exception(e)
             presenter.present(list(e.args))

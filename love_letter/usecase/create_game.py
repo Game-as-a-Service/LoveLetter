@@ -11,7 +11,7 @@ class CreateGame:
         game = Game()
         events = game.join(Player(input.player_id))
         game_repository.save_or_update(game)
-        presenter.present([events])
+        presenter.present(events)
 
     @classmethod
     def input(cls, player_id: str) -> CreateGameInput:
