@@ -13,6 +13,7 @@ from love_letter.web.dto import GameStatus
 from love_letter.web.presenter import (
     CreateGamePresenter,
     JoinGamePresenter,
+    StartGamePresenter,
     build_player_view,
 )
 
@@ -78,7 +79,7 @@ class GameServiceTests(unittest.TestCase):
         game_id = self.create_game()
         self.join_game(game_id)
 
-        presenter = StartGame.presenter()
+        presenter = StartGamePresenter.presenter()
         StartGame().execute(StartGame.input(game_id), presenter)
         self.assertTrue(presenter.as_view_model())
 
@@ -386,5 +387,5 @@ class PlayerContextTest(unittest.TestCase):
         )  # turn_player = 玩家2
 
     def start_game(self, game_id):
-        presenter = StartGame.presenter()
+        presenter = StartGamePresenter.presenter()
         StartGame().execute(StartGame.input(game_id), presenter)

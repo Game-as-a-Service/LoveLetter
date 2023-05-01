@@ -8,7 +8,12 @@ from typing import Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
-from love_letter.models.event import ExceptionEvent, GameCreatedEvent
+from love_letter.models.event import (
+    DomainEvent,
+    ExceptionEvent,
+    GameCreatedEvent,
+    StartGameEvent,
+)
 from love_letter.models.exceptions import GameException
 
 num_of_player_with_tokens_to_win = {2: 7, 3: 5, 4: 4}
@@ -155,13 +160,14 @@ class Game:
             ExceptionEvent(message="Game Has No Capacity For New Players")
         )
 
-    def start(self):
+    def start(self) -> List[DomainEvent]:
         if len(self.players) < 2:
             raise GameException("Too Few Players")
         self.num_of_tokens_to_win = num_of_player_with_tokens_to_win.get(
             len(self.players)
         )
         self.next_round()
+        return [StartGameEvent(success=True)]
 
     def next_round(self, last_winner: Optional[str] = None):
         # TODO if we arrive the ending of the game, show the lucky person who won the Princess

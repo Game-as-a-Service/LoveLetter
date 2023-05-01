@@ -17,3 +17,8 @@ class ExceptionEvent(DomainEvent):
 
     def __str__(self):
         return self.message
+
+
+@dataclass
+class StartGameEvent(DomainEvent):
+    success: bool

@@ -16,6 +16,7 @@ from love_letter.web.dto import GameStatus
 from love_letter.web.presenter import (
     CreateGamePresenter,
     JoinGamePresenter,
+    StartGamePresenter,
     build_player_view,
 )
 
@@ -55,7 +56,7 @@ async def join_game(game_id: str, player_id: str) -> bool:
 
 @app.post("/games/{game_id}/start")
 async def start_game(game_id: str):
-    presenter = StartGame.presenter()
+    presenter = StartGamePresenter.presenter()
     StartGame().execute(StartGame.input(game_id), presenter)
     return presenter.as_view_model()
 
