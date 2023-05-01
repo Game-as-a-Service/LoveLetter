@@ -8,12 +8,16 @@ from typing import Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
+
+# isort: off
 from love_letter.models.event import (
     DomainEvent,
     ExceptionEvent,
     GameCreatedEvent,
     StartGameEvent,
 )
+
+# isort: on
 from love_letter.models.exceptions import GameException
 
 num_of_player_with_tokens_to_win = {2: 7, 3: 5, 4: 4}
