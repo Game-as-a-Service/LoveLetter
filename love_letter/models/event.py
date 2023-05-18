@@ -6,7 +6,7 @@ class DomainEvent:
 
 
 @dataclass
-class GameCreatedEvent(DomainEvent):
+class PlayerJoinedEvent(DomainEvent):
     game_id: str
     success: bool
 

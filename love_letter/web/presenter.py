@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from love_letter.models import Game, GameCreatedEvent
+from love_letter.models import Game, PlayerJoinedEvent
 from love_letter.models.event import StartGameEvent
 from love_letter.usecase.common import Presenter
 
@@ -91,7 +91,7 @@ def _add_cards_usage(
 class CreateGamePresenter(Presenter):
     def as_view_model(self):
         for event in self.events:
-            if isinstance(event, GameCreatedEvent):
+            if isinstance(event, PlayerJoinedEvent):
                 return event.game_id
         raise BaseException("Game is unavailable.")
 
@@ -103,7 +103,7 @@ class CreateGamePresenter(Presenter):
 class JoinGamePresenter(Presenter):
     def as_view_model(self):
         for event in self.events:
-            if isinstance(event, GameCreatedEvent):
+            if isinstance(event, PlayerJoinedEvent):
                 return event.success
             elif isinstance(event, str):
                 return event

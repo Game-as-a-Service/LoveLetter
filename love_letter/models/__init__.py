@@ -13,7 +13,7 @@ from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
 from love_letter.models.event import (
     DomainEvent,
     ExceptionEvent,
-    GameCreatedEvent,
+    PlayerJoinedEvent,
     StartGameEvent,
 )
 
@@ -148,7 +148,7 @@ class Game:
     def post_event(self, message: Dict):
         self.events.append(message)
 
-    def join(self, player: "Player") -> List[GameCreatedEvent]:
+    def join(self, player: "Player") -> List[PlayerJoinedEvent]:
         if self.has_started():
             raise GameException(ExceptionEvent(message="Game Has Started"))
         # TODO it is no way to verify two players with same name, just pass it
@@ -158,7 +158,7 @@ class Game:
 
         if len(self.players) < 4:
             self.players.append(player)
-            return [GameCreatedEvent(game_id=self.id, success=True)]
+            return [PlayerJoinedEvent(game_id=self.id, success=True)]
 
         raise GameException(
             ExceptionEvent(message="Game Has No Capacity For New Players")
