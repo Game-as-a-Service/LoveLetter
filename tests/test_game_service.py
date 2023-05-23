@@ -16,6 +16,7 @@ from love_letter.web.presenter import (
     StartGamePresenter,
     build_player_view,
     PlayCardPresenter,
+    GetStatusPresenter,
 )
 
 # isort: on
@@ -23,7 +24,7 @@ from tests.test_card_behave import reset_deck
 
 
 def get_status(game_id: str, player_id: str):
-    presenter = GetStatus.presenter()
+    presenter = GetStatusPresenter.presenter()
     GetStatus().execute(GetStatus.input(game_id, player_id), presenter)
     game = presenter.as_view_model()
     result = build_player_view(game, player_id)

@@ -19,6 +19,7 @@ from love_letter.web.presenter import (
     StartGamePresenter,
     build_player_view,
     PlayCardPresenter,
+    GetStatusPresenter,
 )
 
 # isort: on
@@ -82,7 +83,7 @@ async def play_card(
 
 @app.get("/games/{game_id}/player/{player_id}/status", response_model=GameStatus)
 async def get_status(game_id: str, player_id: str):
-    presenter = GetStatus.presenter()
+    presenter = GetStatusPresenter.presenter()
     GetStatus().execute(GetStatus.input(game_id, player_id), presenter)
     game = presenter.as_view_model()
     return build_player_view(game, player_id)

@@ -27,3 +27,8 @@ class StartGameEvent(DomainEvent):
 @dataclass
 class CardPlayedEvent(DomainEvent):
     game: "Game"
+
+
+@dataclass
+class GetStatusEvent(DomainEvent):
+    game: "Game"
