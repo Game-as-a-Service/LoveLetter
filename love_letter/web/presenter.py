@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional
 
 from love_letter.models import Game, PlayerJoinedEvent
-from love_letter.models.event import StartGameEvent
+from love_letter.models.event import CardPlayedEvent, StartGameEvent
 from love_letter.usecase.common import Presenter
 
 
@@ -124,3 +124,15 @@ class StartGamePresenter(Presenter):
     @classmethod
     def presenter(cls) -> "StartGamePresenter":
         return StartGamePresenter()
+
+
+class PlayCardPresenter(Presenter):
+    def as_view_model(self) -> Game:
+        for event in self.events:
+            if isinstance(event, CardPlayedEvent):
+                return event.game
+        raise BaseException("Game is unavailable.")
+
+    @classmethod
+    def presenter(cls) -> "PlayCardPresenter":
+        return PlayCardPresenter()

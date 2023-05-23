@@ -15,6 +15,7 @@ from love_letter.web.presenter import (
     JoinGamePresenter,
     StartGamePresenter,
     build_player_view,
+    PlayCardPresenter,
 )
 
 # isort: on
@@ -206,7 +207,8 @@ class PlayerContextTest(unittest.TestCase):
 
         # when player-1 discard countess
         PlayCard().execute(
-            PlayCard.input(self.game_id, "1", "伯爵夫人", None), PlayCard.presenter()
+            PlayCard.input(self.game_id, "1", "伯爵夫人", None),
+            PlayCardPresenter.presenter(),
         )
 
         expected_card_mapping = {
@@ -365,7 +367,7 @@ class PlayerContextTest(unittest.TestCase):
         # when: 1對3打出神父
         PlayCard().execute(
             PlayCard.input(self.game_id, "1", "神父", ToSomeoneCard(chosen_player=3)),
-            PlayCard.presenter(),
+            PlayCardPresenter.presenter(),
         )
 
         status_of_player1: GameStatus = GameStatus.parse_obj(

@@ -18,6 +18,7 @@ from love_letter.web.presenter import (
     JoinGamePresenter,
     StartGamePresenter,
     build_player_view,
+    PlayCardPresenter,
 )
 
 # isort: on
@@ -71,7 +72,7 @@ async def play_card(
     card_name: str,
     card_action: Union[GuessCard, ToSomeoneCard, None] = None,
 ):
-    presenter = PlayCard.presenter()
+    presenter = PlayCardPresenter.presenter()
     PlayCard().execute(
         PlayCard.input(game_id, player_id, card_name, card_action), presenter
     )

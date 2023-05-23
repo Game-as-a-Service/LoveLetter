@@ -22,3 +22,8 @@ class ExceptionEvent(DomainEvent):
 @dataclass
 class StartGameEvent(DomainEvent):
     success: bool
+
+
+@dataclass
+class CardPlayedEvent(DomainEvent):
+    game: "Game"

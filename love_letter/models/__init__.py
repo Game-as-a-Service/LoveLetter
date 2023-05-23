@@ -15,6 +15,7 @@ from love_letter.models.event import (
     ExceptionEvent,
     PlayerJoinedEvent,
     StartGameEvent,
+    CardPlayedEvent,
 )
 
 # isort: on
@@ -223,6 +224,7 @@ class Game:
 
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
         self.find_winner(players)
+        return [CardPlayedEvent(self)]
 
     def find_player_by_id(self, player_id):
         players = self.this_round_players()
