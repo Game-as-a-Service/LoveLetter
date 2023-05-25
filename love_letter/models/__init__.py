@@ -1,4 +1,5 @@
 import secrets
+import uuid
 from copy import deepcopy
 from dataclasses import dataclass
 from operator import attrgetter
@@ -7,6 +8,17 @@ from typing import Dict, List, Optional, Union
 from pydantic import BaseModel
 
 from love_letter.models.cards import Card, Deck, PriestCard, find_card_by_name
+
+# isort: off
+from love_letter.models.event import (
+    DomainEvent,
+    ExceptionEvent,
+    PlayerJoinedEvent,
+    StartGameEvent,
+    CardPlayedEvent,
+)
+
+# isort: on
 from love_letter.models.exceptions import GameException
 
 num_of_player_with_tokens_to_win = {2: 7, 3: 5, 4: 4}
@@ -127,7 +139,7 @@ class Round:
 
 class Game:
     def __init__(self):
-        self.id: Optional[str] = None  # TODO: assign id to a game.
+        self.id: Optional[str] = uuid.uuid4().hex
         self.players: List["Player"] = []
         self.rounds: List["Round"] = []
         self.num_of_tokens_to_win: int = 0
@@ -137,27 +149,30 @@ class Game:
     def post_event(self, message: Dict):
         self.events.append(message)
 
-    def join(self, player: "Player"):
+    def join(self, player: "Player") -> List[PlayerJoinedEvent]:
         if self.has_started():
-            raise GameException("Game Has Started")
+            raise GameException(ExceptionEvent(message="Game Has Started"))
         # TODO it is no way to verify two players with same name, just pass it
         join_before = [p for p in self.players if p.name == player.name]
         if join_before:
-            return
+            return []
 
         if len(self.players) < 4:
             self.players.append(player)
-            return
+            return [PlayerJoinedEvent(game_id=self.id, success=True)]
 
-        raise GameException("Game Has No Capacity For New Players")
+        raise GameException(
+            ExceptionEvent(message="Game Has No Capacity For New Players")
+        )
 
-    def start(self):
+    def start(self) -> List[DomainEvent]:
         if len(self.players) < 2:
             raise GameException("Too Few Players")
         self.num_of_tokens_to_win = num_of_player_with_tokens_to_win.get(
             len(self.players)
         )
         self.next_round()
+        return [StartGameEvent(success=True)]
 
     def next_round(self, last_winner: Optional[str] = None):
         # TODO if we arrive the ending of the game, show the lucky person who won the Princess
@@ -209,6 +224,7 @@ class Game:
 
         # 出牌後，有玩家可能出局，剩最後一名玩家，它就是勝利者
         self.find_winner(players)
+        return [CardPlayedEvent(self)]
 
     def find_player_by_id(self, player_id):
         players = self.this_round_players()

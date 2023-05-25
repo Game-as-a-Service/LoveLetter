@@ -1,6 +1,13 @@
 from typing import Any, Dict, List, Optional
 
-from love_letter.models import Game
+from love_letter.models import Game, PlayerJoinedEvent
+
+# isort: off
+from love_letter.models.event import CardPlayedEvent, GetStatusEvent, StartGameEvent
+
+# isort: on
+
+from love_letter.usecase.common import Presenter
 
 
 def build_player_view(game: Game, player_id: str):
@@ -84,3 +91,65 @@ def _add_cards_usage(
             )
         else:
             c["usage"]["choose_players"] = []
+
+
+class CreateGamePresenter(Presenter):
+    def as_view_model(self):
+        for event in self.events:
+            if isinstance(event, PlayerJoinedEvent):
+                return event.game_id
+        raise BaseException("Game is unavailable.")
+
+    @classmethod
+    def presenter(cls) -> "CreateGamePresenter":
+        return CreateGamePresenter()
+
+
+class JoinGamePresenter(Presenter):
+    def as_view_model(self):
+        for event in self.events:
+            if isinstance(event, PlayerJoinedEvent):
+                return event.success
+            elif isinstance(event, str):
+                return event
+        raise BaseException("Game is unavailable.")
+
+    @classmethod
+    def presenter(cls) -> "JoinGamePresenter":
+        return JoinGamePresenter()
+
+
+class StartGamePresenter(Presenter):
+    def as_view_model(self):
+        for event in self.events:
+            if isinstance(event, StartGameEvent):
+                return event.success
+        raise BaseException("Game is unavailable.")
+
+    @classmethod
+    def presenter(cls) -> "StartGamePresenter":
+        return StartGamePresenter()
+
+
+class PlayCardPresenter(Presenter):
+    def as_view_model(self) -> Game:
+        for event in self.events:
+            if isinstance(event, CardPlayedEvent):
+                return event.game
+        raise BaseException("Game is unavailable.")
+
+    @classmethod
+    def presenter(cls) -> "PlayCardPresenter":
+        return PlayCardPresenter()
+
+
+class GetStatusPresenter(Presenter):
+    def as_view_model(self) -> Game:
+        for event in self.events:
+            if isinstance(event, GetStatusEvent):
+                return event.game
+        raise BaseException("Game is unavailable.")
+
+    @classmethod
+    def presenter(cls) -> "GetStatusPresenter":
+        return GetStatusPresenter()
