@@ -1,6 +1,7 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
-from love_letter.models import Card, Game, Player, Round, Seen
+from love_letter.models import Card, Deck, Game, Player, Round, Seen
+from love_letter.models.cards import find_card_by_name
 
 
 class GameData:
@@ -21,7 +22,7 @@ class GameData:
         game.id = game_dict["game_id"]
         game.events = game_dict["events"]
         game.players = [PlayerData.to_domain(p) for p in game_dict["players"]]
-        game.rounds = game_dict["rounds"]
+        game.rounds = [RoundData.to_domain(r) for r in game_dict["rounds"]]
         game.final_winner = game_dict["final_winner"]
         return game
 
@@ -48,8 +49,8 @@ class PlayerData:
     def to_domain(player_dict: Dict) -> "Player":
         player = Player(player_dict["name"])
         player.am_i_out = player_dict["out"]
-        player.cards = []
-        player.seen_cards = []
+        player.cards = [CardData.to_domain(c) for c in player_dict["cards"]]
+        player.seen_cards = [SeenData.to_domain(s) for s in player_dict["seen_cards"]]
         player.tokens_of_affection = player_dict["score"]
         return player
 
@@ -67,23 +68,43 @@ class RoundData:
             winner=round.winner,
             turn_player=turn_player,
             start_player=round.start_player,
+            deck=DeckData.to_dict(round.deck),
         )
 
     @staticmethod
     def to_domain(round_dict: Dict) -> "Round":
-        # player = Player(player_dict["name"])
-        # player.am_i_out = player_dict["out"]
-        # player.cards = []
-        # player.seen_cards = []
-        # player.tokens_of_affection = player_dict["score"]
-        # return player
-        pass
+        deck = DeckData.to_domain(round_dict["deck"])
+        _round = Round([PlayerData.to_domain(p) for p in round_dict["players"]], deck)
+        _round.winner = round_dict["winner"]
+        _round.turn_player = PlayerData.to_domain(round_dict["turn_player"])
+        _round.start_player = round_dict["start_player"]
+        return _round
+
+
+class DeckData:
+    @staticmethod
+    def to_dict(deck: "Deck") -> Dict:
+        return dict(
+            cards=[CardData.to_dict(c) for c in deck.cards],
+            remove_by_rule_cards=[
+                CardData.to_dict(c) for c in deck.remove_by_rule_cards
+            ],
+        )
+
+    @staticmethod
+    def to_domain(deck_dict: Dict) -> "Deck":
+        deck = Deck()
+        deck.cards = [CardData.to_domain(c) for c in deck_dict["cards"]]
+        deck.remove_by_rule_cards = [
+            CardData.to_domain(c) for c in deck_dict["remove_by_rule_cards"]
+        ]
+        return deck
 
 
 class SeenData:
     @staticmethod
     def to_dict(
-        seen: Seen, hand_card: List[str], player: "Player", last_round: "Round"
+        seen: "Seen", hand_card: List[str], player: "Player", last_round: "Round"
     ) -> Dict:
         return dict(
             opponent_name=seen.opponent_name,
@@ -91,27 +112,37 @@ class SeenData:
         )
 
     @staticmethod
-    def to_domain(round_dict: Dict) -> "Round":
-        # player = Player(player_dict["name"])
-        # player.am_i_out = player_dict["out"]
-        # player.cards = []
-        # player.seen_cards = []
-        # player.tokens_of_affection = player_dict["score"]
-        # return player
-        pass
+    def to_domain(seen_dict: Dict) -> "Seen":
+        opponent_name = ""
+        card = None
+        if seen_dict.get("opponent_name"):
+            opponent_name = seen_dict["opponent_name"]
+
+        if seen_dict.get("card"):
+            card = CardData.to_domain(seen_dict["card"])
+
+        return Seen(opponent_name=opponent_name, card=card)
 
 
 class CardData:
     @staticmethod
     def to_dict(
-        card: "Card", hand_card: List[str], player: "Player", last_round: "Round"
+        card: "Card",
+        hand_card: Optional[List[str]] = None,
+        player: Optional["Player"] = None,
+        last_round: Optional["Round"] = None,
     ) -> Dict:
-        last_round_alive_players = [
-            pl.name for pl in last_round.players if not pl.am_i_out
-        ]
         data = card._card_data.get(
             str(card.value), dict(name="<unknown>", description="<unknown>")
         )
+        if hand_card is None or player is None or last_round is None:
+            return dict(
+                name=card.name, description=data.get("description"), value=card.value
+            )
+
+        last_round_alive_players = [
+            p.name for p in last_round.players if not p.am_i_out
+        ]
         return dict(
             name=card.name,
             description=data.get("description"),
@@ -120,11 +151,5 @@ class CardData:
         )
 
     @staticmethod
-    def to_domain(round_dict: Dict) -> "Round":
-        # player = Player(player_dict["name"])
-        # player.am_i_out = player_dict["out"]
-        # player.cards = []
-        # player.seen_cards = []
-        # player.tokens_of_affection = player_dict["score"]
-        # return player
-        pass
+    def to_domain(card_dict: Dict) -> "Card":
+        return find_card_by_name(card_dict["name"])

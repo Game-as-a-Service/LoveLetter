@@ -11,6 +11,7 @@ from pymongo.collection import Collection
 
 from love_letter import config
 from love_letter.models import Game
+from love_letter.repository.data import GameData
 
 logger = logging.getLogger("repository")
 logger.level = logging.INFO
@@ -66,24 +67,27 @@ class GameRepositoryMongoDBImpl(GameRepository):
         )
 
     def save_or_update(self, game: Game):
-        find_filter = {"game_id": game.id}
-        game_dict = game.to_dict()
-        update_filter = {"$set": game_dict}
+        game = GameData.to_dict(game)
+        find_filter = {"game_id": game["id"]}
+        update_filter = {"$set": game}
 
         _find = list(self.collection.find(find_filter))
         if _find:
+            print(f"GameRepositoryMongoDBImpl save_or_update {update_filter=}")
             self.collection.update_one(find_filter, update_filter)
         else:
-            self.collection.insert_one(game_dict)
+            self.collection.insert_one(game)
 
     def get(self, game_id: str) -> Game:
-        game = next(self.collection.find({"game_id": game_id}))
+        game: Dict = next(self.collection.find({"game_id": game_id}))
         if game is None:
             raise ValueError(f"Game {game_id} does not exist")
-        new_game = Game()
-        new_game.id = game["game_id"]
-        new_game.players = game["players"]
-        return new_game
+        print(f"GameRepositoryMongoDBImpl {game=}")
+        return GameData.to_domain(game)
+
+
+def get_mongo_impl():
+    return GameRepositoryMongoDBImpl()
 
 
 _created_game_repo = None
@@ -99,7 +103,7 @@ def create_default_repository():
         _created_game_repo = GameRepositoryPickleImpl()
         return _created_game_repo
     elif config.REPOSITORY_IMPL == "mongo":
-        _created_game_repo = GameRepositoryMongoDBImpl()
+        _created_game_repo = get_mongo_impl()
         return _created_game_repo
 
     _created_game_repo = GameRepositoryInMemoryImpl()

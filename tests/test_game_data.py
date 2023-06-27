@@ -17,6 +17,7 @@ class GameDataTest(TestCase):
     def test_to_domain(self):
         game_dict = GameData.to_dict(self.game)
         game_domain = GameData.to_domain(game_dict)
+        print(game_dict)
         self.assertEqual(game_dict["game_id"], game_domain.id)
         self.assertEqual(game_dict["events"], game_domain.events)
         self.assertPlayers(game_dict["players"], game_domain.players)
