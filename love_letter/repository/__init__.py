@@ -68,12 +68,11 @@ class GameRepositoryMongoDBImpl(GameRepository):
 
     def save_or_update(self, game: Game):
         game = GameData.to_dict(game)
-        find_filter = {"game_id": game["id"]}
+        find_filter = {"game_id": game["game_id"]}
         update_filter = {"$set": game}
 
         _find = list(self.collection.find(find_filter))
         if _find:
-            print(f"GameRepositoryMongoDBImpl save_or_update {update_filter=}")
             self.collection.update_one(find_filter, update_filter)
         else:
             self.collection.insert_one(game)
@@ -82,7 +81,6 @@ class GameRepositoryMongoDBImpl(GameRepository):
         game: Dict = next(self.collection.find({"game_id": game_id}))
         if game is None:
             raise ValueError(f"Game {game_id} does not exist")
-        print(f"GameRepositoryMongoDBImpl {game=}")
         return GameData.to_domain(game)
 
 

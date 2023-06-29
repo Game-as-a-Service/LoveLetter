@@ -1,69 +1,50 @@
-import os
-from unittest import TestCase
+import unittest
 
 from pymongo import MongoClient
 from testcontainers.mongodb import MongoDbContainer
 
-from tests.test_game_service import GameServiceTests
+import love_letter.repository
+from love_letter import config
+from love_letter.repository import GameRepositoryMongoDBImpl
+from tests.test_game_service import GameServiceTests, PlayerContextTest
 
-os.environ["repository_impl"] = "mongo"
 
-
-class MongoTestCase(TestCase):
-    mongo_container: MongoDbContainer = None
-
-    @classmethod
-    def setUpClass(cls):
-        """Start a MongoDB container for testing."""
-        super().setUpClass()
-
+class GameRepositoryMongoTestDBImpl(GameRepositoryMongoDBImpl):
+    def __init__(self):
+        super(GameRepositoryMongoTestDBImpl, self).__init__()
         # Start the MongoDB container
-        cls.mongo_container = MongoDbContainer()
-        cls.mongo_container.start()
+        self.mongo_container = MongoDbContainer()
+        self.mongo_container.start()
 
         # Create the MongoDB client
-        cls.client = MongoClient(
-            cls.mongo_container.get_container_host_ip(),
-            int(cls.mongo_container.get_exposed_port(27017)),
+        self.client = MongoClient(
+            self.mongo_container.get_container_host_ip(),
+            int(self.mongo_container.get_exposed_port(27017)),
             username="test",
             password="test",
         )
-
-    @classmethod
-    def tearDownClass(cls):
-        """Stop and remove the MongoDB container."""
-        super().tearDownClass()
-
-        # Stop and remove the container
-        cls.mongo_container.stop()
-
-    def setUp(self):
-        """Set up test-specific resources."""
-        super().setUp()
-
-        # Create a new database for each test
         self.db = self.client["test_db"]
-
-    def tearDown(self):
-        """Clean up test-specific resources."""
-        super().tearDown()
-
-        # Drop the test database after each test
-        self.client.drop_database("test_db")
+        self.collection = self.db["test_collection"]
 
 
-class MyMongoTest(MongoTestCase, GameServiceTests):
-    def test_use_client_example(self):
-        """Test inserting data into MongoDB."""
+love_letter.repository.get_mongo_impl = lambda: GameRepositoryMongoTestDBImpl()
 
-        # Insert a document into a test collection
-        collection = self.db["test_collection"]
-        document = {"name": "John Doe", "email": "johndoe@example.com"}
-        result = collection.insert_one(document)
 
-        # Assert that the document was inserted successfully
-        self.assertTrue(result.acknowledged)
-        self.assertIsNotNone(result.inserted_id)
+@unittest.skipIf(config.REPOSITORY_IMPL != "mongo", "Just run on mongo repository")
+class MyMongoTest(GameServiceTests, PlayerContextTest):
+    pass
+
+    # def test_use_client_example(self):
+    #     """Test inserting data into MongoDB."""
+    #
+    #     # Insert a document into a test collection
+    #     collection = self.db["test_collection"]
+    #     document = {"name": "John Doe", "email": "johndoe@example.com"}
+    #     result = collection.insert_one(document)
+    #
+    #     # Assert that the document was inserted successfully
+    #     self.assertTrue(result.acknowledged)
+    #     self.assertIsNotNone(result.inserted_id)
 
     # def test_use_with_example(self):
     #     with MongoDbContainer("mongo:latest") as mongo:
@@ -75,28 +56,3 @@ class MyMongoTest(MongoTestCase, GameServiceTests):
     #         print(result.inserted_id)
     #         cursor = db.restaurants.find({"name": "John Doe"})
     #         print(list(cursor))
-
-
-# collection = MongoClient('192.168.223.127', 27017).get_database("test_db").get_collection("test_collection")
-# print(type(db))
-# db = client["test_db"]
-# collection = db["test_collection"]
-# document = {"name": "John Doe", "email": "johndoe@example.com"}
-# result = collection.insert_one(document)
-# print(result.acknowledged)
-# print(result.inserted_id)
-
-# result = collection.find({"name": "John Doe"})
-# print(list(result))
-
-# result = collection.update_one(, upsert=True)
-# print(result)
-
-# data = {"name": "eddy", "email": "aaa"}
-# _find = next(collection.find({"name": data["name"]}))
-# print(_find)
-# if _find:
-#     new_data = {"name": "eddy", "email": "bbbb"}
-#     collection.update_one({"_id": _find["_id"]}, {"$set": new_data})
-# else:
-#     collection.insert_one(data)

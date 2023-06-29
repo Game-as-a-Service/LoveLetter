@@ -14,6 +14,7 @@ class GameData:
             players=[PlayerData.to_dict(x, last_round) for x in game.players],
             rounds=[RoundData.to_dict(x, last_round) for x in game.rounds],
             final_winner=game.final_winner,
+            num_of_tokens_to_win=game.num_of_tokens_to_win,
         )
 
     @staticmethod
@@ -24,6 +25,7 @@ class GameData:
         game.players = [PlayerData.to_domain(p) for p in game_dict["players"]]
         game.rounds = [RoundData.to_domain(r) for r in game_dict["rounds"]]
         game.final_winner = game_dict["final_winner"]
+        game.num_of_tokens_to_win = game_dict["num_of_tokens_to_win"]
         return game
 
 
@@ -74,9 +76,16 @@ class RoundData:
     @staticmethod
     def to_domain(round_dict: Dict) -> "Round":
         deck = DeckData.to_domain(round_dict["deck"])
-        _round = Round([PlayerData.to_domain(p) for p in round_dict["players"]], deck)
+        turn_player = None
+        players = []
+        for player in round_dict["players"]:
+            _player = PlayerData.to_domain(player)
+            players.append(_player)
+            if player["name"] == round_dict["turn_player"]["name"]:
+                turn_player = _player
+        _round = Round(players, deck)
         _round.winner = round_dict["winner"]
-        _round.turn_player = PlayerData.to_domain(round_dict["turn_player"])
+        _round.turn_player = turn_player
         _round.start_player = round_dict["start_player"]
         return _round
 
