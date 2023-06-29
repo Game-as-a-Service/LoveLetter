@@ -28,3 +28,8 @@ jobs:
         run: |
           export repository_impl=pickle
           ./tests/run-tests.sh
+
+      - name: Run unit tests with mongo
+        run: |
+          export repository_impl=mongo
+          ./tests/run-tests.sh
