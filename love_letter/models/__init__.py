@@ -42,9 +42,13 @@ class Round:
     turn_player: Optional["Player"] = None
     start_player: str
 
-    def __init__(self, players: List["Player"]):
+    def __init__(self, players: List["Player"], deck: Optional[Deck] = None):
         self.players: List["Player"] = players
-        self.deck = self._setup_round(self.players)
+
+        if deck:
+            self.deck = deck
+        else:
+            self.deck = self._setup_round(self.players)
 
     def _setup_round(self, players: List["Player"]):
         # make the deck replaceable for testing
@@ -127,15 +131,6 @@ class Round:
         if not self.deck.draw_card(player):
             self.deck.draw_remove_card(player)
 
-    def to_dict(self):
-        turn_player = self.turn_player.to_dict() if self.turn_player is not None else {}
-        return dict(
-            players=[x.to_dict() for x in self.players],
-            winner=self.winner,
-            turn_player=turn_player,
-            start_player=self.start_player,
-        )
-
 
 class Game:
     def __init__(self):
@@ -195,15 +190,6 @@ class Game:
         round.next_turn_player(last_winner)
         self.post_event({"type": "round_started", "winner": last_winner})
         self.rounds.append(round)
-
-    def to_dict(self):
-        return dict(
-            game_id=self.id,
-            events=self.events,
-            players=[x.to_dict() for x in self.players],
-            rounds=[x.to_dict() for x in self.rounds],
-            final_winner=self.final_winner,
-        )
 
     def play(
         self,
@@ -345,9 +331,6 @@ class Seen:
     opponent_name: str
     card: Card
 
-    def to_dict(self):
-        return dict(opponent_name=self.opponent_name, card=self.card.to_dict())
-
 
 class Player:
     def __init__(self, name: str):
@@ -392,15 +375,6 @@ class Player:
 
     def out(self):
         self.am_i_out = True
-
-    def to_dict(self):
-        return dict(
-            name=self.name,
-            out=self.am_i_out,
-            seen_cards=[x.to_dict() for x in self.seen_cards],
-            cards=[x.to_dict() for x in self.cards],
-            score=self.tokens_of_affection,
-        )
 
     def __eq__(self, other):
         return self.name == other.name

@@ -6,14 +6,14 @@ from love_letter.models import Game, PlayerJoinedEvent
 from love_letter.models.event import CardPlayedEvent, GetStatusEvent, StartGameEvent
 
 # isort: on
-
+from love_letter.repository.data import GameData
 from love_letter.usecase.common import Presenter
 
 
 def build_player_view(game: Game, player_id: str):
     # we should remove private data for each player
     # players only know their own cards
-    raw_result = game.to_dict()
+    raw_result = GameData.to_dict(game)
     if len(raw_result["rounds"]) < 1:
         return raw_result
 
@@ -37,21 +37,18 @@ def _decorate_with_card_usage(raw_result, player_id):
     if len(raw_result["rounds"]) > 1:
         for round in raw_result["rounds"][:-1]:
             for p in round["players"]:
-                _add_cards_usage(p, None, None, True)
-            _add_cards_usage(round["turn_player"], None, None, True)
+                _add_cards_usage(p, None, True)
+            _add_cards_usage(round["turn_player"], None, True)
 
     last_round = raw_result["rounds"][-1]
     turn_player = last_round["turn_player"]
-    last_round_alive_players = [
-        p["name"] for p in last_round["players"] if not p["out"]
-    ]
 
     for p in last_round["players"]:
         if p["name"] == player_id:
-            _add_cards_usage(p, turn_player, last_round_alive_players)
+            _add_cards_usage(p, turn_player)
 
     if turn_player["name"] == player_id:
-        _add_cards_usage(turn_player, turn_player, last_round_alive_players)
+        _add_cards_usage(turn_player, turn_player)
 
     return raw_result
 
@@ -59,18 +56,15 @@ def _decorate_with_card_usage(raw_result, player_id):
 def _add_cards_usage(
     player: Dict[str, Any],
     turn_player: Optional[Dict[str, Any]],
-    last_round_alive_players: Optional[List[str]],
     previous_round: bool = False,
 ):
     """
     Add turn_player cards usage.
     :param player:
     :param turn_player:
-    :param last_round_alive_players:
     :param previous_round:
     :return:
     """
-    hand_cards = [c["name"] for c in player["cards"]]
     for c in player["cards"]:
         # if is previous_round = True set 'can_discard'、'choose_players' to default value
         if previous_round:
@@ -81,15 +75,9 @@ def _add_cards_usage(
         # if the player is not turn_player all cards can't be discarded
         if turn_player is None or player["name"] != turn_player["name"]:
             c["usage"]["can_discard"] = False
-        else:
-            c["usage"]["can_discard"] = c["usage"]["can_discard"](hand_cards)
 
-        # if the player is turn_player all cards can be discarded，and have choose_players value
-        if c["usage"]["can_discard"]:
-            c["usage"]["choose_players"] = c["usage"]["choose_players"](
-                player["name"], last_round_alive_players
-            )
-        else:
+        # If this player can't discard and can't choose players
+        if not c["usage"]["can_discard"]:
             c["usage"]["choose_players"] = []
 
 

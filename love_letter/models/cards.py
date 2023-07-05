@@ -79,10 +79,17 @@ class Card(metaclass=abc.ABCMeta):
     def can_guess_cards(self) -> List[str]:
         return []
 
-    def usage(self):
+    def usage(
+        self,
+        hand_card: List[str],
+        player_name: str,
+        last_round_alive_players: List[str],
+    ):
         return {
-            "can_discard": self.can_discard,
-            "choose_players": self.choose_players,
+            "can_discard": self.can_discard(hand_card),
+            "choose_players": self.choose_players(
+                player_name, last_round_alive_players
+            ),
             "can_guess_cards": self.can_guess_cards(),
         }
 
@@ -91,17 +98,6 @@ class Card(metaclass=abc.ABCMeta):
 
     def __repr__(self) -> str:
         return str(f"Card({self.name},{self.value})")
-
-    def to_dict(self):
-        data = self._card_data.get(
-            str(self.value), dict(name="<unknown>", description="<unknown>")
-        )
-        return dict(
-            name=self.name,
-            description=data.get("description"),
-            value=self.value,
-            usage=self.usage(),
-        )
 
 
 class GuardCard(Card):
