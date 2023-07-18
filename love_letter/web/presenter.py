@@ -6,8 +6,8 @@ from love_letter.models import Game, PlayerJoinedEvent
 from love_letter.models.event import CardPlayedEvent, GetStatusEvent, StartGameEvent
 
 # isort: on
-from love_letter.usecase.common import Presenter
 from love_letter.repository.data import GameData
+from love_letter.usecase.common import Presenter
 
 
 def build_player_view(game: Game, player_id: str):

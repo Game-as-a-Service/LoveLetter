@@ -4,8 +4,8 @@ from typing import Optional
 from pymongo.database import Database
 from testcontainers.mongodb import MongoDbContainer
 
-from love_letter.repository import GameRepositoryMongoDBImpl
-from love_letter.repository import create_default_repository
+from love_letter.repository import (GameRepositoryMongoDBImpl,
+                                    create_default_repository)
 
 
 class LoveLetterRepositoryAwareTestCase(unittest.TestCase):
