@@ -84,10 +84,6 @@ class GameRepositoryMongoDBImpl(GameRepository):
         return GameData.to_domain(game)
 
 
-def get_mongo_impl():
-    return GameRepositoryMongoDBImpl()
-
-
 _created_game_repo = None
 
 
@@ -101,7 +97,7 @@ def create_default_repository():
         _created_game_repo = GameRepositoryPickleImpl()
         return _created_game_repo
     elif config.REPOSITORY_IMPL == "mongo":
-        _created_game_repo = get_mongo_impl()
+        _created_game_repo = GameRepositoryMongoDBImpl()
         return _created_game_repo
 
     _created_game_repo = GameRepositoryInMemoryImpl()

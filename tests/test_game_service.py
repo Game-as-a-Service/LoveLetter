@@ -18,6 +18,7 @@ from love_letter.web.presenter import (
     PlayCardPresenter,
     GetStatusPresenter,
 )
+from tests import LoveLetterRepositoryAwareTestCase
 
 # isort: on
 from tests.test_card_behave import reset_deck
@@ -31,7 +32,7 @@ def get_status(game_id: str, player_id: str):
     return result
 
 
-class GameServiceTests(unittest.TestCase):
+class GameServiceTests(LoveLetterRepositoryAwareTestCase):
     def test_create_and_join_game(self):
         # create a new game by usecase
         game_id = self.create_game()
@@ -112,7 +113,7 @@ class GameServiceTests(unittest.TestCase):
         check_private_not_leaky("2", status_of_player2.rounds[-1])
 
 
-class PlayerContextTest(unittest.TestCase):
+class PlayerContextTest(LoveLetterRepositoryAwareTestCase):
     def setUp(self) -> None:
         self.game_id = "c-8763"
         self.game: Game = Game()

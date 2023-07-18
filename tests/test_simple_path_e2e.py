@@ -3,6 +3,7 @@ import unittest
 from fastapi.testclient import TestClient
 
 from love_letter.models import Deck, Round
+from tests import LoveLetterRepositoryAwareTestCase
 
 
 def _test_client() -> TestClient:
@@ -24,7 +25,7 @@ class TestDeckForSimpleE2E(Deck):
         ]
 
 
-class LoveLetterSimpleCaseEndToEndTests(unittest.TestCase):
+class LoveLetterSimpleCaseEndToEndTests(LoveLetterRepositoryAwareTestCase):
     maxDiff = None
 
     def setUp(self) -> None:
