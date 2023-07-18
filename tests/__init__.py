@@ -4,8 +4,10 @@ from typing import Optional
 from pymongo.database import Database
 from testcontainers.mongodb import MongoDbContainer
 
-from love_letter.repository import (GameRepositoryMongoDBImpl,
-                                    create_default_repository)
+# isort: off
+from love_letter.repository import GameRepositoryMongoDBImpl, create_default_repository
+
+# isort: on
 
 
 class LoveLetterRepositoryAwareTestCase(unittest.TestCase):
