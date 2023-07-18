@@ -31,5 +31,6 @@ jobs:
 
       - name: Run unit tests with mongo
         run: |
+          docker pull mongo:latest
           export repository_impl=mongo
           ./tests/run-tests.sh
