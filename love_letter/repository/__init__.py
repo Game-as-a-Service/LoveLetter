@@ -6,7 +6,12 @@ import pickle
 import tempfile
 from typing import Dict
 
+from pymongo import MongoClient
+from pymongo.collection import Collection
+
+from love_letter import config
 from love_letter.models import Game
+from love_letter.repository.data import GameData
 
 logger = logging.getLogger("repository")
 logger.level = logging.INFO
@@ -53,6 +58,32 @@ class GameRepositoryInMemoryImpl(GameRepository):
         return game
 
 
+class GameRepositoryMongoDBImpl(GameRepository):
+    def __init__(self):
+        self.collection: Collection = (
+            MongoClient(config.DB_HOST, config.DB_PORT)
+            .get_database(config.DB_NAME)
+            .get_collection(config.DB_COLLECTION)
+        )
+
+    def save_or_update(self, game: Game):
+        game = GameData.to_dict(game)
+        find_filter = {"game_id": game["game_id"]}
+        update_filter = {"$set": game}
+
+        _find = list(self.collection.find(find_filter))
+        if _find:
+            self.collection.update_one(find_filter, update_filter)
+        else:
+            self.collection.insert_one(game)
+
+    def get(self, game_id: str) -> Game:
+        game: Dict = next(self.collection.find({"game_id": game_id}))
+        if game is None:
+            raise ValueError(f"Game {game_id} does not exist")
+        return GameData.to_domain(game)
+
+
 _created_game_repo = None
 
 
@@ -62,8 +93,11 @@ def create_default_repository():
     if _created_game_repo is not None:
         return _created_game_repo
 
-    if os.environ.get("repository_impl") == "pickle":
+    if config.REPOSITORY_IMPL == "pickle":
         _created_game_repo = GameRepositoryPickleImpl()
+        return _created_game_repo
+    elif config.REPOSITORY_IMPL == "mongo":
+        _created_game_repo = GameRepositoryMongoDBImpl()
         return _created_game_repo
 
     _created_game_repo = GameRepositoryInMemoryImpl()
