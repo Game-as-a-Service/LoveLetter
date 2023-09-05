@@ -32,6 +32,7 @@ class RoundModel(BaseModel):
 class NamedPlayer(BaseModel):
     name: str | None
     score: int
+    id: str | None
 
 
 class GameStatus(BaseModel):
@@ -40,3 +41,12 @@ class GameStatus(BaseModel):
     events: List[Dict]
     rounds: List[RoundModel]
     final_winner: str | None
+
+
+class LobbyPlayer(BaseModel):
+    id: str
+    nickname: str
+
+
+class LobbyPlayers(BaseModel):
+    players: List[LobbyPlayer]
