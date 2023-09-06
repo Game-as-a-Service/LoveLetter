@@ -8,3 +8,7 @@ DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_NAME = os.environ.get("DB_NAME", "love_letter")
 DB_COLLECTION = os.environ.get("DB_COLLECTION", "love_letter")
 FRONTEND_HOST = os.environ.get("FRONTEND_HOST", "http://127.0.0.1")
+LOBBY_ISSUER = os.environ.get(
+    "LOBBY_ISSUER", "https://dev-1l0ixjw8yohsluoi.us.auth0.com/"
+)
+LOBBY_AUDIENCE = os.environ.get("LOBBY_ISSUER", "https://api.gaas.waterballsa.tw")

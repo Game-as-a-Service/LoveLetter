@@ -1,7 +1,7 @@
 from typing import Union
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from love_letter.models import GuessCard, ToSomeoneCard
@@ -11,6 +11,7 @@ from love_letter.usecase.join_game import JoinGame
 from love_letter.usecase.lobby_start_game import LobbyStartGame
 from love_letter.usecase.play_card import PlayCard
 from love_letter.usecase.start_game import StartGame
+from love_letter.web.auth import JWTBearer
 from love_letter.web.dto import GameStatus, LobbyPlayers
 
 # isort: off
@@ -91,7 +92,7 @@ async def get_status(game_id: str, player_id: str):
     return build_player_view(game, player_id)
 
 
-@app.post("/games")
+@app.post("/games", dependencies=[Depends(JWTBearer())])
 def lobby_start_game(players: LobbyPlayers):
     presenter = LobbyStartGamePresenter.presenter()
     LobbyStartGame().execute(players, presenter)

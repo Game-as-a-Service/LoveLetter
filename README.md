@@ -12,7 +12,7 @@
 
 ### Practice Stack
 
-- 三層式架構 (MVC）
+- 三層式架構 (MVC）=> clean architecture(CA)
 - 用 event storming，找出遊戲的功能與流程
 - 用 example mapping，確定需求的具體內容
 - Test-Driven Development: ATDD
