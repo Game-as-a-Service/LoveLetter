@@ -46,21 +46,21 @@ app.add_middleware(
 
 
 @app.post("/games/create/by_player/{player_id}")
-async def create_game(player_id: str) -> str:
+def create_game(player_id: str) -> str:
     presenter = CreateGamePresenter.presenter()
     CreateGame().execute(CreateGame.input(player_id), presenter)
     return presenter.as_view_model()
 
 
 @app.post("/games/{game_id}/player/{player_id}/join")
-async def join_game(game_id: str, player_id: str) -> bool:
+def join_game(game_id: str, player_id: str) -> bool:
     presenter = JoinGamePresenter.presenter()
     JoinGame().execute(JoinGame.input(game_id, player_id), presenter)
     return presenter.as_view_model()
 
 
 @app.post("/games/{game_id}/start")
-async def start_game(game_id: str):
+def start_game(game_id: str):
     presenter = StartGamePresenter.presenter()
     StartGame().execute(StartGame.input(game_id), presenter)
     return presenter.as_view_model()
@@ -70,7 +70,7 @@ async def start_game(game_id: str):
     "/games/{game_id}/player/{player_id}/card/{card_name}/play",
     response_model=GameStatus,
 )
-async def play_card(
+def play_card(
     game_id: str,
     player_id: str,
     card_name: str,
@@ -85,7 +85,7 @@ async def play_card(
 
 
 @app.get("/games/{game_id}/player/{player_id}/status", response_model=GameStatus)
-async def get_status(game_id: str, player_id: str):
+def get_status(game_id: str, player_id: str):
     presenter = GetStatusPresenter.presenter()
     GetStatus().execute(GetStatus.input(game_id, player_id), presenter)
     game = presenter.as_view_model()
@@ -97,6 +97,11 @@ def lobby_start_game(players: LobbyPlayers):
     presenter = LobbyStartGamePresenter.presenter()
     LobbyStartGame().execute(players, presenter)
     return presenter.as_view_model()
+
+
+@app.get("/heath")
+def heath():
+    return {"success": True}
 
 
 def run():

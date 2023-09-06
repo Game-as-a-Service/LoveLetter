@@ -12,11 +12,17 @@ class LobbyTestCase(LoveLetterRepositoryAwareTestCase):
         self.t: TestClient = TestClient(app)
         # fixme: token會過期，導致之後jwt token驗證失敗，後續測試無效
         self.scheme: str = "Bearer"
-        self.token: str = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImlrN3l5VkpoM3pFSW1hLWduZ2lTRCJ9.eyJpc3MiOiJodHRwczovL2Rldi0xbDBpeGp3OHlvaHNsdW9pLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJnb29nbGUtb2F1dGgyfDEwNjQ4ODA3MDcyNjU5MDQ1NDEyMyIsImF1ZCI6WyJodHRwczovL2FwaS5nYWFzLndhdGVyYmFsbHNhLnR3IiwiaHR0cHM6Ly9kZXYtMWwwaXhqdzh5b2hzbHVvaS51cy5hdXRoMC5jb20vdXNlcmluZm8iXSwiaWF0IjoxNjkzOTg4NTkxLCJleHAiOjE2OTM5OTIxOTEsImF6cCI6IjBaN2huRGxkNXRyUHFpMnYwbGxvQlk3NE1IZERZR0V5Iiwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCBvZmZsaW5lX2FjY2VzcyJ9.j43phxQCMVfyBDx2KG6qd4VgKKaJ1hWZFPBcp6H-7GOhMbcgjbWWZJkc9llojdfVz9ZfuLcrO3ONSosTQacFpoqRvh4C4DSH4XjpfX44r-L1ONpdAgerYB08_0FM88BdWP-gW4VXA-RZJqMHNhItQ6lCw6_1mjxfGqU7RAHgL_iDtc_2He2DUghOW5FI5qT0edJa4AOLKzqSphidIdS3SDZ6OYDbhK1Ckv6sH1AYMhDmcvd2fuXstsAq8pyHQUfp6vGTzuLmqppfo62EHayKLb3TGQMuAMpbLOCNoPQGser4znoQquJAnJvK5QgA8-S8mpPXGl94h6NTBlJm3ZCMtw"
+        self.token: str = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImlrN3l5VkpoM3pFSW1hLWduZ2lTRCJ9.eyJpc3MiOiJodHRwczovL2Rldi0xbDBpeGp3OHlvaHNsdW9pLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJnb29nbGUtb2F1dGgyfDEwNjQ4ODA3MDcyNjU5MDQ1NDEyMyIsImF1ZCI6WyJodHRwczovL2FwaS5nYWFzLndhdGVyYmFsbHNhLnR3IiwiaHR0cHM6Ly9kZXYtMWwwaXhqdzh5b2hzbHVvaS51cy5hdXRoMC5jb20vdXNlcmluZm8iXSwiaWF0IjoxNjk0MDA4MzI3LCJleHAiOjE2OTQwMTE5MjcsImF6cCI6IjBaN2huRGxkNXRyUHFpMnYwbGxvQlk3NE1IZERZR0V5Iiwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCBvZmZsaW5lX2FjY2VzcyJ9.iH5rk7NnhstQvoG8rs0uWLcnxZrylQDUWMA_qK7S0CVfnX91P6EivQqdz6vscCjnRDuki2XpprIs3Fhs-xLtE3a44L02JNcu-wkeDPWChsY238cW_lh3SMXX_ssxmZwWWwcIBJOLy3DgKg02Aj-u9LzdEjZZNB-XwLEltme-UtZlRuNtR8dldiPs4wruEqjQ-Qy4ka7mQi6qzwjzQonO1efDfWqgN7W0Rqn2id06qgVgxI0wYdB3qUWL2kuRxiYB4NYqheAo1IfKmyvceNBc5y6UroDfc324jIT7O8yaJmj6aMmnUJEY8e5f7L4AnHyKzJeBUMdjhy80VihdxgnOTw"
         self.jwt_token: str = f"{self.scheme} {self.token}"
 
     def tearDown(self) -> None:
         self.t.close()
+
+    def test_heath_api(self):
+        response = self.t.get("/heath")
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(data["success"])
 
     def test_start_game(self):
         players = [

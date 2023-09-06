@@ -37,7 +37,6 @@ class JWTBearer(HTTPBearer):
         """
         try:
             token = jwt.get_unverified_claims(token)
-            print(token)
             if (
                 token["iss"] == config.LOBBY_ISSUER
                 and config.LOBBY_AUDIENCE in token["aud"]
