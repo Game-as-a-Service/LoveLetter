@@ -1,8 +1,8 @@
-import time
+import datetime
 
+import jwt
 from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import jwt
 from starlette.requests import Request
 
 from love_letter import config
@@ -30,19 +30,36 @@ class JWTBearer(HTTPBearer):
     @staticmethod
     def verify_jwt(token: str) -> bool:
         """
-        Issuer / Authority / Domain: https://dev-1l0ixjw8yohsluoi.us.auth0.com/
-        Audience: https://api.gaas.waterballsa.tw
+        Verify jwt token iss and aud are as expected, and not expired
         :param token:
         :return:
         """
         try:
-            token = jwt.get_unverified_claims(token)
-            if (
-                token["iss"] == config.LOBBY_ISSUER
-                and config.LOBBY_AUDIENCE in token["aud"]
-                and token["exp"] >= time.time()
-            ):
-                return True
+            jwt.decode(
+                token,
+                options={
+                    "verify_signature": False,
+                    "verify_iss": True,
+                    "verify_aud": True,
+                    "verify_exp": True,
+                },
+                audience=config.LOBBY_AUDIENCE,
+                issuer=config.LOBBY_ISSUER,
+            )
+            return True
         except Exception as e:
             print(e)
         return False
+
+    @staticmethod
+    def create_jwt():
+        now = datetime.datetime.now()
+        token = jwt.encode(
+            payload={
+                "aud": config.LOBBY_AUDIENCE,
+                "iss": config.LOBBY_ISSUER,
+                "exp": now + datetime.timedelta(hours=1),
+            },
+            key="",
+        )
+        return f"Bearer {token}"
