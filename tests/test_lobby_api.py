@@ -1,6 +1,6 @@
 from starlette.testclient import TestClient
 
-from love_letter.config import FRONTEND_HOST
+from love_letter.config import config
 from love_letter.web.app import app
 from love_letter.web.auth import JWTBearer
 from love_letter.web.dto import GameStatus
@@ -38,7 +38,7 @@ class LobbyTestCase(LoveLetterRepositoryAwareTestCase):
         self.assertEqual(response.status_code, 200)
 
         data = response.json()
-        self.assertTrue(data["url"].startswith(FRONTEND_HOST))
+        self.assertTrue(data["url"].startswith(config.FRONTEND_HOST))
         game_id = data["url"].split("/")[-1]
         status_of_player: GameStatus = GameStatus.parse_obj(
             get_status(game_id, players[0]["nickname"])

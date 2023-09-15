@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.requests import Request
 
-from love_letter import config
+from love_letter.config import config
 
 
 class JWTBearer(HTTPBearer):

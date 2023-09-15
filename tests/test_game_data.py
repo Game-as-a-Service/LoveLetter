@@ -11,7 +11,7 @@ class GameDataTest(TestCase):
         self.game: Game = Game()
         self.game.id = self.game_id
         self.game.join(Player(name="1"))
-        self.game.join(Player(name="2", _id="2222"))
+        self.game.join(Player(name="2", user_id="2222"))
         self.game.start()
 
     def test_to_domain(self):
