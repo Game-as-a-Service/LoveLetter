@@ -10,8 +10,8 @@ class GameDataTest(TestCase):
         self.game_id = "c-8763"
         self.game: Game = Game()
         self.game.id = self.game_id
-        self.game.join(Player("1"))
-        self.game.join(Player("2"))
+        self.game.join(Player(name="1"))
+        self.game.join(Player(name="2", user_id="2222"))
         self.game.start()
 
     def test_to_domain(self):
@@ -31,6 +31,7 @@ class GameDataTest(TestCase):
             self.assertSeenCards(player_dict["seen_cards"], player_domain.seen_cards)
             self.assertCards(player_dict["cards"], player_domain.cards)
             self.assertEqual(player_dict["score"], player_domain.tokens_of_affection)
+            self.assertEqual(player_dict["id"], player_domain.id)
 
     def assertSeenCards(
         self, seen_cards_dict: Dict, seen_cards_domain: List["SeenData"]

@@ -32,3 +32,8 @@ class CardPlayedEvent(DomainEvent):
 @dataclass
 class GetStatusEvent(DomainEvent):
     game: "Game"
+
+
+@dataclass
+class GameEvent(DomainEvent):
+    url: str

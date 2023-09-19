@@ -1,16 +1,18 @@
 from typing import Union
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from love_letter.models import GuessCard, ToSomeoneCard
 from love_letter.usecase.create_game import CreateGame
 from love_letter.usecase.get_status import GetStatus
 from love_letter.usecase.join_game import JoinGame
+from love_letter.usecase.lobby_start_game import LobbyStartGame
 from love_letter.usecase.play_card import PlayCard
 from love_letter.usecase.start_game import StartGame
-from love_letter.web.dto import GameStatus
+from love_letter.web.auth import JWTBearer
+from love_letter.web.dto import GameStatus, LobbyPlayers
 
 # isort: off
 from love_letter.web.presenter import (
@@ -20,6 +22,7 @@ from love_letter.web.presenter import (
     build_player_view,
     PlayCardPresenter,
     GetStatusPresenter,
+    LobbyStartGamePresenter,
 )
 
 # isort: on
@@ -87,6 +90,18 @@ async def get_status(game_id: str, player_id: str):
     GetStatus().execute(GetStatus.input(game_id, player_id), presenter)
     game = presenter.as_view_model()
     return build_player_view(game, player_id)
+
+
+@app.post("/games", dependencies=[Depends(JWTBearer())])
+async def lobby_start_game(players: LobbyPlayers):
+    presenter = LobbyStartGamePresenter.presenter()
+    LobbyStartGame().execute(players, presenter)
+    return presenter.as_view_model()
+
+
+@app.get("/heath")
+async def heath():
+    return {"success": True}
 
 
 def run():
