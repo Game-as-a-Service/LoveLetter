@@ -16,8 +16,8 @@ class LobbyTestCase(LoveLetterRepositoryAwareTestCase):
     def tearDown(self) -> None:
         self.t.close()
 
-    def test_heath_api(self):
-        response = self.t.get("/heath")
+    def test_health_api(self):
+        response = self.t.get("/health")
         data = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertTrue(data["success"])

@@ -99,8 +99,8 @@ async def lobby_start_game(players: LobbyPlayers):
     return presenter.as_view_model()
 
 
-@app.get("/heath")
-async def heath():
+@app.get("/health")
+async def health():
     return {"success": True}
 
 
