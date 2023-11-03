@@ -1,6 +1,8 @@
 import datetime
+from functools import lru_cache
 
 import jwt
+import requests
 from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette.requests import Request
@@ -63,3 +65,18 @@ class JWTBearer(HTTPBearer):
             key="",
         )
         return f"Bearer {token}"
+
+    @staticmethod
+    @lru_cache
+    def get_player_id(jwt_token: str) -> str:
+        response = ""
+        try:
+            response = requests.get(
+                config.LOBBY_USERS_ME_API, headers={"Authorization": jwt_token}
+            )
+        except Exception as e:
+            print(e)
+
+        if response and response.status_code == 200:
+            return response.json()["id"]
+        raise ValueError("Not found player id")

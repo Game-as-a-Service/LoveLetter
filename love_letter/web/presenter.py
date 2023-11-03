@@ -158,3 +158,15 @@ class LobbyStartGamePresenter(Presenter):
     @classmethod
     def presenter(cls) -> "LobbyStartGamePresenter":
         return LobbyStartGamePresenter()
+
+
+class LobbyGameStatusPresenter(Presenter):
+    def as_view_model(self):
+        for event in self.events:
+            if isinstance(event, GetStatusEvent):
+                return event.game
+        raise BaseException("Game is unavailable.")
+
+    @classmethod
+    def presenter(cls) -> "LobbyGameStatusPresenter":
+        return LobbyGameStatusPresenter()
