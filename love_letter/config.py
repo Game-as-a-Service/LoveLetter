@@ -14,6 +14,7 @@ class Configuration:
         "LOBBY_ISSUER", "https://dev-1l0ixjw8yohsluoi.us.auth0.com/"
     )
     LOBBY_AUDIENCE = os.environ.get("LOBBY_ISSUER", "https://api.gaas.waterballsa.tw")
+    LOBBY_USERS_ME_API = "https://api.gaas.waterballsa.tw/users/me"
 
 
 config = Configuration()
