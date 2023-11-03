@@ -23,6 +23,7 @@ class LobbyTestCase(LoveLetterRepositoryAwareTestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(LobbyTestCase, cls).setUpClass()
         cls.game_id: str = ""
 
     def tearDown(self) -> None:
