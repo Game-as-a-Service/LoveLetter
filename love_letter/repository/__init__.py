@@ -9,7 +9,7 @@ from typing import Dict
 from pymongo import MongoClient
 from pymongo.collection import Collection
 
-from love_letter import config
+from love_letter.config import config
 from love_letter.models import Game
 from love_letter.repository.data import GameData
 

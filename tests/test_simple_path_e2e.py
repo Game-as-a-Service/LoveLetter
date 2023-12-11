@@ -66,8 +66,8 @@ class LoveLetterSimpleCaseEndToEndTests(LoveLetterRepositoryAwareTestCase):
                 "game_id": game_id,
                 "events": [{"type": "round_started", "winner": None}],
                 "players": [
-                    {"name": "player-a", "score": 0},
-                    {"name": "player-b", "score": 0},
+                    {"id": None, "name": "player-a", "score": 0},
+                    {"id": None, "name": "player-b", "score": 0},
                 ],
                 "rounds": [
                     {
@@ -179,8 +179,8 @@ class LoveLetterSimpleCaseEndToEndTests(LoveLetterRepositoryAwareTestCase):
                     {"type": "round_started", "winner": "player-a"},
                 ],
                 "players": [
-                    {"name": "player-a", "score": 1},
-                    {"name": "player-b", "score": 0},
+                    {"id": None, "name": "player-a", "score": 1},
+                    {"id": None, "name": "player-b", "score": 0},
                 ],
                 "rounds": [
                     {

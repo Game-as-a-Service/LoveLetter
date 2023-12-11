@@ -45,11 +45,12 @@ class PlayerData:
                 for x in player.cards
             ],
             score=player.tokens_of_affection,
+            id=player.id,
         )
 
     @staticmethod
     def to_domain(player_dict: Dict) -> "Player":
-        player = Player(player_dict["name"])
+        player = Player(player_dict["name"], player_dict["id"])
         player.am_i_out = player_dict["out"]
         player.cards = [CardData.to_domain(c) for c in player_dict["cards"]]
         player.seen_cards = [SeenData.to_domain(s) for s in player_dict["seen_cards"]]

@@ -333,7 +333,8 @@ class Seen:
 
 
 class Player:
-    def __init__(self, name: str):
+    def __init__(self, name: str, user_id: Union[str] = None):
+        self.id = user_id
         self.name = name
         self.cards: List[Card] = []
         self.am_i_out: bool = False
